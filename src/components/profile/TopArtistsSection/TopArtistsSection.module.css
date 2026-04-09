@@ -1,0 +1,142 @@
+/* ──────────────────────────────────────────────────────────────────────────
+   TopArtistsSection
+   ────────────────────────────────────────────────────────────────────────── */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+
+/* ── Header Mobile ── */
+
+.headerMobile {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-16);
+}
+
+.headerDesktop {
+  display: none;
+}
+
+.headerText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.titleMobile {
+  font-family: var(--font-body);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 36px;
+  letter-spacing: -0.75px;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.subtitle {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.seeAllLink {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  letter-spacing: 1.2px;
+  color: var(--color-accent-text);
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+  /* Alinha verticalmente com a primeira linha do título */
+  padding-top: 8px;
+  flex-shrink: 0;
+}
+
+.seeAllLink:hover,
+.seeAllLink:focus-visible {
+  text-decoration: underline;
+}
+
+/* ── Scroll horizontal Mobile ── */
+
+.scrollContainer {
+  display: flex;
+  gap: var(--space-32);
+  overflow-x: auto;
+  /* Ocultar scrollbar mantendo funcionalidade */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  /* Padding para o shadow dos cards não cortar */
+  padding-bottom: var(--space-8);
+}
+
+.scrollContainer::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Grid Desktop: oculto no mobile ── */
+
+.gridDesktop {
+  display: none;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Desktop
+   ────────────────────────────────────────────────────────────────────────── */
+
+@media (min-width: 768px) {
+  /* Trocar header */
+  .headerMobile {
+    display: none;
+  }
+
+  .headerDesktop {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .titleDesktop {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 36px;
+    letter-spacing: -0.75px;
+    color: var(--color-text-primary);
+    margin: 0;
+  }
+
+  .showAllLink {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 20px;
+    color: var(--color-accent-text);
+    text-decoration: none;
+  }
+
+  .showAllLink:hover,
+  .showAllLink:focus-visible {
+    text-decoration: underline;
+  }
+
+  /* Ocultar scroll mobile, mostrar grid desktop */
+  .scrollContainer {
+    display: none;
+  }
+
+  .gridDesktop {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-24);
+  }
+}

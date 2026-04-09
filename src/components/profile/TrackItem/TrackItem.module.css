@@ -1,0 +1,174 @@
+/* ──────────────────────────────────────────────────────────────────────────
+   TrackItem — row com rank, album art, info, heart, duração
+   Mobile: padding 12px, fonte 16px | Desktop: dentro de card, fonte 14px
+   ────────────────────────────────────────────────────────────────────────── */
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-12);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.15s ease;
+}
+
+.row:hover,
+.row:focus-visible {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* ── Rank ── */
+
+.rank {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-size);  /* 14px */
+  font-weight: 400;
+  line-height: var(--text-mono-lh);
+  color: var(--color-text-secondary);
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* ── Album art ── */
+
+.albumArtWrapper {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.albumArt {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.albumArtFallback {
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-bg-elevated);
+}
+
+.albumOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-overlay-dark);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.playIcon {
+  color: var(--color-text-primary);
+}
+
+.row:hover .albumOverlay,
+.row:focus-visible .albumOverlay {
+  opacity: 1;
+}
+
+/* ── Info ── */
+
+.info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.trackName {
+  font-family: var(--font-body);
+  font-size: var(--text-body-lg-size);  /* 16px */
+  font-weight: 600;
+  line-height: var(--text-body-lg-lh);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Mobile: "artista • album" numa linha */
+.subtitleMobile {
+  font-family: var(--font-body);
+  font-size: var(--text-caption-size);  /* 12px */
+  font-weight: 400;
+  line-height: var(--text-caption-lh);
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Desktop: só artista (oculto no mobile) */
+.subtitleDesktop {
+  display: none;
+  font-family: var(--font-body);
+  font-size: var(--text-caption-size);
+  font-weight: 400;
+  line-height: var(--text-caption-lh);
+  color: var(--color-text-secondary);
+}
+
+/* ── Heart ── */
+
+.heartIcon {
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+  /* tamanho controlado pelo atributo size=20 no mobile */
+}
+
+/* ── Duração ── */
+
+.duration {
+  font-family: var(--font-body);
+  font-size: var(--text-body-size);   /* 14px */
+  font-weight: 400;
+  line-height: var(--text-body-lh);
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Desktop — mais compacto, dentro do card bg #201f1f
+   ────────────────────────────────────────────────────────────────────────── */
+
+@media (min-width: 768px) {
+  .row {
+    padding: var(--space-8) var(--space-12);
+  }
+
+  .trackName {
+    font-size: var(--text-body-size);   /* 14px */
+    line-height: var(--text-body-lh);
+    white-space: normal;                /* pode quebrar em 2 linhas */
+  }
+
+  .subtitleMobile {
+    display: none;
+  }
+
+  .subtitleDesktop {
+    display: block;
+  }
+
+  /* Heart menor no desktop: 15×13.76px */
+  .heartIcon {
+    width: 15px;
+    height: 15px;
+  }
+
+  .duration {
+    font-size: var(--text-caption-size);  /* 12px */
+    line-height: var(--text-caption-lh);
+  }
+}

@@ -1,0 +1,136 @@
+/* ──────────────────────────────────────────────────────────────────────────
+   ArtistCard — Mobile: circular 160px | Desktop: retangular 1/4 do grid
+   ────────────────────────────────────────────────────────────────────────── */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  flex-shrink: 0;
+  width: 160px;
+  gap: var(--space-12);
+}
+
+/* ── Imagem ── */
+
+.imageWrapper {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-card);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.imageFallback {
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-bg-elevated);
+}
+
+/* ── Overlay play (mobile) ── */
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-accent-overlay);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.playIcon {
+  color: var(--color-text-primary);
+}
+
+.card:hover .overlay,
+.card:focus-visible .overlay {
+  opacity: 1;
+}
+
+/* ── Textos ── */
+
+.name {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+  letter-spacing: -0.4px;
+  color: var(--color-text-primary);
+  text-align: center;
+  margin: 0;
+  /* Truncar nomes longos */
+  max-width: 160px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Mobile: "Artist" label fixo */
+.label {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin: 0;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Desktop: imagem retangular, layout coluna sem centralização
+   ────────────────────────────────────────────────────────────────────────── */
+
+@media (min-width: 768px) {
+  .card {
+    width: 100%;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  .imageWrapper {
+    width: 100%;
+    /* Quadrado responsivo */
+    aspect-ratio: 1 / 1;
+    height: auto;
+    border-radius: 0;
+    background-color: var(--color-bg-tertiary);
+  }
+
+  .image {
+    opacity: 0.9;
+  }
+
+  /* Overlay desativado no desktop */
+  .overlay {
+    display: none;
+  }
+
+  .name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-align: left;
+    margin-top: var(--space-16);
+    max-width: 100%;
+  }
+
+  .label {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 400;
+    text-align: left;
+    margin-top: var(--space-4);
+    color: var(--color-text-secondary);
+  }
+}
