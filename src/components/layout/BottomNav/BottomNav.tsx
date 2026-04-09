@@ -5,7 +5,7 @@ import styles from './BottomNav.module.css';
 const navItems = [
   { icon: Home, label: 'Home', to: '/' },
   { icon: Search, label: 'Search', to: '/search' },
-  { icon: Library, label: 'Library', to: '/library' },
+  { icon: Library, label: 'Library', to: '/playlists' },
   { icon: User, label: 'Profile', to: '/profile' },
 ];
 

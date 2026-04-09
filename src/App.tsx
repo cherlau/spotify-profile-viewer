@@ -3,6 +3,7 @@ import { useSpotifyAuth } from './hooks/useSpotifyAuth';
 import { LoginPage } from './pages/LoginPage';
 import { CallbackPage } from './pages/CallbackPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { PlaylistsPage } from './pages/PlaylistsPage';
 import { AppLayout } from './components/layout/AppLayout';
 import type { ReactNode } from 'react';
 
@@ -43,6 +44,17 @@ export default function App() {
           <ProtectedRoute>
             <AppShell>
               <ProfilePage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/playlists"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <PlaylistsPage />
             </AppShell>
           </ProtectedRoute>
         }
