@@ -1,0 +1,133 @@
+/* Design Tokens — Spotify Profile App
+ * Source: specs/design-tokens.md
+ * Rule: Every component MUST use only these tokens. No hardcoded values.
+ */
+
+:root {
+  /* ─── Backgrounds ─────────────────────────────────────────────── */
+  --color-bg-primary: #131313;       /* Page background, sidebar */
+  --color-bg-secondary: #201f1f;     /* Cards (Top Tracks, Premium box, stats) */
+  --color-bg-tertiary: #2a2a2a;      /* Artist cards desktop, genre card */
+  --color-bg-elevated: #353534;      /* Image placeholders, avatar fallback, search bg */
+  --color-bg-input: #0e0e0e;         /* Search bar background (desktop header) */
+
+  /* ─── Accent — Spotify green ──────────────────────────────────── */
+  --color-accent: #1ed760;                        /* Primary buttons, bottom nav active */
+  --color-accent-text: #4cf479;                   /* Links, "See All", logo sidebar, verified badge */
+  --color-accent-dark: #003913;                   /* Text on green button (high contrast) */
+  --color-accent-overlay: rgba(76, 244, 121, 0.2); /* Hover overlay on artist cards, stat icon bg */
+  --color-accent-glow: rgba(30, 215, 96, 0.3);    /* Box-shadow "Edit Profile" button */
+  --color-accent-glow-strong: rgba(30, 215, 96, 0.5); /* Box-shadow active nav item (mobile) */
+  --color-accent-gradient-start: rgba(76, 244, 121, 0.1); /* Hero section gradient (desktop) */
+  --color-accent-gradient-border: linear-gradient(45deg, #4cf479, #34e36a); /* Avatar border (mobile) */
+
+  /* ─── Text ────────────────────────────────────────────────────── */
+  --color-text-primary: #e5e2e1;     /* Names, titles, headings, numeric values */
+  --color-text-secondary: #b8b8b8;   /* Subtitles, labels, genres, timestamps */
+
+  /* ─── Borders & surfaces ──────────────────────────────────────── */
+  --color-border: #3c4a3c;                       /* "More options" button border */
+  --color-border-subtle: rgba(60, 74, 60, 0.2);  /* Vertical divider desktop header */
+  --color-surface-glass: rgba(53, 53, 52, 0.8);  /* Player bar + bottom nav glassmorphic */
+  --color-surface-header: rgba(19, 19, 19, 0.7); /* Fixed header with blur */
+  --color-overlay-dark: rgba(0, 0, 0, 0.4);      /* Overlay on album art hover */
+
+  /* ─── Typography — Font families ─────────────────────────────── */
+  --font-display: "Plus Jakarta Sans", sans-serif; /* Desktop headings, hero name, sidebar logo */
+  --font-body: "Inter", sans-serif;                /* General text, labels, subtitles, track names, buttons */
+  --font-mono: "Liberation Mono", monospace;       /* Track numbers (01, 02), timestamps (3:42) */
+
+  /* ─── Typography — Scale ──────────────────────────────────────── */
+  /* --text-hero: 112px / 800 / lh 100.8px / ls -4.48px / Plus Jakarta Sans — Profile name desktop hero */
+  --text-hero-size: 112px;
+  --text-hero-weight: 800;
+  --text-hero-lh: 100.8px;
+  --text-hero-ls: -4.48px;
+
+  /* --text-display: 48px / 600 / lh 48px / ls -2.4px / Inter — Profile name mobile */
+  --text-display-size: 48px;
+  --text-display-weight: 600;
+  --text-display-lh: 48px;
+  --text-display-ls: -2.4px;
+
+  /* --text-heading-lg: 30px / 700-600 / lh 36px / ls -0.75px — Section titles */
+  --text-heading-lg-size: 30px;
+  --text-heading-lg-lh: 36px;
+  --text-heading-lg-ls: -0.75px;
+
+  /* --text-heading-md: 24px / 700-600 / lh 32px — Follower counts, sidebar logo */
+  --text-heading-md-size: 24px;
+  --text-heading-md-lh: 32px;
+
+  /* --text-heading-sm: 18px / 600 / lh 28px / ls -0.9px / Inter — Logo header mobile */
+  --text-heading-sm-size: 18px;
+  --text-heading-sm-weight: 600;
+  --text-heading-sm-lh: 28px;
+  --text-heading-sm-ls: -0.9px;
+
+  /* --text-body-lg: 16px / 600-700 / lh 24px / ls -0.4px — Artist/track names, sidebar nav */
+  --text-body-lg-size: 16px;
+  --text-body-lg-lh: 24px;
+  --text-body-lg-ls: -0.4px;
+
+  /* --text-body: 14px / 400-600 / lh 20px — Descriptions, genres, links */
+  --text-body-size: 14px;
+  --text-body-lh: 20px;
+
+  /* --text-caption: 12px / 400-600 / lh 16px / ls 1.2px uppercase — "SEE ALL", "FOLLOWERS" */
+  --text-caption-size: 12px;
+  --text-caption-lh: 16px;
+  --text-caption-ls: 1.2px;
+
+  /* --text-label: 10px / 600 / lh 15px / ls 3-3.6px uppercase — "CURATOR PROFILE", "VERIFIED CURATOR" */
+  --text-label-size: 10px;
+  --text-label-weight: 600;
+  --text-label-lh: 15px;
+  --text-label-ls: 3px;
+
+  /* --text-mono: 14px / 400 / lh 20px / Liberation Mono — Track number (01, 02) */
+  --text-mono-size: 14px;
+  --text-mono-lh: 20px;
+
+  /* --text-mono-sm: 10px / 400 / lh 15px / Liberation Mono — Player timestamps */
+  --text-mono-sm-size: 10px;
+  --text-mono-sm-lh: 15px;
+
+  /* ─── Spacing ──────────────────────────────────────────────────── */
+  --space-4: 4px;    /* Min gap between track items, micro gaps */
+  --space-8: 8px;    /* Internal grid gap, min padding */
+  --space-12: 12px;  /* Track row padding, header avatar-name gap */
+  --space-16: 16px;  /* Artist image-name gap, sidebar item padding, player controls gap */
+  --space-24: 24px;  /* Mobile horizontal padding, desktop artist grid gap, card padding */
+  --space-32: 32px;  /* Gap between sub-sections, desktop card padding, stats gap */
+  --space-40: 40px;  /* Avatar-info gap in desktop hero */
+  --space-48: 48px;  /* Gap between main sections, desktop horizontal padding */
+  --space-96: 96px;  /* Content padding-top (fixed header offset) */
+
+  /* ─── Border radius ───────────────────────────────────────────── */
+  --radius-sm: 16px;      /* Album art thumbnails */
+  --radius-md: 32px;      /* Larger cards (track list desktop, stat cards, mobile bottom nav) */
+  --radius-full: 9999px;  /* Avatars, buttons, search bar, artist images mobile, player bar, pills */
+
+  /* ─── Shadows & effects ───────────────────────────────────────── */
+  --shadow-card: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); /* Artist card images mobile */
+  --shadow-player: 0 -4px 40px 0 rgba(0, 0, 0, 0.4);       /* Player bar + bottom nav */
+  --shadow-glow-green: 0 0 20px 0 rgba(30, 215, 96, 0.3);   /* "Edit Profile" button */
+  --shadow-glow-nav: 0 0 15px 0 rgba(30, 215, 96, 0.5);     /* Active nav item mobile */
+  --shadow-avatar-desktop: 0 0 0 4px #131313, 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* Desktop hero avatar */
+  --shadow-avatar-ring: 0 0 0 2px #4cf479;                  /* Mini avatar header desktop */
+
+  --blur-glass: blur(6px);         /* Player bar mobile, bottom nav mobile */
+  --blur-glass-strong: blur(10px); /* Footer player desktop */
+  --blur-header: blur(12px);       /* Fixed header (mobile + desktop) */
+
+  /* ─── Layout ──────────────────────────────────────────────────── */
+  --sidebar-width: 256px;
+  --header-height: 64px;
+  --player-height-mobile: 64px;
+  --bottom-nav-height: 84px;
+  --player-height-desktop: 96px;
+  --content-padding-x-mobile: var(--space-24);
+  --content-padding-x-desktop: var(--space-48);
+  --content-padding-top: var(--space-96);
+}
