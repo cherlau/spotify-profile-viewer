@@ -1,4 +1,4 @@
-import { createContext, useCallback, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { login as spotifyLogin, logout as spotifyLogout, refreshAccessToken } from './spotify-auth';
 import { tokenStore } from './token-store';
 
@@ -24,8 +24,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     token: null,
   });
 
+  // Previne dupla execução do StrictMode em dev (que causaria dois refreshes
+  // simultâneos — o Spotify rotaciona o refresh token, então a segunda chamada
+  // usaria um token já expirado e limparia tudo, deslogando o usuário)
+  const refreshStarted = useRef(false);
+
   // On mount: if there's a refresh_token, attempt a silent refresh
   useEffect(() => {
+    if (refreshStarted.current) return;
+    refreshStarted.current = true;
+
     const hasRefreshToken = Boolean(tokenStore.getRefreshToken());
 
     if (!hasRefreshToken) {
