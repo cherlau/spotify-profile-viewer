@@ -2,11 +2,13 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { useSpotifyAuth } from './hooks/useSpotifyAuth';
 import { LoginPage } from './pages/LoginPage';
 import { CallbackPage } from './pages/CallbackPage';
+import { ProfilePage } from './pages/ProfilePage';
+import { AppLayout } from './components/layout/AppLayout';
 import type { ReactNode } from 'react';
 
 /**
- * Redirects unauthenticated users to /login.
- * Shows nothing while the initial silent-refresh is in flight.
+ * Redireciona usuários não autenticados para /login.
+ * Aguarda o silent-refresh inicial antes de decidir.
  */
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading } = useSpotifyAuth();
@@ -16,21 +18,32 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
+/**
+ * Layout shell envolvendo todas as rotas protegidas.
+ * Expõe Sidebar (desktop), Header, PlayerBar e BottomNav (mobile).
+ */
+function AppShell({ children }: { children: ReactNode }) {
+  return (
+    <AppLayout>
+      {children}
+    </AppLayout>
+  );
+}
+
 export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/callback" element={<CallbackPage />} />
 
-      {/* Protected area — ProfilePage and other pages will be added here */}
+      {/* Área protegida — todas as páginas abaixo usam o AppLayout */}
       <Route
         path="/"
         element={
           <ProtectedRoute>
-            {/* Placeholder until ProfilePage is implemented */}
-            <div style={{ color: 'var(--color-text-primary)', padding: 'var(--space-48)' }}>
-              Dashboard — authenticated ✓
-            </div>
+            <AppShell>
+              <ProfilePage />
+            </AppShell>
           </ProtectedRoute>
         }
       />

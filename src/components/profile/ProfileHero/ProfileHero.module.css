@@ -1,0 +1,285 @@
+/* ══════════════════════════════════════════════════════════════════
+   MOBILE HERO (< 768px)
+   ══════════════════════════════════════════════════════════════════ */
+
+.mobileHero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-48) var(--space-24) var(--space-32);
+  gap: var(--space-24);
+}
+
+/* Avatar com borda gradient ─────────────────────────── */
+.avatarRing {
+  /* Fundo do ring usa o gradient como background + border-image hack via padding */
+  background: linear-gradient(45deg, #4cf479, #34e36a);
+  border-radius: var(--radius-full);
+  padding: 4px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.avatarInner {
+  background-color: var(--color-bg-primary);
+  border-radius: var(--radius-full);
+  padding: 4px;
+  position: relative;
+  display: block;
+}
+
+.avatarImg {
+  width: 192px;
+  height: 192px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  display: block;
+}
+
+.avatarPlaceholder {
+  width: 192px;
+  height: 192px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-bg-elevated);
+}
+
+/* Badge de verificado — canto inferior direito */
+.verifiedBadge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-accent-text);
+}
+
+/* Info abaixo do avatar */
+.mobileInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-12);
+  text-align: center;
+}
+
+.curatorLabel {
+  font-family: var(--font-body);
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  line-height: var(--text-label-lh);
+  letter-spacing: var(--text-label-ls);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.mobileName {
+  font-family: var(--font-body);
+  font-size: var(--text-display-size);
+  font-weight: var(--text-display-weight);
+  line-height: var(--text-display-lh);
+  letter-spacing: var(--text-display-ls);
+  color: var(--color-text-primary);
+  text-align: center;
+  /* Hifenização para nomes longos no mobile */
+  word-break: break-word;
+}
+
+/* Botões de ação */
+.actionRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  margin-top: var(--space-8);
+}
+
+.followBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-12) var(--space-32);
+  background-color: var(--color-accent);
+  color: var(--color-accent-dark);
+  font-family: var(--font-body);
+  font-size: var(--text-body-size);
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  box-shadow: var(--shadow-glow-green);
+  transition: opacity 0.15s, transform 0.1s;
+  cursor: pointer;
+}
+
+.followBtn:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+.moreBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.moreBtn:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-text-secondary);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   DESKTOP HERO (≥ 768px)
+   ══════════════════════════════════════════════════════════════════ */
+
+.desktopHero {
+  position: relative;
+  width: 100%;
+  /* Banner 432px — o gradient ocupa essa altura */
+  min-height: 432px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+/* Banner de gradient sobre o fundo */
+.gradientBanner {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--color-accent-gradient-start) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* Conteúdo sobre o banner */
+.desktopContent {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-40);
+  padding: 0 var(--space-48) var(--space-48);
+  width: 100%;
+}
+
+/* Avatar desktop ────────────────────────────────────── */
+.desktopAvatarWrapper {
+  flex-shrink: 0;
+}
+
+.desktopAvatarImg {
+  width: 256px;
+  height: 256px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  display: block;
+  box-shadow: var(--shadow-avatar-desktop);
+}
+
+.desktopAvatarPlaceholder {
+  width: 256px;
+  height: 256px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-bg-elevated);
+  box-shadow: var(--shadow-avatar-desktop);
+}
+
+/* Info à direita do avatar */
+.desktopInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  padding-bottom: var(--space-8);
+  min-width: 0;
+}
+
+.verifiedLabelDesktop {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-family: var(--font-display);
+  font-size: var(--text-caption-size);
+  font-weight: 600;
+  line-height: var(--text-caption-lh);
+  letter-spacing: 3.6px;
+  text-transform: uppercase;
+  color: var(--color-accent-text);
+}
+
+.verifiedIcon {
+  flex-shrink: 0;
+}
+
+.desktopName {
+  font-family: var(--font-display);
+  font-size: var(--text-hero-size);
+  font-weight: var(--text-hero-weight);
+  line-height: var(--text-hero-lh);
+  letter-spacing: var(--text-hero-ls);
+  color: var(--color-text-primary);
+  /* Evita que o nome gigante quebre o layout em nomes muito longos */
+  word-break: break-word;
+  /* Clamp para viewports menores que 1280px mas ainda desktop */
+  font-size: clamp(48px, 8.75vw, var(--text-hero-size));
+}
+
+/* Botões de ação desktop */
+.desktopActionRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  margin-top: var(--space-8);
+}
+
+.followBtnDesktop {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-12) var(--space-32);
+  background-color: var(--color-accent-text);
+  color: var(--color-accent-dark);
+  font-family: var(--font-body);
+  font-size: var(--text-body-size);
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  transition: opacity 0.15s, transform 0.1s;
+  cursor: pointer;
+}
+
+.followBtnDesktop:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+.moreBtnDesktop {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.moreBtnDesktop:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-text-secondary);
+}

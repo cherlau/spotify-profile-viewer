@@ -1,0 +1,56 @@
+.bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--bottom-nav-height);
+  background-color: var(--color-surface-glass);
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  box-shadow: var(--shadow-player);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 var(--space-24);
+  z-index: 250;
+}
+
+/* Cada item de navegação */
+.navItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  flex: 1;
+  padding: var(--space-8);
+}
+
+/* Wrapper do ícone — recebe o bg verde quando ativo */
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+  transition: color 0.15s, background-color 0.15s, box-shadow 0.15s;
+}
+
+.iconWrapper:hover {
+  color: var(--color-text-primary);
+  background-color: rgba(255, 255, 255, 0.07);
+}
+
+/* Estado ativo: fundo verde + glow */
+.iconWrapperActive {
+  background-color: var(--color-accent);
+  color: var(--color-accent-dark);
+  box-shadow: var(--shadow-glow-nav);
+}
+
+.iconWrapperActive:hover {
+  background-color: var(--color-accent);
+  color: var(--color-accent-dark);
+}

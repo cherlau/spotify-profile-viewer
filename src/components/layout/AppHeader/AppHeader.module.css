@@ -1,0 +1,175 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  background-color: var(--color-surface-header);
+  backdrop-filter: var(--blur-header);
+  -webkit-backdrop-filter: var(--blur-header);
+  z-index: 200;
+}
+
+.inner {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-24);
+  gap: var(--space-16);
+}
+
+/* ── Desktop ─────────────────────────── */
+@media (min-width: 768px) {
+  .inner {
+    padding: 0 var(--space-48);
+    /* Sidebar ocupa 256px à esquerda; header começa depois */
+    padding-left: calc(var(--sidebar-width) + var(--space-48));
+    gap: var(--space-24);
+  }
+}
+
+/* Search bar */
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  background-color: var(--color-bg-input);
+  border-radius: var(--radius-full);
+  padding: var(--space-8) var(--space-16);
+  flex: 1;
+  max-width: 320px;
+}
+
+.searchIcon {
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.searchInput {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-body-size);
+  font-weight: 400;
+  width: 100%;
+}
+
+.searchInput::placeholder {
+  color: var(--color-text-secondary);
+}
+
+/* Nav links desktop */
+.desktopNav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-32);
+  margin-left: auto;
+}
+
+.desktopNavLink {
+  font-family: var(--font-display);
+  font-size: var(--text-body-size);
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+
+.desktopNavLink:hover {
+  color: var(--color-text-primary);
+}
+
+.desktopNavLinkActive {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+/* Ações + avatar desktop */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  flex-shrink: 0;
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background-color: var(--color-border-subtle);
+}
+
+.avatarWrapper {
+  cursor: pointer;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  box-shadow: var(--shadow-avatar-ring);
+  display: block;
+}
+
+.avatarPlaceholder {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-bg-elevated);
+  box-shadow: var(--shadow-avatar-ring);
+}
+
+/* Botões de ícone */
+.iconButton {
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.iconButton:hover {
+  color: var(--color-text-primary);
+  background-color: rgba(255, 255, 255, 0.07);
+}
+
+/* ── Mobile ──────────────────────────── */
+.mobileLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  flex: 1;
+}
+
+.avatarMobile {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  display: block;
+}
+
+.avatarMobilePlaceholder {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-bg-elevated);
+  flex-shrink: 0;
+}
+
+.mobileLogo {
+  font-family: var(--font-body);
+  font-size: var(--text-heading-sm-size);
+  font-weight: var(--text-heading-sm-weight);
+  line-height: var(--text-heading-sm-lh);
+  letter-spacing: var(--text-heading-sm-ls);
+  color: var(--color-accent-text);
+}
