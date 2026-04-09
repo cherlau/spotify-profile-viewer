@@ -2,10 +2,9 @@ import { useState, useCallback } from 'react';
 import { Play, Heart, MoreHorizontal, Music } from 'lucide-react';
 import { useSpotifyQuery } from '../hooks/useSpotifyQuery';
 import { getRecentlyPlayed } from '../api/recentlyPlayed';
-import { getPlaylists } from '../api/playlists';
 import { LoadingState } from '../components/shared/LoadingState';
 import { ErrorState } from '../components/shared/ErrorState';
-import type { SpotifyTrack, SpotifyPlaylistSimplified } from '../types/spotify';
+import type { SpotifyTrack } from '../types/spotify';
 import styles from './LibraryPage.module.css';
 
 type Tab = 'music' | 'albums' | 'artists' | 'podcasts';
@@ -90,60 +89,11 @@ function TrackRow({ track }: TrackRowProps) {
   );
 }
 
-interface BentoPlaylistCardProps {
-  playlist: SpotifyPlaylistSimplified;
-  featured?: boolean;
-}
-
-function BentoPlaylistCard({ playlist, featured = false }: BentoPlaylistCardProps) {
-  const imageUrl = playlist.images?.[0]?.url ?? null;
-
-  return (
-    <div className={`${styles.bentoCard} ${featured ? styles.bentoCardFeatured : ''}`}>
-      <div className={styles.bentoImageWrapper}>
-        {imageUrl ? (
-          <img src={imageUrl} alt={playlist.name} className={styles.bentoImage} />
-        ) : (
-          <div className={styles.bentoImagePlaceholder} />
-        )}
-        <div className={styles.bentoOverlay}>
-          <span className={styles.bentoLabel}>Frequently Visited</span>
-          <span className={styles.bentoTitle}>{playlist.name}</span>
-          {playlist.items?.total != null && (
-            <span className={styles.bentoCount}>{playlist.items.total} songs</span>
-          )}
-        </div>
-        <button className={styles.bentoPlayBtn} aria-label={`Play ${playlist.name}`}>
-          <Play size={20} fill="currentColor" />
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function LikedSongsCard() {
-  return (
-    <div className={`${styles.bentoCard} ${styles.bentoCardLiked}`}>
-      <div className={styles.bentoImageWrapper}>
-        <div className={styles.likedGradient} />
-        <div className={styles.bentoOverlay}>
-          <span className={styles.bentoLabel}>Your Collection</span>
-          <span className={styles.bentoTitle}>Liked Songs</span>
-          <span className={styles.bentoCount}>All your favorites</span>
-        </div>
-        <button className={styles.bentoPlayBtn} aria-label="Play Liked Songs">
-          <Play size={20} fill="currentColor" />
-        </button>
-      </div>
-    </div>
-  );
-}
 
 export function LibraryPage() {
   const [activeTab, setActiveTab] = useState<Tab>('music');
 
   const recentFetcher = useCallback(() => getRecentlyPlayed({ limit: 50 }), []);
-  const playlistsFetcher = useCallback(() => getPlaylists({ limit: 50 }), []);
 
   const {
     data: recentData,
@@ -151,8 +101,6 @@ export function LibraryPage() {
     error: recentError,
     refetch,
   } = useSpotifyQuery(recentFetcher);
-
-  const { data: playlistsData } = useSpotifyQuery(playlistsFetcher);
 
   if (recentLoading) {
     return <LoadingState message="Loading your library…" />;
@@ -164,14 +112,6 @@ export function LibraryPage() {
 
   const rawTracks = (recentData?.items ?? []).map(item => item.track);
   const tracks = deduplicateTracks(rawTracks);
-
-  const allPlaylists = playlistsData?.items ?? [];
-  const likedSongsPlaylist = allPlaylists.find(
-    pl => pl.name.toLowerCase() === 'liked songs',
-  );
-  const featuredPlaylist = allPlaylists.find(
-    pl => pl.id !== likedSongsPlaylist?.id,
-  );
 
   return (
     <div className={styles.page}>
@@ -232,36 +172,6 @@ export function LibraryPage() {
         </section>
       )}
 
-      {/* Seção Frequently Visited */}
-      <section className={styles.frequentSection}>
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>Frequently Visited</h2>
-        </div>
-
-        <div className={styles.bentoGrid}>
-          {featuredPlaylist ? (
-            <BentoPlaylistCard playlist={featuredPlaylist} featured />
-          ) : (
-            /* Fallback visual se não houver playlist */
-            <div className={`${styles.bentoCard} ${styles.bentoCardFeatured}`}>
-              <div className={styles.bentoImageWrapper}>
-                <div className={styles.bentoImagePlaceholder} />
-                <div className={styles.bentoOverlay}>
-                  <span className={styles.bentoLabel}>Frequently Visited</span>
-                  <span className={styles.bentoTitle}>Late Night Focus</span>
-                  <span className={styles.bentoCount}>Deep work sessions</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {likedSongsPlaylist ? (
-            <BentoPlaylistCard playlist={likedSongsPlaylist} />
-          ) : (
-            <LikedSongsCard />
-          )}
-        </div>
-      </section>
     </div>
   );
 }

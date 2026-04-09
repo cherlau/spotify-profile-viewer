@@ -1,8 +1,7 @@
 import { useState, useCallback } from 'react';
-import { Play, Heart, ExternalLink } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { useSpotifyQuery } from '../hooks/useSpotifyQuery';
 import { getPlaylists } from '../api/playlists';
-import { getRecentlyPlayed } from '../api/recentlyPlayed';
 import { getProfile } from '../api/profile';
 import { LoadingState } from '../components/shared/LoadingState';
 import { ErrorState } from '../components/shared/ErrorState';
@@ -17,17 +16,10 @@ const FILTERS: { key: Filter; label: string }[] = [
   { key: 'liked', label: 'Liked' },
 ];
 
-function formatDuration(ms: number): string {
-  const minutes = Math.floor(ms / 60000);
-  const seconds = Math.floor((ms % 60000) / 1000);
-  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-}
-
 export function PlaylistsPage() {
   const [activeFilter, setActiveFilter] = useState<Filter>('all');
 
   const playlistsFetcher = useCallback(() => getPlaylists({ limit: 50 }), []);
-  const recentFetcher = useCallback(() => getRecentlyPlayed({ limit: 10 }), []);
   const profileFetcher = useCallback(() => getProfile(), []);
 
   const {
@@ -36,7 +28,6 @@ export function PlaylistsPage() {
     error: playlistsError,
     refetch,
   } = useSpotifyQuery(playlistsFetcher);
-  const { data: recentData } = useSpotifyQuery(recentFetcher);
   const { data: profile } = useSpotifyQuery(profileFetcher);
 
   if (playlistsLoading) {
@@ -48,7 +39,6 @@ export function PlaylistsPage() {
   }
 
   const allPlaylists = playlistsData?.items ?? [];
-  const recentTracks = recentData?.items ?? [];
 
   const filteredPlaylists = allPlaylists.filter(pl => {
     if (activeFilter === 'by_you') return pl.owner.id === profile?.id;
@@ -63,10 +53,10 @@ export function PlaylistsPage() {
       {/* Cabeçalho da página */}
       <header className={styles.header}>
         <div className={styles.headerTop}>
-          <span className={styles.headerLabel}>Your Collection</span>
+          <span className={styles.headerLabel}>Your Music</span>
         </div>
         <div className={styles.headerBottom}>
-          <h1 className={styles.headerTitle}>Library.</h1>
+          <h1 className={styles.headerTitle}>Playlists.</h1>
           <button className={styles.createButton}>Create Playlist</button>
         </div>
       </header>
@@ -152,65 +142,6 @@ export function PlaylistsPage() {
         )}
       </section>
 
-      {/* Seção Recently Played */}
-      {recentTracks.length > 0 && (
-        <section className={styles.recentSection}>
-          <h2 className={styles.sectionTitle}>Recently Played</h2>
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th className={styles.thTrack}>Track</th>
-                  <th className={styles.thActions}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentTracks.map((item, i) => (
-                  <tr key={`${item.track.id}-${i}`} className={styles.tableRow}>
-                    <td className={styles.tdTrack}>
-                      <div className={styles.trackInfo}>
-                        {item.track.album.images?.[0] ? (
-                          <img
-                            src={item.track.album.images[0].url}
-                            alt={item.track.album.name}
-                            className={styles.trackArt}
-                          />
-                        ) : (
-                          <div className={styles.trackArtPlaceholder} />
-                        )}
-                        <div className={styles.trackMeta}>
-                          <span className={styles.trackName}>{item.track.name}</span>
-                          <span className={styles.trackArtist}>
-                            {item.track.artists.map(a => a.name).join(', ')}
-                            {' · '}
-                            {formatDuration(item.track.duration_ms)}
-                          </span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className={styles.tdActions}>
-                      <div className={styles.actions}>
-                        <button className={styles.actionBtn} aria-label="Like">
-                          <Heart size={16} />
-                        </button>
-                        <a
-                          href={item.track.external_urls.spotify}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={styles.actionBtn}
-                          aria-label="Open in Spotify"
-                        >
-                          <ExternalLink size={16} />
-                        </a>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
     </div>
   );
 }
