@@ -4,6 +4,7 @@ import { LoginPage } from './pages/LoginPage';
 import { CallbackPage } from './pages/CallbackPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { PlaylistsPage } from './pages/PlaylistsPage';
+import { LibraryPage } from './pages/LibraryPage';
 import { AppLayout } from './components/layout/AppLayout';
 import type { ReactNode } from 'react';
 
@@ -55,6 +56,17 @@ export default function App() {
           <ProtectedRoute>
             <AppShell>
               <PlaylistsPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/library"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <LibraryPage />
             </AppShell>
           </ProtectedRoute>
         }
