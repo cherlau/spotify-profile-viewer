@@ -89,53 +89,12 @@
   word-break: break-word;
 }
 
-/* Botões de ação */
-.actionRow {
+/* Stats row — mobile */
+.statsRow {
   display: flex;
-  align-items: center;
-  gap: var(--space-12);
+  justify-content: space-around;
+  width: 100%;
   margin-top: var(--space-8);
-}
-
-.followBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-12) var(--space-32);
-  background-color: var(--color-accent);
-  color: var(--color-accent-dark);
-  font-family: var(--font-body);
-  font-size: var(--text-body-size);
-  font-weight: 600;
-  border-radius: var(--radius-full);
-  text-decoration: none;
-  box-shadow: var(--shadow-glow-green);
-  transition: opacity 0.15s, transform 0.1s;
-  cursor: pointer;
-}
-
-.followBtn:hover {
-  opacity: 0.9;
-  transform: scale(1.02);
-}
-
-.moreBtn {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-full);
-  background: transparent;
-  border: 1px solid var(--color-border);
-  color: var(--color-text-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
-}
-
-.moreBtn:hover {
-  color: var(--color-text-primary);
-  border-color: var(--color-text-secondary);
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -146,7 +105,7 @@
   position: relative;
   width: 100%;
   /* Banner 432px — o gradient ocupa essa altura */
-  min-height: 432px;
+  min-height: 360px;
   display: flex;
   align-items: flex-end;
   overflow: hidden;
@@ -236,50 +195,39 @@
   font-size: clamp(48px, 8.75vw, var(--text-hero-size));
 }
 
-/* Botões de ação desktop */
-.desktopActionRow {
+/* Stats row — desktop */
+.statsRowDesktop {
   display: flex;
-  align-items: center;
-  gap: var(--space-16);
+  gap: var(--space-40);
   margin-top: var(--space-8);
 }
 
-.followBtnDesktop {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-12) var(--space-32);
-  background-color: var(--color-accent-text);
-  color: var(--color-accent-dark);
-  font-family: var(--font-body);
-  font-size: var(--text-body-size);
-  font-weight: 600;
-  border-radius: var(--radius-full);
-  text-decoration: none;
-  transition: opacity 0.15s, transform 0.1s;
-  cursor: pointer;
-}
+/* ══════════════════════════════════════════════════════════════════
+   STAT ITEM — compartilhado entre mobile e desktop
+   ══════════════════════════════════════════════════════════════════ */
 
-.followBtnDesktop:hover {
-  opacity: 0.9;
-  transform: scale(1.02);
-}
-
-.moreBtnDesktop {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-full);
-  background: transparent;
-  border: 1px solid var(--color-border);
-  color: var(--color-text-secondary);
+.statItem {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
+  gap: 4px;
 }
 
-.moreBtnDesktop:hover {
-  color: var(--color-text-primary);
-  border-color: var(--color-text-secondary);
+.statNumber {
+  font-family: var(--font-body);
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1;
+  color: #1DB954;
+  margin-bottom: 5px;
+}
+
+.statLabel {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #a7a7a7;
 }

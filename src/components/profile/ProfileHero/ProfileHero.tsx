@@ -1,34 +1,40 @@
-import { MoreHorizontal, BadgeCheck } from 'lucide-react';
+import { BadgeCheck } from 'lucide-react';
 import { useIsDesktop } from '../../../hooks/useMediaQuery';
 import styles from './ProfileHero.module.css';
 
 export interface ProfileHeroProps {
   displayName: string;
   avatarUrl: string | null;
-  spotifyUrl: string;
+  followers: number;
+  following: number;
+  playlists: number;
 }
 
-export function ProfileHero({ displayName, avatarUrl, spotifyUrl }: ProfileHeroProps) {
+export function ProfileHero({ displayName, avatarUrl, followers, following, playlists }: ProfileHeroProps) {
   const isDesktop = useIsDesktop();
 
   return isDesktop ? (
     <DesktopHero
       displayName={displayName}
       avatarUrl={avatarUrl}
-      spotifyUrl={spotifyUrl}
+      followers={followers}
+      following={following}
+      playlists={playlists}
     />
   ) : (
     <MobileHero
       displayName={displayName}
       avatarUrl={avatarUrl}
-      spotifyUrl={spotifyUrl}
+      followers={followers}
+      following={following}
+      playlists={playlists}
     />
   );
 }
 
 /* ── Mobile ─────────────────────────────────────────────────────────────────── */
 
-function MobileHero({ displayName, avatarUrl, spotifyUrl }: ProfileHeroProps) {
+function MobileHero({ displayName, avatarUrl, followers, following, playlists }: ProfileHeroProps) {
   return (
     <section className={styles.mobileHero}>
       {/* Avatar com borda gradient */}
@@ -51,21 +57,20 @@ function MobileHero({ displayName, avatarUrl, spotifyUrl }: ProfileHeroProps) {
         <p className={styles.curatorLabel}>Verified Curator</p>
         <h1 className={styles.mobileName}>{displayName}</h1>
 
-        {/* Stats — followers/following removidos da API em Fev/2026; seção oculta */}
-
-        {/* Botões de ação */}
-        <div className={styles.actionRow}>
-          <a
-            href={spotifyUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.followBtn}
-          >
-            Follow
-          </a>
-          <button className={styles.moreBtn} aria-label="More options">
-            <MoreHorizontal size={18} />
-          </button>
+        {/* Stats row */}
+        <div className={styles.statsRow}>
+          <div className={styles.statItem}>
+            <span className={styles.statNumber}>{followers.toLocaleString()}</span>
+            <span className={styles.statLabel}>Followers</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statNumber}>{following.toLocaleString()}</span>
+            <span className={styles.statLabel}>Following</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statNumber}>{playlists.toLocaleString()}</span>
+            <span className={styles.statLabel}>Playlists</span>
+          </div>
         </div>
       </div>
     </section>
@@ -74,7 +79,7 @@ function MobileHero({ displayName, avatarUrl, spotifyUrl }: ProfileHeroProps) {
 
 /* ── Desktop ─────────────────────────────────────────────────────────────────── */
 
-function DesktopHero({ displayName, avatarUrl, spotifyUrl }: ProfileHeroProps) {
+function DesktopHero({ displayName, avatarUrl, followers, following, playlists }: ProfileHeroProps) {
   return (
     <section className={styles.desktopHero}>
       {/* Gradient banner de fundo */}
@@ -99,20 +104,20 @@ function DesktopHero({ displayName, avatarUrl, spotifyUrl }: ProfileHeroProps) {
           </p>
           <h1 className={styles.desktopName}>{displayName}</h1>
 
-          {/* Stats — followers/following não disponíveis (removidos API Fev/2026) */}
-
-          <div className={styles.desktopActionRow}>
-            <a
-              href={spotifyUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.followBtnDesktop}
-            >
-              Follow
-            </a>
-            <button className={styles.moreBtnDesktop} aria-label="More options">
-              <MoreHorizontal size={18} />
-            </button>
+          {/* Stats row */}
+          <div className={styles.statsRowDesktop}>
+            <div className={styles.statItem}>
+              <span className={styles.statNumber}>{followers.toLocaleString()}</span>
+              <span className={styles.statLabel}>Followers</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statNumber}>{following.toLocaleString()}</span>
+              <span className={styles.statLabel}>Following</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statNumber}>{playlists.toLocaleString()}</span>
+              <span className={styles.statLabel}>Playlists</span>
+            </div>
           </div>
         </div>
       </div>
