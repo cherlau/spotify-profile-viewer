@@ -1,8 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { Play } from 'lucide-react';
-import { useSpotifyQuery } from '../hooks/useSpotifyQuery';
-import { getPlaylists } from '../api/playlists';
-import { getProfile } from '../api/profile';
+import { usePlaylists } from '../hooks/usePlaylists';
+import { useProfile } from '../hooks/useProfile';
 import { LoadingState } from '../components/shared/LoadingState';
 import { ErrorState } from '../components/shared/ErrorState';
 import styles from './PlaylistsPage.module.css';
@@ -19,23 +18,15 @@ const FILTERS: { key: Filter; label: string }[] = [
 export function PlaylistsPage() {
   const [activeFilter, setActiveFilter] = useState<Filter>('all');
 
-  const playlistsFetcher = useCallback(() => getPlaylists({ limit: 50 }), []);
-  const profileFetcher = useCallback(() => getProfile(), []);
-
-  const {
-    data: playlistsData,
-    isLoading: playlistsLoading,
-    error: playlistsError,
-    refetch,
-  } = useSpotifyQuery(playlistsFetcher);
-  const { data: profile } = useSpotifyQuery(profileFetcher);
+  const { data: playlistsData, isLoading: playlistsLoading, isError: playlistsError, refetch } = usePlaylists(50);
+  const { data: profile } = useProfile();
 
   if (playlistsLoading) {
     return <LoadingState message="Loading your library…" />;
   }
 
   if (playlistsError) {
-    return <ErrorState message={playlistsError} onRetry={refetch} />;
+    return <ErrorState message="Could not load your playlists." onRetry={refetch} />;
   }
 
   const allPlaylists = playlistsData?.items ?? [];

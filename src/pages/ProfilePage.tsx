@@ -1,7 +1,6 @@
-import { useCallback } from 'react';
-import { useSpotifyQuery } from '../hooks/useSpotifyQuery';
-import { getProfile } from '../api/profile';
-import { getTopArtists, getTopTracks } from '../api/top';
+import { useProfile } from '../hooks/useProfile';
+import { useTopArtists } from '../hooks/useTopArtists';
+import { useTopTracks } from '../hooks/useTopTracks';
 import { ProfileHero } from '../components/profile/ProfileHero';
 import { TopArtistsSection } from '../components/profile/TopArtistsSection';
 import { TopTracksSection } from '../components/profile/TopTracksSection';
@@ -10,14 +9,9 @@ import { ErrorState } from '../components/shared/ErrorState';
 import styles from './ProfilePage.module.css';
 
 export function ProfilePage() {
-  /* Fetchers estáveis — não causam re-fetch desnecessário */
-  const profileFetcher = useCallback(() => getProfile(), []);
-  const artistsFetcher = useCallback(() => getTopArtists({ limit: 10 }), []);
-  const tracksFetcher = useCallback(() => getTopTracks({ limit: 4 }), []);
-
-  const { data: profile, isLoading: profileLoading, error: profileError, refetch: refetchProfile } = useSpotifyQuery(profileFetcher);
-  const { data: topArtistsData, isLoading: artistsLoading } = useSpotifyQuery(artistsFetcher);
-  const { data: topTracksData, isLoading: tracksLoading } = useSpotifyQuery(tracksFetcher);
+  const { data: profile, isLoading: profileLoading, isError: profileError, refetch } = useProfile();
+  const { data: topArtistsData, isLoading: artistsLoading } = useTopArtists(10);
+  const { data: topTracksData, isLoading: tracksLoading } = useTopTracks(4);
 
   if (profileLoading) {
     return <LoadingState message="Loading your profile…" />;
@@ -26,8 +20,8 @@ export function ProfilePage() {
   if (profileError || !profile) {
     return (
       <ErrorState
-        message={profileError ?? 'Could not load your profile.'}
-        onRetry={refetchProfile}
+        message="Could not load your profile."
+        onRetry={refetch}
       />
     );
   }

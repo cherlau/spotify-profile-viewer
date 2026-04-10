@@ -145,6 +145,12 @@
   padding: var(--space-24) 0;
 }
 
+/* ── Artist Art — circular ──────────────────────────────── */
+
+.artistArtWrapper {
+  border-radius: var(--radius-full);
+}
+
 /* ── Track Item ─────────────────────────────────────────── */
 
 .trackItem {

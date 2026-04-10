@@ -206,6 +206,71 @@ export interface FollowedArtistsResponse {
   };
 }
 
+// ─── GET /me/albums ───────────────────────────────────────────────────────────
+
+export interface SpotifyAlbum {
+  album_type: "album" | "single" | "compilation";
+  total_tracks: number;
+  external_urls: SpotifyExternalUrls;
+  href: string;
+  id: string;
+  images: SpotifyImage[];
+  name: string;
+  release_date: string;
+  release_date_precision: "year" | "month" | "day";
+  type: "album";
+  uri: string;
+  artists: SpotifyArtistSimplified[];
+}
+
+export interface SavedAlbumObject {
+  added_at: string;
+  album: SpotifyAlbum;
+}
+
+export interface SavedAlbumsResponse {
+  href: string;
+  limit: number;
+  next: string | null;
+  offset: number;
+  previous: string | null;
+  total: number;
+  items: SavedAlbumObject[];
+}
+
+// ─── GET /me/shows ────────────────────────────────────────────────────────────
+
+export interface SpotifyShow {
+  description: string;
+  explicit: boolean;
+  external_urls: SpotifyExternalUrls;
+  href: string;
+  id: string;
+  images: SpotifyImage[];
+  languages: string[];
+  media_type: string;
+  name: string;
+  publisher: string;
+  total_episodes: number;
+  type: "show";
+  uri: string;
+}
+
+export interface SavedShowObject {
+  added_at: string;
+  show: SpotifyShow;
+}
+
+export interface SavedShowsResponse {
+  href: string;
+  limit: number;
+  next: string | null;
+  offset: number;
+  previous: string | null;
+  total: number;
+  items: SavedShowObject[];
+}
+
 // ─── Auth — Token exchange response (auth-flow.md) ────────────────────────────
 
 export interface TokenResponse {
