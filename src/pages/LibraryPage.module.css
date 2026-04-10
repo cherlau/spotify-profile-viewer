@@ -108,6 +108,16 @@
   margin: 0;
 }
 
+.resultCount {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary);
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+}
+
 .seeAll {
   background: transparent;
   border: none;

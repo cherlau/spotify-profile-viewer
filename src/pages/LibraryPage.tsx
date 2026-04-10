@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Play, Heart, MoreHorizontal, Music, Mic2, Disc3, Radio } from 'lucide-react';
 import { useRecentlyPlayed } from '../hooks/useRecentlyPlayed';
 import { useFollowedArtists } from '../hooks/useFollowedArtists';
@@ -32,6 +33,12 @@ function deduplicateTracks(tracks: SpotifyTrack[]): SpotifyTrack[] {
     seen.add(t.id);
     return true;
   });
+}
+
+/** Verifica se um texto contém a query (case-insensitive). Retorna false se text for nulo/undefined. */
+function matches(text: string | null | undefined, q: string): boolean {
+  if (!text) return false;
+  return text.toLowerCase().includes(q.toLowerCase());
 }
 
 function AlbumRow({ album }: { album: SpotifyAlbum }) {
@@ -183,9 +190,12 @@ function TrackRow({ track }: TrackRowProps) {
   );
 }
 
-
 export function LibraryPage() {
   const [activeTab, setActiveTab] = useState<Tab>('music');
+  const [searchParams] = useSearchParams();
+
+  // Query de busca vinda da URL (preenchida pelo AppHeader)
+  const searchQuery = searchParams.get('q')?.trim() ?? '';
 
   const { data: recentData, isLoading: recentLoading, isError: recentError, refetch: refetchRecent } = useRecentlyPlayed(50);
   const { data: artistsData, isLoading: artistsLoading, isError: artistsError, refetch: refetchArtists } = useFollowedArtists(50);
@@ -198,119 +208,225 @@ export function LibraryPage() {
   const albums = albumsData?.items.map(i => i.album) ?? [];
   const shows = showsData?.items.map(i => i.show) ?? [];
 
+  // Resultados filtrados pela query — busca em nome, artistas e gênero
+  const filteredTracks = searchQuery
+    ? tracks.filter(t =>
+        matches(t.name, searchQuery) ||
+        t.artists.some(a => matches(a.name, searchQuery)) ||
+        matches(t.album.name, searchQuery)
+      )
+    : tracks;
+
+  const filteredArtists = searchQuery
+    ? artists.filter(a =>
+        matches(a.name, searchQuery) ||
+        (a.genres ?? []).some(g => matches(g, searchQuery))
+      )
+    : artists;
+
+  const filteredAlbums = searchQuery
+    ? albums.filter(a =>
+        matches(a.name, searchQuery) ||
+        a.artists.some(ar => matches(ar.name, searchQuery))
+      )
+    : albums;
+
+  const filteredShows = searchQuery
+    ? shows.filter(s =>
+        matches(s.name, searchQuery) ||
+        matches(s.publisher, searchQuery)
+      )
+    : shows;
+
+  const isAnyLoading = recentLoading || artistsLoading || albumsLoading || showsLoading;
+  const totalResults = filteredTracks.length + filteredArtists.length + filteredAlbums.length + filteredShows.length;
+
   return (
     <div className={styles.page}>
       {/* Header editorial */}
       <header className={styles.header}>
         <span className={styles.headerLabel}>Your Collection</span>
-        <h1 className={styles.headerTitle}>Your Library</h1>
+        <h1 className={styles.headerTitle}>
+          {searchQuery ? `"${searchQuery}"` : 'Your Library'}
+        </h1>
         <p className={styles.headerDesc}>
-          Everything you've saved, played, and loved — all in one place.
+          {searchQuery
+            ? `${totalResults} result${totalResults !== 1 ? 's' : ''} across music, artists, albums and podcasts`
+            : 'Everything you\'ve saved, played, and loved — all in one place.'}
         </p>
       </header>
 
-      {/* Tabs de categoria */}
-      <div className={styles.tabsWrapper}>
-        <div className={styles.tabs}>
-          {TABS.map(({ key, label }) => (
-            <button
-              key={key}
-              className={`${styles.tab} ${activeTab === key ? styles.tabActive : ''}`}
-              onClick={() => setActiveTab(key)}
-            >
-              {label}
-            </button>
-          ))}
+      {searchQuery ? (
+        /* ── Modo de busca: resultados agrupados por categoria ─────── */
+        <div>
+          {isAnyLoading && <LoadingState message="Searching…" />}
+
+          {!isAnyLoading && totalResults === 0 && (
+            <p className={styles.empty}>No results found for "{searchQuery}".</p>
+          )}
+
+          {filteredTracks.length > 0 && (
+            <section className={styles.tracksSection}>
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>Music</h2>
+                <span className={styles.resultCount}>{filteredTracks.length}</span>
+              </div>
+              <div className={styles.trackList}>
+                {filteredTracks.map(track => (
+                  <TrackRow key={track.id} track={track} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {filteredArtists.length > 0 && (
+            <section className={styles.tracksSection}>
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>Artists</h2>
+                <span className={styles.resultCount}>{filteredArtists.length}</span>
+              </div>
+              <div className={styles.trackList}>
+                {filteredArtists.map(artist => (
+                  <ArtistRow key={artist.id} artist={artist} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {filteredAlbums.length > 0 && (
+            <section className={styles.tracksSection}>
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>Albums</h2>
+                <span className={styles.resultCount}>{filteredAlbums.length}</span>
+              </div>
+              <div className={styles.trackList}>
+                {filteredAlbums.map(album => (
+                  <AlbumRow key={album.id} album={album} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {filteredShows.length > 0 && (
+            <section className={styles.tracksSection}>
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>Podcasts</h2>
+                <span className={styles.resultCount}>{filteredShows.length}</span>
+              </div>
+              <div className={styles.trackList}>
+                {filteredShows.map(show => (
+                  <ShowRow key={show.id} show={show} />
+                ))}
+              </div>
+            </section>
+          )}
         </div>
-      </div>
-
-      {/* Aba Music — Recently Played */}
-      {activeTab === 'music' && (
-        <section className={styles.tracksSection}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Recently Played</h2>
-            <button className={styles.seeAll}>SEE ALL</button>
-          </div>
-          {recentLoading ? (
-            <LoadingState message="Loading tracks…" />
-          ) : recentError ? (
-            <ErrorState message="Could not load recently played tracks." onRetry={refetchRecent} />
-          ) : tracks.length === 0 ? (
-            <p className={styles.empty}>No tracks found.</p>
-          ) : (
-            <div className={styles.trackList}>
-              {tracks.slice(0, 20).map(track => (
-                <TrackRow key={track.id} track={track} />
+      ) : (
+        /* ── Modo normal: tabs por categoria ───────────────────────── */
+        <>
+          <div className={styles.tabsWrapper}>
+            <div className={styles.tabs}>
+              {TABS.map(({ key, label }) => (
+                <button
+                  key={key}
+                  className={`${styles.tab} ${activeTab === key ? styles.tabActive : ''}`}
+                  onClick={() => setActiveTab(key)}
+                >
+                  {label}
+                </button>
               ))}
             </div>
-          )}
-        </section>
-      )}
-
-      {/* Aba Artists — Artistas seguidos (GET /me/following) */}
-      {activeTab === 'artists' && (
-        <section className={styles.tracksSection}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Following</h2>
           </div>
-          {artistsLoading ? (
-            <LoadingState message="Loading artists…" />
-          ) : artistsError ? (
-            <ErrorState message="Could not load followed artists." onRetry={refetchArtists} />
-          ) : artists.length === 0 ? (
-            <p className={styles.empty}>No followed artists yet.</p>
-          ) : (
-            <div className={styles.trackList}>
-              {artists.map(artist => (
-                <ArtistRow key={artist.id} artist={artist} />
-              ))}
-            </div>
-          )}
-        </section>
-      )}
 
-      {/* Aba Albums — GET /me/albums */}
-      {activeTab === 'albums' && (
-        <section className={styles.tracksSection}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Saved Albums</h2>
-          </div>
-          {albumsLoading ? (
-            <LoadingState message="Loading albums…" />
-          ) : albumsError ? (
-            <ErrorState message="Could not load saved albums." onRetry={refetchAlbums} />
-          ) : albums.length === 0 ? (
-            <p className={styles.empty}>No saved albums yet.</p>
-          ) : (
-            <div className={styles.trackList}>
-              {albums.map(album => (
-                <AlbumRow key={album.id} album={album} />
-              ))}
-            </div>
+          {/* Aba Music — Recently Played */}
+          {activeTab === 'music' && (
+            <section className={styles.tracksSection}>
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>Recently Played</h2>
+                <button className={styles.seeAll}>SEE ALL</button>
+              </div>
+              {recentLoading ? (
+                <LoadingState message="Loading tracks…" />
+              ) : recentError ? (
+                <ErrorState message="Could not load recently played tracks." onRetry={refetchRecent} />
+              ) : tracks.length === 0 ? (
+                <p className={styles.empty}>No tracks found.</p>
+              ) : (
+                <div className={styles.trackList}>
+                  {tracks.slice(0, 20).map(track => (
+                    <TrackRow key={track.id} track={track} />
+                  ))}
+                </div>
+              )}
+            </section>
           )}
-        </section>
-      )}
 
-      {/* Aba Podcasts — GET /me/shows */}
-      {activeTab === 'podcasts' && (
-        <section className={styles.tracksSection}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Your Podcasts</h2>
-          </div>
-          {showsLoading ? (
-            <LoadingState message="Loading podcasts…" />
-          ) : showsError ? (
-            <ErrorState message="Could not load your podcasts." onRetry={refetchShows} />
-          ) : shows.length === 0 ? (
-            <p className={styles.empty}>No podcasts in your library yet.</p>
-          ) : (
-            <div className={styles.trackList}>
-              {shows.map(show => (
-                <ShowRow key={show.id} show={show} />
-              ))}
-            </div>
+          {/* Aba Artists — Artistas seguidos (GET /me/following) */}
+          {activeTab === 'artists' && (
+            <section className={styles.tracksSection}>
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>Following</h2>
+              </div>
+              {artistsLoading ? (
+                <LoadingState message="Loading artists…" />
+              ) : artistsError ? (
+                <ErrorState message="Could not load followed artists." onRetry={refetchArtists} />
+              ) : artists.length === 0 ? (
+                <p className={styles.empty}>No followed artists yet.</p>
+              ) : (
+                <div className={styles.trackList}>
+                  {artists.map(artist => (
+                    <ArtistRow key={artist.id} artist={artist} />
+                  ))}
+                </div>
+              )}
+            </section>
           )}
-        </section>
+
+          {/* Aba Albums — GET /me/albums */}
+          {activeTab === 'albums' && (
+            <section className={styles.tracksSection}>
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>Saved Albums</h2>
+              </div>
+              {albumsLoading ? (
+                <LoadingState message="Loading albums…" />
+              ) : albumsError ? (
+                <ErrorState message="Could not load saved albums." onRetry={refetchAlbums} />
+              ) : albums.length === 0 ? (
+                <p className={styles.empty}>No saved albums yet.</p>
+              ) : (
+                <div className={styles.trackList}>
+                  {albums.map(album => (
+                    <AlbumRow key={album.id} album={album} />
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* Aba Podcasts — GET /me/shows */}
+          {activeTab === 'podcasts' && (
+            <section className={styles.tracksSection}>
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>Your Podcasts</h2>
+              </div>
+              {showsLoading ? (
+                <LoadingState message="Loading podcasts…" />
+              ) : showsError ? (
+                <ErrorState message="Could not load your podcasts." onRetry={refetchShows} />
+              ) : shows.length === 0 ? (
+                <p className={styles.empty}>No podcasts in your library yet.</p>
+              ) : (
+                <div className={styles.trackList}>
+                  {shows.map(show => (
+                    <ShowRow key={show.id} show={show} />
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
+        </>
       )}
     </div>
   );

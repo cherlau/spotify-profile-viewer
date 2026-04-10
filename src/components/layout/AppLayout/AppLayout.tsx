@@ -8,12 +8,9 @@ import styles from './AppLayout.module.css';
 
 interface AppLayoutProps {
   children: ReactNode;
-  /** Dados do usuário autenticado para popular header/sidebar */
-  avatarUrl?: string | null;
-  displayName?: string;
 }
 
-export function AppLayout({ children, avatarUrl, displayName }: AppLayoutProps) {
+export function AppLayout({ children }: AppLayoutProps) {
   const isDesktop = useIsDesktop();
 
   return (
@@ -21,8 +18,8 @@ export function AppLayout({ children, avatarUrl, displayName }: AppLayoutProps) 
       {/* Sidebar — desktop only */}
       {isDesktop && <Sidebar />}
 
-      {/* Header fixo no topo */}
-      <AppHeader avatarUrl={avatarUrl} displayName={displayName} />
+      {/* Header busca o próprio perfil internamente */}
+      <AppHeader />
 
       {/* Conteúdo principal com offset para header + sidebar */}
       <main className={`${styles.main} ${isDesktop ? styles.mainDesktop : ''}`}>
