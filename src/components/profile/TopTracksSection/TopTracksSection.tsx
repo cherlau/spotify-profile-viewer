@@ -1,5 +1,6 @@
+import { useState } from 'react';
+import { Play, Heart, MoreHorizontal, Music } from 'lucide-react';
 import type { SpotifyTrack } from '../../../types/spotify';
-import { TrackItem } from '../TrackItem';
 import { LoadingState } from '../../shared/LoadingState';
 import styles from './TopTracksSection.module.css';
 
@@ -8,8 +9,65 @@ interface TopTracksSectionProps {
   isLoading: boolean;
 }
 
-/* Limite de tracks exibidas */
 const TRACKS_LIMIT = 4;
+
+function formatDuration(ms: number): string {
+  const minutes = Math.floor(ms / 60000);
+  const seconds = Math.floor((ms % 60000) / 1000);
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function TrackRow({ track, rank }: { track: SpotifyTrack; rank: number }) {
+  const [hovered, setHovered] = useState(false);
+  const imageUrl = track.album.images?.[0]?.url ?? null;
+  const artistNames = track.artists.map(a => a.name).join(', ');
+  const duration = formatDuration(track.duration_ms);
+
+  return (
+    <div
+      className={styles.trackItem}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <span className={styles.rank}>{rank.toString().padStart(2, '0')}</span>
+
+      <div className={styles.trackArtWrapper}>
+        {imageUrl ? (
+          <img src={imageUrl} alt={track.album.name} className={styles.trackArt} />
+        ) : (
+          <div className={styles.trackArtPlaceholder}>
+            <Music size={20} />
+          </div>
+        )}
+        {hovered && (
+          <div className={styles.playOverlay}>
+            <button className={styles.playBtn} aria-label={`Play ${track.name}`}>
+              <Play size={16} fill="currentColor" />
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className={styles.trackMeta}>
+        <span className={styles.trackName}>{track.name}</span>
+        <span className={styles.trackSub}>
+          {artistNames}
+          <span className={styles.trackDot}> • </span>
+          <span className={styles.trackDuration}>{duration}</span>
+        </span>
+      </div>
+
+      <div className={styles.trackActions}>
+        <button className={styles.actionBtn} aria-label="Curtir">
+          <Heart size={18} />
+        </button>
+        <button className={styles.actionBtn} aria-label="Mais opções">
+          <MoreHorizontal size={18} />
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export function TopTracksSection({ tracks, isLoading }: TopTracksSectionProps) {
   if (isLoading) {
@@ -24,59 +82,22 @@ export function TopTracksSection({ tracks, isLoading }: TopTracksSectionProps) {
 
   return (
     <section className={styles.section} aria-label="Top Tracks">
-      {/* ── Header Mobile ── */}
-      <div className={styles.headerMobile}>
-        <div className={styles.headerText}>
-          <h2 className={styles.titleMobile}>Your Top Tracks</h2>
-          <p className={styles.subtitle}>Most played songs this month</p>
-        </div>
+      <div className={styles.sectionHeader}>
+        <h2 className={styles.sectionTitle}>Your Top Tracks</h2>
         <a
           href="https://open.spotify.com/collection/tracks"
           target="_blank"
           rel="noopener noreferrer"
-          className={styles.historyLink}
+          className={styles.seeAll}
         >
-          FULL HISTORY
+          SEE ALL
         </a>
       </div>
 
-      {/* ── Lista Mobile ── */}
-      <div className={styles.listMobile} role="list">
+      <div className={styles.trackList}>
         {displayTracks.map((track, index) => (
-          <div key={track.id} role="listitem">
-            <TrackItem
-              rank={index + 1}
-              name={track.name}
-              artistNames={track.artists.map((a) => a.name)}
-              albumName={track.album.name}
-              albumImageUrl={track.album.images?.[0]?.url ?? null}
-              durationMs={track.duration_ms}
-              spotifyUrl={track.external_urls.spotify}
-            />
-          </div>
+          <TrackRow key={track.id} track={track} rank={index + 1} />
         ))}
-      </div>
-
-      {/* ── Card Desktop ── */}
-      <div className={styles.cardDesktop}>
-        <div className={styles.cardHeader}>
-          <h2 className={styles.titleDesktop}>Top Tracks</h2>
-        </div>
-        <div role="list">
-          {displayTracks.map((track, index) => (
-            <div key={track.id} role="listitem">
-              <TrackItem
-                rank={index + 1}
-                name={track.name}
-                artistNames={track.artists.map((a) => a.name)}
-                albumName={track.album.name}
-                albumImageUrl={track.album.images?.[0]?.url ?? null}
-                durationMs={track.duration_ms}
-                spotifyUrl={track.external_urls.spotify}
-              />
-            </div>
-          ))}
-        </div>
       </div>
     </section>
   );
