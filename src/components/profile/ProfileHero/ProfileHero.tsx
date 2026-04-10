@@ -8,9 +8,10 @@ export interface ProfileHeroProps {
   followers: number;
   following: number;
   playlists: number;
+  product: string;
 }
 
-export function ProfileHero({ displayName, avatarUrl, followers, following, playlists }: ProfileHeroProps) {
+export function ProfileHero({ displayName, avatarUrl, followers, following, playlists, product }: ProfileHeroProps) {
   const isDesktop = useIsDesktop();
 
   return isDesktop ? (
@@ -20,6 +21,7 @@ export function ProfileHero({ displayName, avatarUrl, followers, following, play
       followers={followers}
       following={following}
       playlists={playlists}
+      product={product}
     />
   ) : (
     <MobileHero
@@ -28,13 +30,14 @@ export function ProfileHero({ displayName, avatarUrl, followers, following, play
       followers={followers}
       following={following}
       playlists={playlists}
+      product={product}
     />
   );
 }
 
 /* ── Mobile ─────────────────────────────────────────────────────────────────── */
 
-function MobileHero({ displayName, avatarUrl, followers, following, playlists }: ProfileHeroProps) {
+function MobileHero({ displayName, avatarUrl, followers, following, playlists, product }: ProfileHeroProps) {
   return (
     <section className={styles.mobileHero}>
       {/* Avatar com borda gradient */}
@@ -54,7 +57,7 @@ function MobileHero({ displayName, avatarUrl, followers, following, playlists }:
 
       {/* Informações abaixo do avatar */}
       <div className={styles.mobileInfo}>
-        <p className={styles.curatorLabel}>Verified Curator</p>
+        <p className={styles.curatorLabel}>{product}</p>
         <h1 className={styles.mobileName}>{displayName}</h1>
 
         {/* Stats row */}
@@ -79,7 +82,7 @@ function MobileHero({ displayName, avatarUrl, followers, following, playlists }:
 
 /* ── Desktop ─────────────────────────────────────────────────────────────────── */
 
-function DesktopHero({ displayName, avatarUrl, followers, following, playlists }: ProfileHeroProps) {
+function DesktopHero({ displayName, avatarUrl, followers, following, playlists, product }: ProfileHeroProps) {
   return (
     <section className={styles.desktopHero}>
       {/* Gradient banner de fundo */}
@@ -100,7 +103,7 @@ function DesktopHero({ displayName, avatarUrl, followers, following, playlists }
         <div className={styles.desktopInfo}>
           <p className={styles.verifiedLabelDesktop}>
             <BadgeCheck size={14} className={styles.verifiedIcon} />
-            Verified Curator
+            {product}
           </p>
           <h1 className={styles.desktopName}>{displayName}</h1>
 

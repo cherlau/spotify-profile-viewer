@@ -32,9 +32,9 @@ export interface SpotifyUserProfile {
   href: string;
   id: string;
   images: SpotifyImage[];
+  product: string;
   type: "user";
   uri: string;
-  // ❌ removed Feb 2026: country, email, explicit_content, followers, product
 }
 
 // ─── GET /me/top/{type} ───────────────────────────────────────────────────────

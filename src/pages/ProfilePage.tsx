@@ -44,6 +44,7 @@ export function ProfilePage() {
         followers={0}
         following={followingCount}
         playlists={playlistsCount}
+        product={profile.product}
       />
 
       <div className={styles.sections}>
