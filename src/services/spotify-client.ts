@@ -1,21 +1,60 @@
+// MOCK SYSTEM — toggle via VITE_USE_MOCK in .env
 /**
  * Spotify API HTTP client.
  *
  * fetchWithAuth:
- *   1. Attaches Authorization: Bearer {token} to every request.
- *   2. If the token is known to be expired before the call, proactively refreshes it.
- *   3. If the server returns 401, retries once with a fresh token (handles clock skew /
+ *   1. Quando VITE_USE_MOCK=true, intercepta a chamada e retorna dados de
+ *      src/mocks/spotify-data.ts com 300ms de latência simulada.
+ *   2. Attaches Authorization: Bearer {token} to every request.
+ *   3. If the token is known to be expired before the call, proactively refreshes it.
+ *   4. If the server returns 401, retries once with a fresh token (handles clock skew /
  *      edge-case expiry that slipped through the 30s buffer in tokenStore).
- *   4. If the retry also fails with 401, clears all tokens and throws SpotifyAuthError
+ *   5. If the retry also fails with 401, clears all tokens and throws SpotifyAuthError
  *      so the app can redirect to login.
- *   5. For status 429 surfaces Retry-After in the error so callers can respect it.
- *   6. For other non-2xx responses parses the Spotify error body and throws SpotifyApiError.
+ *   6. For status 429 surfaces Retry-After in the error so callers can respect it.
+ *   7. For other non-2xx responses parses the Spotify error body and throws SpotifyApiError.
  */
 
 import { tokenStore } from '../auth/token-store';
 import { refreshAccessToken } from '../auth/spotify-auth';
 
 export const BASE_URL = 'https://api.spotify.com/v1';
+
+// ─── Mock interceptor ────────────────────────────────────────────────────────
+
+const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
+
+async function resolveMock<T>(path: string): Promise<T> {
+  // Simula latência de rede para comportamento mais realista durante desenvolvimento
+  await new Promise((r) => setTimeout(r, 300));
+
+  // Normaliza o path: remove base URL e query string
+  const cleanPath = path
+    .replace(/^https:\/\/api\.spotify\.com\/v1/, '')
+    .split('?')[0];
+
+  const {
+    mockProfile,
+    mockTopArtists,
+    mockTopTracks,
+    mockPlaylists,
+    mockRecentlyPlayed,
+    mockFollowedArtists,
+    mockSavedAlbums,
+    mockSavedShows,
+  } = await import('../mocks/spotify-data');
+
+  if (cleanPath === '/me') return mockProfile as T;
+  if (cleanPath === '/me/top/artists') return mockTopArtists as T;
+  if (cleanPath === '/me/top/tracks') return mockTopTracks as T;
+  if (cleanPath === '/me/playlists') return mockPlaylists as T;
+  if (cleanPath === '/me/player/recently-played') return mockRecentlyPlayed as T;
+  if (cleanPath.startsWith('/me/following')) return mockFollowedArtists as T;
+  if (cleanPath === '/me/albums') return mockSavedAlbums as T;
+  if (cleanPath === '/me/shows') return mockSavedShows as T;
+
+  throw new Error(`[MOCK] Nenhum mock encontrado para o path: ${cleanPath}`);
+}
 
 // ─── Error types ─────────────────────────────────────────────────────────────
 
@@ -89,6 +128,10 @@ export async function fetchWithAuth<T>(
   init: RequestInit = {},
 ): Promise<T> {
   const url = path.startsWith('http') ? path : `${BASE_URL}${path}`;
+
+  if (USE_MOCK) {
+    return resolveMock<T>(url);
+  }
 
   let token: string;
   try {
