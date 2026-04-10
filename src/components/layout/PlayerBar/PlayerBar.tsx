@@ -10,6 +10,7 @@ import {
   Volume2,
   VolumeX,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useIsDesktop } from '../../../hooks/useMediaQuery';
 import styles from './PlayerBar.module.css';
 
@@ -41,6 +42,7 @@ const MOCK_TRACK = {
 
 export function PlayerBar({ track = MOCK_TRACK }: PlayerBarProps) {
   const isDesktop = useIsDesktop();
+  const navigate = useNavigate();
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
@@ -162,8 +164,15 @@ export function PlayerBar({ track = MOCK_TRACK }: PlayerBarProps) {
       </div>
     </div>
   ) : (
-    /* ── Mobile: pill flutuante ─────────────────────────────────── */
-    <div className={styles.playerMobile}>
+    /* ── Mobile: pill flutuante (clicável → abre PlayerPage) ───── */
+    <div
+      className={styles.playerMobile}
+      onClick={() => navigate('/player')}
+      role="button"
+      tabIndex={0}
+      aria-label="Open player"
+      onKeyDown={e => e.key === 'Enter' && navigate('/player')}
+    >
       {/* Album art mini */}
       <div className={styles.albumThumbMobile}>
         {track.albumImageUrl ? (
@@ -179,8 +188,8 @@ export function PlayerBar({ track = MOCK_TRACK }: PlayerBarProps) {
         <span className={styles.artistName}>{track.artistName}</span>
       </div>
 
-      {/* Controles compactos */}
-      <div className={styles.mobileControls}>
+      {/* Controles compactos — stopPropagation para não acionar o navigate do pill */}
+      <div className={styles.mobileControls} onClick={e => e.stopPropagation()}>
         <button
           className={`${styles.iconBtn} ${isShuffle ? styles.iconBtnActive : ''}`}
           onClick={() => setIsShuffle(s => !s)}

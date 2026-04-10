@@ -7,6 +7,7 @@ import {
   Heart,
   Mic2,
   Crown,
+  Music2,
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 
@@ -14,6 +15,7 @@ const navItems = [
   { icon: Home, label: 'Home', to: '/' },
   { icon: Search, label: 'Search', to: '/search' },
   { icon: Library, label: 'Library', to: '/library' },
+  { icon: Music2, label: 'Now Playing', to: '/player' },
 ];
 
 const collectionItems = [

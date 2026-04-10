@@ -5,6 +5,7 @@ import { CallbackPage } from './pages/CallbackPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { PlaylistsPage } from './pages/PlaylistsPage';
 import { LibraryPage } from './pages/LibraryPage';
+import { PlayerPage } from './pages/PlayerPage';
 import { AppLayout } from './components/layout/AppLayout';
 import type { ReactNode } from 'react';
 
@@ -67,6 +68,17 @@ export default function App() {
           <ProtectedRoute>
             <AppShell>
               <LibraryPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/player"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <PlayerPage />
             </AppShell>
           </ProtectedRoute>
         }

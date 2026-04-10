@@ -1,0 +1,626 @@
+/* ── Page ────────────────────────────────────────────────── */
+
+.page {
+  position: relative;
+  min-height: 100%;
+  overflow: hidden;
+}
+
+/* Fundo desfocado com a capa do álbum (desktop) */
+.bgBlur {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(80px) brightness(0.25) saturate(1.4);
+  transform: scale(1.15);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── Layout ──────────────────────────────────────────────── */
+
+.layout {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-96) var(--space-24) 180px;
+  gap: 0;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ── Album Art ───────────────────────────────────────────── */
+
+.albumArtWrapper {
+  position: relative;
+  width: 342px;
+  height: 342px;
+  max-width: 100%;
+  border-radius: 24px;
+  overflow: hidden;
+  align-self: center;
+  flex-shrink: 0;
+  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.6);
+}
+
+.albumArt {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.albumArtPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: var(--color-bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+}
+
+/* Overlay com botão play centralizado */
+.albumArtOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.25s;
+}
+
+.albumArtWrapper:hover .albumArtOverlay {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.artPlayBtn {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: var(--color-accent-dark);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-glow-green);
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.25s, transform 0.25s;
+}
+
+.albumArtWrapper:hover .artPlayBtn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.artPlayBtn:hover {
+  transform: scale(1.06) !important;
+}
+
+/* ── Track Info ──────────────────────────────────────────── */
+
+.trackInfo {
+  margin-top: var(--space-32);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  text-align: center;
+}
+
+.trackLabel {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-accent-text);
+  text-transform: uppercase;
+  letter-spacing: 2.4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trackTitle {
+  font-family: var(--font-display);
+  font-size: 45px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  line-height: 1;
+  letter-spacing: -1.8px;
+  margin: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.trackArtist {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trackDot {
+  color: var(--color-text-secondary);
+  opacity: 0.5;
+}
+
+/* ── Action Row (Heart | Play | More) ───────────────────── */
+
+.actionRow {
+  margin-top: var(--space-24);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-24);
+}
+
+.actionIconBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, transform 0.15s;
+}
+
+.actionIconBtn:hover {
+  color: var(--color-text-primary);
+  transform: scale(1.1);
+}
+
+.actionIconBtnLiked {
+  color: var(--color-accent-text) !important;
+}
+
+/* Botão play da action row */
+.playActionBtn {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: var(--color-accent-dark);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-glow-green);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.playActionBtn:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 28px 0 rgba(30, 215, 96, 0.5);
+}
+
+/* ── Progress Bar ────────────────────────────────────────── */
+
+.progressSection {
+  margin-top: var(--space-32);
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+}
+
+.timestamp {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 32px;
+}
+
+.progressBar {
+  flex: 1;
+  position: relative;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.progressFill,
+.progressBar::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  height: 4px;
+  border-radius: var(--radius-full);
+}
+
+/* Track de fundo */
+.progressBar::before {
+  content: '';
+  width: 100%;
+  background: var(--color-bg-elevated);
+}
+
+.progressFill {
+  background: var(--color-accent);
+  z-index: 1;
+  pointer-events: none;
+  max-width: 100%;
+}
+
+/* Thumb circular */
+.progressThumb {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full);
+  background: var(--color-text-primary);
+  z-index: 2;
+  pointer-events: none;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.15);
+  transition: transform 0.1s;
+}
+
+.progressBar:hover .progressThumb {
+  transform: translate(-50%, -50%) scale(1.25);
+}
+
+/* ── Controles de playback ───────────────────────────────── */
+
+.controls {
+  margin-top: var(--space-24);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-16);
+}
+
+.controlBtn {
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  transition: color 0.2s, transform 0.15s;
+}
+
+.controlBtn:hover {
+  color: var(--color-text-primary);
+  transform: scale(1.1);
+}
+
+/* Botão play grande (80px) */
+.playLargeBtn {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: var(--color-accent-dark);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-glow-green);
+  transition: transform 0.15s, box-shadow 0.15s;
+  flex-shrink: 0;
+}
+
+.playLargeBtn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 32px 0 rgba(30, 215, 96, 0.5);
+}
+
+/* ── Next in Queue (mobile) ─────────────────────────────── */
+
+.queueSection {
+  margin-top: var(--space-48);
+}
+
+/* Oculto no desktop (a seção existe na sidebar) */
+.queueMobile {
+  /* Visível por padrão no mobile */
+}
+
+.queueTitle {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.4px;
+  margin: 0 0 var(--space-16) 0;
+}
+
+.queueList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── Queue Item ──────────────────────────────────────────── */
+
+.queueItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-8);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.queueItem:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.queueRank {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.queueArtWrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--color-bg-tertiary);
+}
+
+.queueArt {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.queueArtPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+}
+
+.queueMeta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.queueName {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.queueArtist {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.queueDuration {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+/* ── Desktop sidebar ─────────────────────────────────────── */
+
+.desktopSidebar {
+  display: none;
+}
+
+/* ── Side panels (queue, lyrics, about) ─────────────────── */
+
+.sidePanel {
+  background: rgba(19, 19, 19, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: var(--radius-md);
+  padding: var(--space-24);
+}
+
+.sidePanelTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.4px;
+  margin: 0 0 var(--space-16) 0;
+}
+
+.sidePanelEmpty {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Lyrics */
+.lyricsContent {
+  /* container das letras */
+}
+
+.lyricsPlaceholder {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* About Artist */
+.aboutContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.aboutArtistImg {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--color-bg-tertiary);
+}
+
+.aboutArtistImg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0.8;
+}
+
+.aboutText {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.aboutLink {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-accent-text);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.aboutLink:hover {
+  opacity: 0.75;
+}
+
+/* ── Empty state ─────────────────────────────────────────── */
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-16);
+  padding: var(--space-96) var(--space-24);
+  color: var(--color-text-secondary);
+  text-align: center;
+  min-height: 60vh;
+}
+
+.empty p {
+  font-family: var(--font-body);
+  font-size: 16px;
+  margin: 0;
+}
+
+/* ── Desktop ─────────────────────────────────────────────── */
+
+@media (min-width: 768px) {
+  /* Habilitar fundo desfocado */
+  .bgBlur {
+    display: block;
+  }
+
+  /* Layout em duas colunas */
+  .layout {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-96) var(--space-48) 140px;
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    grid-template-rows: auto;
+    align-items: start;
+    gap: var(--space-48);
+  }
+
+  .playerArea {
+    /* Coluna da esquerda: player centrado */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Capa maior no desktop */
+  .albumArtWrapper {
+    width: 420px;
+    height: 420px;
+  }
+
+  /* Título um pouco menor no desktop (mais espaço lateral) */
+  .trackTitle {
+    font-size: 42px;
+    letter-spacing: -1.6px;
+  }
+
+  /* Controles mais espaçados no desktop */
+  .controls {
+    gap: var(--space-24);
+  }
+
+  /* Ocultar seção de fila do mobile */
+  .queueMobile {
+    display: none;
+  }
+
+  /* Mostrar sidebar */
+  .desktopSidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+    /* Sticky para ficar visível enquanto o player rola */
+    position: sticky;
+    top: 80px;
+    max-height: calc(100vh - 180px);
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  .desktopSidebar::-webkit-scrollbar {
+    display: none;
+  }
+}
