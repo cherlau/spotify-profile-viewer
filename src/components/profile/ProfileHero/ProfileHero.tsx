@@ -2,6 +2,27 @@ import { BadgeCheck } from 'lucide-react';
 import { useIsDesktop } from '../../../hooks/useMediaQuery';
 import styles from './ProfileHero.module.css';
 
+/* Silhueta padrão do Spotify quando o usuário não tem foto de perfil */
+function DefaultAvatarIcon({ size }: { size: number }) {
+  const iconSize = size * 0.35;
+  return (
+    <svg
+      width={iconSize}
+      height={iconSize}
+      viewBox="0 0 100 100"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+	  style={{ marginBottom: '7px' }}
+    >
+      {/* Cabeça */}
+      <circle cx="50" cy="35" r="20" fill="#b3b3b3" />
+      {/* Corpo */}
+      <path d="M10 95 Q10 65 50 65 Q90 65 90 95 Z" fill="#b3b3b3" />
+    </svg>
+  );
+}
+
 export interface ProfileHeroProps {
   displayName: string;
   avatarUrl: string | null;
@@ -46,7 +67,9 @@ function MobileHero({ displayName, avatarUrl, followers, following, playlists, p
           {avatarUrl ? (
             <img src={avatarUrl} alt={displayName} className={styles.avatarImg} />
           ) : (
-            <div className={styles.avatarPlaceholder} />
+            <div className={styles.avatarPlaceholder}>
+              <DefaultAvatarIcon size={192} />
+            </div>
           )}
           {/* Badge verificado */}
           <span className={styles.verifiedBadge} aria-label="Verified">
@@ -95,7 +118,9 @@ function DesktopHero({ displayName, avatarUrl, followers, following, playlists, 
           {avatarUrl ? (
             <img src={avatarUrl} alt={displayName} className={styles.desktopAvatarImg} />
           ) : (
-            <div className={styles.desktopAvatarPlaceholder} />
+            <div className={styles.desktopAvatarPlaceholder}>
+              <DefaultAvatarIcon size={256} />
+            </div>
           )}
         </div>
 

@@ -40,7 +40,10 @@
   width: 192px;
   height: 192px;
   border-radius: var(--radius-full);
-  background-color: var(--color-bg-elevated);
+  background-color: #353434;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Badge de verificado — canto inferior direito */
@@ -92,6 +95,7 @@
 /* Stats row — mobile */
 .statsRow {
   display: flex;
+  gap: 10px;
   justify-content: space-around;
   width: 100%;
   margin-top: var(--space-8);
@@ -152,8 +156,11 @@
   width: 256px;
   height: 256px;
   border-radius: var(--radius-full);
-  background-color: var(--color-bg-elevated);
+  background-color: #353434;
   box-shadow: var(--shadow-avatar-desktop);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Info à direita do avatar */
@@ -230,4 +237,12 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #a7a7a7;
+}
+
+.statsRow .statNumber {
+  font-size: 16px;
+}
+
+.statsRow .statLabel {
+  font-size: 10px;
 }

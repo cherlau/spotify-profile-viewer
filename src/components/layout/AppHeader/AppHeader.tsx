@@ -134,6 +134,8 @@ export function AppHeader() {
     if (e.key === 'Escape') handleClear();
   }
 
+  if (!isDesktop) return null;
+
   return (
     <header className={styles.header}>
       {isDesktop ? (
