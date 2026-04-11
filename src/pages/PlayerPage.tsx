@@ -130,50 +130,93 @@ export function PlayerPage() {
   const totalTime = formatDuration(durationMs);
   const currentTime = formatDuration(currentMs);
 
-  async function handleControlAction(action: () => Promise<void>) {
+  async function handleControlAction(
+    action: () => Promise<void>,
+    optimisticUpdate?: (oldData: any) => any
+  ) {
     try {
       setErrorFeedback(null);
+
+      // 1. Atualização Otimista do Cache com pequeno delay (100ms)
+      // Isso evita que a UI mude "rápido demais" e pareça mais natural
+      if (optimisticUpdate) {
+        setTimeout(() => {
+          queryClient.setQueryData(queryKeys.player, (old: any) => {
+            if (!old) return old;
+            return optimisticUpdate(old);
+          });
+        }, 120);
+      }
+
+      // 2. Executa a ação na API imediatamente
       await action();
-      // Refetch imediato para atualizar a UI
+
+      // 3. Hack de Delay do Spotify (Sincronização Interna)
+      // Aguardamos 500ms antes de invalidar para garantir que o Spotify processou a mudança
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.player });
+        queryClient.invalidateQueries({ queryKey: queryKeys.queue });
+      }, 500);
+
+    } catch (err: any) {
+      console.error('Player control error:', err);
+      // Reverte o cache em caso de erro (o React Query fará refetch automático no próximo poll,
+      // mas podemos forçar um aqui se desejado)
       queryClient.invalidateQueries({ queryKey: queryKeys.player });
-      queryClient.invalidateQueries({ queryKey: queryKeys.queue });
-    } catch (err) {
-	  console.error('Player control error:', err);
+      
+      if (err.status === 403) {
+        setErrorFeedback("Esta ação requer uma conta Spotify Premium.");
+      }
     }
   }
 
   function togglePlay() {
-    if (playback?.is_playing) {
-      handleControlAction(pause);
-    } else {
-      handleControlAction(play);
-    }
+    const isPlaying = playback?.is_playing;
+    handleControlAction(
+      isPlaying ? pause : play,
+      (old) => ({ ...old, is_playing: !isPlaying })
+    );
   }
 
   function handleNext() {
+    setLocalProgressMs(0);
     handleControlAction(next);
   }
 
   function handlePrevious() {
+    setLocalProgressMs(0);
     handleControlAction(previous);
   }
 
   function handleToggleShuffle() {
-    handleControlAction(() => toggleShuffle(!playback.shuffle_state));
+    const nextShuffle = !playback.shuffle_state;
+    handleControlAction(
+      () => toggleShuffle(nextShuffle),
+      (old) => ({ ...old, shuffle_state: nextShuffle })
+    );
   }
 
   function handleToggleRepeat() {
-    const nextMode = playback.repeat_state === 'off' ? 'context' : 
-                     playback.repeat_state === 'context' ? 'track' : 'off';
-    handleControlAction(() => setRepeatMode(nextMode));
+    const modes: ("off" | "context" | "track")[] = ['off', 'context', 'track'];
+    const currentIndex = modes.indexOf(playback.repeat_state);
+    const nextMode = modes[(currentIndex + 1) % modes.length];
+
+    handleControlAction(
+      () => setRepeatMode(nextMode),
+      (old) => ({ ...old, repeat_state: nextMode })
+    );
   }
 
   function handleProgressClick(e: React.MouseEvent<HTMLDivElement>) {
     const rect = e.currentTarget.getBoundingClientRect();
     const pct = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
     const targetMs = pct * durationMs;
+    
     setLocalProgressMs(targetMs);
-    handleControlAction(() => seek(targetMs));
+    handleControlAction(
+      () => seek(targetMs),
+      (old) => ({ ...old, progress_ms: targetMs })
+    );
   }
 
   return (
