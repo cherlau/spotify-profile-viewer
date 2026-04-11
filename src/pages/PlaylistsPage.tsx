@@ -31,7 +31,6 @@ export function PlaylistsPage() {
 
   const filteredPlaylists = allPlaylists.filter(pl => {
     if (activeFilter === 'by_you') return pl.owner.id === profile?.id;
-    if (activeFilter === 'liked') return pl.name.toLowerCase().includes('liked');
     return true;
   });
 

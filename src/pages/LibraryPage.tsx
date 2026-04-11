@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Play, Heart, MoreHorizontal, Music, Mic2, Disc3, Radio } from 'lucide-react';
+import { Play, Heart, MoreHorizontal, Music, Mic2, Disc3 } from 'lucide-react';
 import { useRecentlyPlayed } from '../hooks/useRecentlyPlayed';
 import { useFollowedArtists } from '../hooks/useFollowedArtists';
 import { useSavedAlbums } from '../hooks/useSavedAlbums';
-import { useSavedShows } from '../hooks/useSavedShows';
 import { LoadingState } from '../components/shared/LoadingState';
 import { ErrorState } from '../components/shared/ErrorState';
-import type { SpotifyTrack, SpotifyArtist, SpotifyAlbum, SpotifyShow } from '../types/spotify';
+import type { SpotifyTrack, SpotifyArtist, SpotifyAlbum } from '../types/spotify';
 import styles from './LibraryPage.module.css';
 
 type Tab = 'music' | 'albums' | 'artists';
@@ -61,38 +60,6 @@ function AlbumRow({ album }: { album: SpotifyAlbum }) {
         <span className={styles.trackSub}>
           {artistNames}
           {year && <><span className={styles.trackDot}> • </span>{year}</>}
-        </span>
-      </div>
-      <div className={styles.trackActions}>
-        <button className={styles.actionBtn} aria-label="Mais opções">
-          <MoreHorizontal size={18} />
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function ShowRow({ show }: { show: SpotifyShow }) {
-  const imageUrl = show.images?.[0]?.url ?? null;
-
-  return (
-    <div className={styles.trackItem}>
-      <div className={`${styles.trackArtWrapper} ${styles.artistArtWrapper}`}>
-        {imageUrl ? (
-          <img src={imageUrl} alt={show.name} className={styles.trackArt} />
-        ) : (
-          <div className={styles.trackArtPlaceholder}>
-            <Radio size={20} />
-          </div>
-        )}
-      </div>
-      <div className={styles.trackMeta}>
-        <span className={styles.trackName}>{show.name}</span>
-        <span className={styles.trackSub}>
-          {show.publisher}
-          {show.total_episodes != null && (
-            <><span className={styles.trackDot}> • </span>{show.total_episodes} episódios</>
-          )}
         </span>
       </div>
       <div className={styles.trackActions}>
@@ -199,13 +166,11 @@ export function LibraryPage() {
   const { data: recentData, isLoading: recentLoading, isError: recentError, refetch: refetchRecent } = useRecentlyPlayed(50);
   const { data: artistsData, isLoading: artistsLoading, isError: artistsError, refetch: refetchArtists } = useFollowedArtists(50);
   const { data: albumsData, isLoading: albumsLoading, isError: albumsError, refetch: refetchAlbums } = useSavedAlbums(50);
-  const { data: showsData, isLoading: showsLoading, isError: showsError, refetch: refetchShows } = useSavedShows(50);
 
   const rawTracks = (recentData?.items ?? []).map(item => item.track);
   const tracks = deduplicateTracks(rawTracks);
   const artists = artistsData?.artists.items ?? [];
   const albums = albumsData?.items.map(i => i.album) ?? [];
-  const shows = showsData?.items.map(i => i.show) ?? [];
 
   // Resultados filtrados pela query — busca em nome, artistas e gênero
   const filteredTracks = searchQuery
@@ -230,15 +195,8 @@ export function LibraryPage() {
       )
     : albums;
 
-  const filteredShows = searchQuery
-    ? shows.filter(s =>
-        matches(s.name, searchQuery) ||
-        matches(s.publisher, searchQuery)
-      )
-    : shows;
-
-  const isAnyLoading = recentLoading || artistsLoading || albumsLoading || showsLoading;
-  const totalResults = filteredTracks.length + filteredArtists.length + filteredAlbums.length + filteredShows.length;
+  const isAnyLoading = recentLoading || artistsLoading || albumsLoading;
+  const totalResults = filteredTracks.length + filteredArtists.length + filteredAlbums.length;
 
   return (
     <div className={styles.page}>
@@ -301,20 +259,6 @@ export function LibraryPage() {
               <div className={styles.trackList}>
                 {filteredAlbums.map(album => (
                   <AlbumRow key={album.id} album={album} />
-                ))}
-              </div>
-            </section>
-          )}
-
-          {filteredShows.length > 0 && (
-            <section className={styles.tracksSection}>
-              <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>Podcasts</h2>
-                <span className={styles.resultCount}>{filteredShows.length}</span>
-              </div>
-              <div className={styles.trackList}>
-                {filteredShows.map(show => (
-                  <ShowRow key={show.id} show={show} />
                 ))}
               </div>
             </section>
@@ -398,28 +342,6 @@ export function LibraryPage() {
                 <div className={styles.trackList}>
                   {albums.map(album => (
                     <AlbumRow key={album.id} album={album} />
-                  ))}
-                </div>
-              )}
-            </section>
-          )}
-
-          {/* Aba Podcasts — GET /me/shows */}
-          {activeTab === 'podcasts' && (
-            <section className={styles.tracksSection}>
-              <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>Seus Podcasts</h2>
-              </div>
-              {showsLoading ? (
-                <LoadingState message="Carregando podcasts…" />
-              ) : showsError ? (
-                <ErrorState message="Não foi possível carregar seus podcasts." onRetry={refetchShows} />
-              ) : shows.length === 0 ? (
-                <p className={styles.empty}>Nenhum podcast na sua biblioteca ainda.</p>
-              ) : (
-                <div className={styles.trackList}>
-                  {shows.map(show => (
-                    <ShowRow key={show.id} show={show} />
                   ))}
                 </div>
               )}
