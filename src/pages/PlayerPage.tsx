@@ -213,7 +213,6 @@ export function PlayerPage() {
 
           {/* Barra de progresso com timestamps */}
           <div className={styles.progressSection}>
-            <span className={styles.timestamp}>{currentTime}</span>
             <div
               className={styles.progressBar}
               onClick={handleProgressClick}
@@ -226,7 +225,10 @@ export function PlayerPage() {
               <div className={styles.progressFill} style={{ width: `${progressPercent}%` }} />
               <div className={styles.progressThumb} style={{ left: `${progressPercent}%` }} />
             </div>
-            <span className={styles.timestamp}>{totalTime}</span>
+            <div className={styles.timeLabels}>
+              <span className={styles.timestamp}>{currentTime}</span>
+              <span className={styles.timestamp}>{totalTime}</span>
+            </div>
           </div>
 
           {/* Controles de playback grandes */}
