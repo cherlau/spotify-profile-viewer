@@ -6,6 +6,7 @@ import { useFollowedArtists } from '../hooks/useFollowedArtists';
 import { useSavedAlbums } from '../hooks/useSavedAlbums';
 import { LoadingState } from '../components/shared/LoadingState';
 import { ErrorState } from '../components/shared/ErrorState';
+import { usePlayer } from '../contexts/PlayerContext';
 import type { SpotifyTrack, SpotifyArtist, SpotifyAlbum } from '../types/spotify';
 import styles from './LibraryPage.module.css';
 
@@ -108,6 +109,7 @@ interface TrackRowProps {
 
 function TrackRow({ track }: TrackRowProps) {
   const [hovered, setHovered] = useState(false);
+  const { playTrack } = usePlayer();
   const imageUrl = track.album.images?.[0]?.url ?? null;
   const artistNames = track.artists.map(a => a.name).join(', ');
   const duration = formatDuration(track.duration_ms);
@@ -129,7 +131,11 @@ function TrackRow({ track }: TrackRowProps) {
         )}
         {hovered && (
           <div className={styles.playOverlay}>
-            <button className={styles.playBtn} aria-label={`Tocar ${track.name}`}>
+            <button 
+              className={styles.playBtn} 
+              aria-label={`Tocar ${track.name}`}
+              onClick={() => playTrack(track.uri)}
+            >
               <Play size={16} fill="currentColor" />
             </button>
           </div>

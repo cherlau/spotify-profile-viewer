@@ -56,6 +56,13 @@ async function resolveMock<T>(path: string): Promise<T> {
   if (cleanPath === '/me/albums') return mockSavedAlbums as T;
   if (cleanPath === '/me/shows') return mockSavedShows as T;
   if (cleanPath === '/me/player/queue') return mockQueue as T;
+  
+  // Mock para endpoints do Player (PUT/POST geralmente retornam 204 No Content, que aqui representamos como {})
+  if (cleanPath === '/me/player/play') return {} as T;
+  if (cleanPath === '/me/player/pause') return {} as T;
+  if (cleanPath === '/me/player/next') return {} as T;
+  if (cleanPath === '/me/player/previous') return {} as T;
+  if (cleanPath === '/me/player/volume') return {} as T;
 
   throw new Error(`[MOCK] Nenhum mock encontrado para o path: ${cleanPath}`);
 }
@@ -169,10 +176,21 @@ export async function fetchWithAuth<T>(
     await handleErrorResponse(response);
   }
 
-  // 204 No Content — return empty object cast to T
-  if (response.status === 204) {
+  // Handle successful responses (2xx)
+  if (response.status === 204 || response.status === 202) {
     return {} as T;
   }
 
-  return response.json() as Promise<T>;
+  const text = await response.text();
+  if (!text) {
+    return {} as T;
+  }
+
+  try {
+    return JSON.parse(text) as T;
+  } catch (err) {
+    console.error('Failed to parse Spotify API response as JSON:', text.substring(0, 100));
+    // If it's not JSON but the status was OK, return it as is (if T allows) or empty
+    return {} as T;
+  }
 }

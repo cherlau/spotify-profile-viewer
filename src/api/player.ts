@@ -32,8 +32,22 @@ export async function getQueue(): Promise<SpotifyQueueResponse | null> {
  * PUT /me/player/play
  * Scope: user-modify-playback-state
  */
-export async function play(): Promise<void> {
-  await fetchWithAuth('/me/player/play', { method: 'PUT' });
+export async function play(uri?: string, deviceId?: string | null): Promise<void> {
+  let body: string | undefined;
+  
+  if (uri) {
+    if (uri.includes(':track:')) {
+      body = JSON.stringify({ uris: [uri] });
+    } else {
+      body = JSON.stringify({ context_uri: uri });
+    }
+  }
+
+  const path = deviceId ? `/me/player/play?device_id=${deviceId}` : '/me/player/play';
+  await fetchWithAuth(path, { 
+    method: 'PUT',
+    body
+  });
 }
 
 /**
@@ -58,6 +72,14 @@ export async function next(): Promise<void> {
  */
 export async function previous(): Promise<void> {
   await fetchWithAuth('/me/player/previous', { method: 'POST' });
+}
+
+/**
+ * PUT /me/player/volume
+ * Scope: user-modify-playback-state
+ */
+export async function setVolume(volumePercent: number): Promise<void> {
+  await fetchWithAuth(`/me/player/volume?volume_percent=${Math.round(volumePercent)}`, { method: 'PUT' });
 }
 
 /**

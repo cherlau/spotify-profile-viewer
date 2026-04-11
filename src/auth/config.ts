@@ -3,6 +3,8 @@ export const REDIRECT_URI = import.meta.env.VITE_SPOTIFY_REDIRECT_URI as string;
 
 export const SCOPES = [
   'user-read-private',
+  'user-read-email',
+  'streaming',
   'user-top-read',
   'playlist-read-private',
   'playlist-read-collaborative',

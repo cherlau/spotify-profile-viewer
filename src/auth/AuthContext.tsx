@@ -24,17 +24,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     token: null,
   });
 
-  // Previne dupla execução do StrictMode em dev (que causaria dois refreshes
-  // simultâneos — o Spotify rotaciona o refresh token, então a segunda chamada
-  // usaria um token já expirado e limparia tudo, deslogando o usuário)
-  const refreshStarted = useRef(false);
+  // Cache para a promessa de refresh em andamento — evita múltiplas chamadas simultâneas
+  // (crucial para o React Strict Mode e para navegações rápidas)
+  const refreshPromiseRef = useRef<Promise<string> | null>(null);
+
+  const performRefresh = useCallback(async () => {
+    if (refreshPromiseRef.current) return refreshPromiseRef.current;
+
+    refreshPromiseRef.current = refreshAccessToken();
+    try {
+      const token = await refreshPromiseRef.current;
+      return token;
+    } finally {
+      refreshPromiseRef.current = null;
+    }
+  }, []);
 
   // On mount: if there's a refresh_token, attempt a silent refresh
   useEffect(() => {
-    if (refreshStarted.current) return;
-    refreshStarted.current = true;
+    let isMounted = true;
 
     const hasRefreshToken = Boolean(tokenStore.getRefreshToken());
+    console.log('[Auth] Inicializando... Tem refresh token?', hasRefreshToken);
 
     if (!hasRefreshToken) {
       setState({ isAuthenticated: false, isLoading: false, token: null });
@@ -44,21 +55,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // In-memory token still valid (e.g. same tab after a re-render) — skip fetch
     const memToken = tokenStore.getAccessToken();
     if (memToken && !tokenStore.isAccessTokenExpired()) {
+      console.log('[Auth] Usando token em memória válido.');
       setState({ isAuthenticated: true, isLoading: false, token: memToken });
       return;
     }
 
     // Attempt silent refresh
-    refreshAccessToken()
+    console.log('[Auth] Tentando silent refresh...');
+    performRefresh()
       .then(token => {
+        if (!isMounted) return;
+        console.log('[Auth] Silent refresh com sucesso.');
         setState({ isAuthenticated: true, isLoading: false, token });
       })
-      .catch(() => {
-        // Refresh token is invalid — user must log in again
-        tokenStore.clear();
+      .catch((err) => {
+        if (!isMounted) return;
+        console.error('[Auth] Falha no silent refresh:', err.message);
+        
+        // Só limpamos se o erro for 400 (Invalid Refresh Token), o spotify-auth.ts já faz isso, 
+        // mas aqui atualizamos o estado da UI para deslogar.
         setState({ isAuthenticated: false, isLoading: false, token: null });
       });
-  }, []);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [performRefresh]);
 
   const login = useCallback(async () => {
     await spotifyLogin();

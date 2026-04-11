@@ -88,7 +88,11 @@ export async function refreshAccessToken(): Promise<string> {
   });
 
   if (!response.ok) {
-    tokenStore.clear();
+    // Só limpamos o store se o Spotify confirmar que o token é inválido (400 Bad Request)
+    // Erros 500 ou outros podem ser instabilidades temporárias e não devem deslogar o usuário.
+    if (response.status === 400) {
+      tokenStore.clear();
+    }
     throw new Error(`Token refresh failed (${response.status})`);
   }
 
