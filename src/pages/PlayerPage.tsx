@@ -145,7 +145,7 @@ export function PlayerPage() {
             if (!old) return old;
             return optimisticUpdate(old);
           });
-        }, 120);
+        }, 100);
       }
 
       // 2. Executa a ação na API imediatamente

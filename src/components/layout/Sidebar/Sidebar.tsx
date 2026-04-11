@@ -36,7 +36,7 @@ export function Sidebar() {
     <aside className={styles.sidebar}>
       {/* Logo */}
       <div className={styles.logo}>
-        <span className={styles.logoText}>The Sonic Curator</span>
+        <span className={styles.logoText}>Perfil Spotify</span>
       </div>
 
       {/* Navegação principal */}

@@ -104,7 +104,7 @@ function SearchInput({
 
     const timer = setTimeout(() => {
       onQueryChange(localQuery);
-    }, 200);
+    }, 270);
 
     return () => clearTimeout(timer);
   }, [localQuery, initialQuery, onQueryChange]);
@@ -123,7 +123,7 @@ function SearchInput({
         value={localQuery}
         onChange={e => setLocalQuery(e.target.value)}
         onKeyDown={e => e.key === 'Escape' && handleClear()}
-        placeholder="Buscar artistas, músicas, podcasts…"
+        placeholder="Buscar artistas, músicas, álbuns…"
         className={styles.searchInput}
         aria-label="Buscar"
       />
@@ -275,7 +275,7 @@ export function AppHeader() {
                 />
               )}
             </div>
-            <span className={styles.mobileLogo}>THE SONIC CURATOR</span>
+            <span className={styles.mobileLogo}>Perfil Spotify</span>
           </div>
 
           {/* Sem ação real — mantido por visual */}
