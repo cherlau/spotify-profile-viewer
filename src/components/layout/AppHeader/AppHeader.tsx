@@ -86,6 +86,31 @@ export function AppHeader() {
   // Query de busca derivada diretamente da URL
   const query = searchParams.get('q') ?? '';
 
+  // Estado local para o input de busca (evita o lag de navegar a cada tecla)
+  const [localQuery, setLocalQuery] = useState(query);
+
+  // Sincroniza o estado local quando a URL muda externamente (ex: limpando a busca)
+  useEffect(() => {
+    setLocalQuery(query);
+  }, [query]);
+
+  // Debounce para atualizar a URL apenas após o usuário parar de digitar
+  useEffect(() => {
+    if (localQuery === query) return;
+
+    const timer = setTimeout(() => {
+      if (localQuery.trim()) {
+        navigate(`/library?q=${encodeURIComponent(localQuery)}`, {
+          replace: location.pathname === '/library',
+        });
+      } else if (location.pathname === '/library') {
+        navigate('/library', { replace: true });
+      }
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, [localQuery, query, navigate, location.pathname]);
+
   // Dados do usuário vindos da API
   const displayName = profile?.display_name ?? '';
   const avatarUrl =
@@ -114,17 +139,11 @@ export function AppHeader() {
   }
 
   function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    if (value.trim()) {
-      navigate(`/library?q=${encodeURIComponent(value)}`, {
-        replace: location.pathname === '/library',
-      });
-    } else if (location.pathname === '/library') {
-      navigate('/library', { replace: true });
-    }
+    setLocalQuery(e.target.value);
   }
 
   function handleClear() {
+    setLocalQuery('');
     if (location.pathname === '/library') {
       navigate('/library', { replace: true });
     }
@@ -146,14 +165,14 @@ export function AppHeader() {
             <Search size={16} className={styles.searchIcon} />
             <input
               type="text"
-              value={query}
+              value={localQuery}
               onChange={handleSearchChange}
               onKeyDown={handleSearchKeyDown}
               placeholder="Buscar artistas, músicas, podcasts…"
               className={styles.searchInput}
               aria-label="Buscar"
             />
-            {query && (
+            {localQuery && (
               <button className={styles.clearBtn} onClick={handleClear} aria-label="Limpar busca">
                 <X size={14} />
               </button>
