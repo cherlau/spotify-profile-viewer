@@ -10,13 +10,12 @@ import { ErrorState } from '../components/shared/ErrorState';
 import type { SpotifyTrack, SpotifyArtist, SpotifyAlbum, SpotifyShow } from '../types/spotify';
 import styles from './LibraryPage.module.css';
 
-type Tab = 'music' | 'albums' | 'artists' | 'podcasts';
+type Tab = 'music' | 'albums' | 'artists';
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'music', label: 'Music' },
-  { key: 'albums', label: 'Albums' },
   { key: 'artists', label: 'Artists' },
-  { key: 'podcasts', label: 'Podcasts' },
+  { key: 'albums', label: 'Albums' }
 ];
 
 function formatDuration(ms: number): string {

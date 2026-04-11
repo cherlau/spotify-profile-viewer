@@ -6,6 +6,7 @@ import { ProfilePage } from './pages/ProfilePage';
 import { PlaylistsPage } from './pages/PlaylistsPage';
 import { LibraryPage } from './pages/LibraryPage';
 import { PlayerPage } from './pages/PlayerPage';
+import { PodcastsPage } from './pages/PodcastsPage';
 import { AppLayout } from './components/layout/AppLayout';
 import type { ReactNode } from 'react';
 
@@ -79,6 +80,17 @@ export default function App() {
           <ProtectedRoute>
             <AppShell>
               <PlayerPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/podcasts"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <PodcastsPage />
             </AppShell>
           </ProtectedRoute>
         }

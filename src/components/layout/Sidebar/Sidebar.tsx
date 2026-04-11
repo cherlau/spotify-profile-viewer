@@ -14,14 +14,12 @@ import styles from './Sidebar.module.css';
 const navItems = [
   { icon: Home, label: 'Home', to: '/' },
   { icon: Search, label: 'Search', to: '/search' },
-  { icon: Library, label: 'Library', to: '/library' },
   { icon: Music2, label: 'Now Playing', to: '/player' },
 ];
 
 const collectionItems = [
-  { icon: PlusSquare, label: 'Create Playlist', to: '/playlists/new' },
+  { icon: Library, label: 'Library', to: '/library' },
   { icon: Library, label: 'Playlists', to: '/playlists' },
-  { icon: Heart, label: 'Liked Songs', to: '/liked' },
   { icon: Mic2, label: 'Podcasts', to: '/podcasts' },
 ];
 

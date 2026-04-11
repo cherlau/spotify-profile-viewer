@@ -6,13 +6,11 @@ import { LoadingState } from '../components/shared/LoadingState';
 import { ErrorState } from '../components/shared/ErrorState';
 import styles from './PlaylistsPage.module.css';
 
-type Filter = 'all' | 'recent' | 'by_you' | 'liked';
+type Filter = 'all' | 'by_you';
 
 const FILTERS: { key: Filter; label: string }[] = [
   { key: 'all', label: 'All Playlists' },
-  { key: 'recent', label: 'Recently Added' },
-  { key: 'by_you', label: 'By You' },
-  { key: 'liked', label: 'Liked' },
+  { key: 'by_you', label: 'By You' }
 ];
 
 export function PlaylistsPage() {
@@ -48,7 +46,6 @@ export function PlaylistsPage() {
         </div>
         <div className={styles.headerBottom}>
           <h1 className={styles.headerTitle}>Playlists.</h1>
-          <button className={styles.createButton}>Create Playlist</button>
         </div>
       </header>
 
