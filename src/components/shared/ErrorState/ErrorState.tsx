@@ -7,7 +7,7 @@ interface ErrorStateProps {
 }
 
 export function ErrorState({
-  message = 'Something went wrong.',
+  message = 'Ocorreu um erro.',
   onRetry,
 }: ErrorStateProps) {
   return (
@@ -16,7 +16,7 @@ export function ErrorState({
       <p className={styles.message}>{message}</p>
       {onRetry && (
         <button className={styles.retryBtn} onClick={onRetry}>
-          Try again
+          Tentar novamente
         </button>
       )}
     </div>

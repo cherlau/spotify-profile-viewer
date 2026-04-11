@@ -41,7 +41,7 @@ function TrackRow({ track, rank }: { track: SpotifyTrack; rank: number }) {
         )}
         {hovered && (
           <div className={styles.playOverlay}>
-            <button className={styles.playBtn} aria-label={`Play ${track.name}`}>
+            <button className={styles.playBtn} aria-label={`Tocar ${track.name}`}>
               <Play size={16} fill="currentColor" />
             </button>
           </div>
@@ -71,7 +71,7 @@ function TrackRow({ track, rank }: { track: SpotifyTrack; rank: number }) {
 
 export function TopTracksSection({ tracks, isLoading }: TopTracksSectionProps) {
   if (isLoading) {
-    return <LoadingState message="Loading top tracks…" />;
+    return <LoadingState message="Carregando suas músicas mais tocadas…" />;
   }
 
   if (tracks.length === 0) {
@@ -81,16 +81,16 @@ export function TopTracksSection({ tracks, isLoading }: TopTracksSectionProps) {
   const displayTracks = tracks.slice(0, TRACKS_LIMIT);
 
   return (
-    <section className={styles.section} aria-label="Top Tracks">
+    <section className={styles.section} aria-label="Músicas mais tocadas">
       <div className={styles.sectionHeader}>
-        <h2 className={styles.sectionTitle}>Your Top Tracks</h2>
+        <h2 className={styles.sectionTitle}>Músicas mais tocadas</h2>
         <a
           href="https://open.spotify.com/collection/tracks"
           target="_blank"
           rel="noopener noreferrer"
           className={styles.seeAll}
         >
-          SEE ALL
+          VER TUDO
         </a>
       </div>
 

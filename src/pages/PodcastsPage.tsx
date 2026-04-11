@@ -38,7 +38,7 @@ function ShowCard({ show }: { show: SpotifyShow }) {
         <p className={styles.showDescription}>{show.description}</p>
         <div className={styles.showMeta}>
           {show.total_episodes != null && (
-            <span className={styles.episodeCount}>{show.total_episodes} episodes</span>
+            <span className={styles.episodeCount}>{show.total_episodes} episódios</span>
           )}
         </div>
       </div>
@@ -53,19 +53,19 @@ export function PodcastsPage() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <span className={styles.headerLabel}>Collection</span>
+        <span className={styles.headerLabel}>Seus Podcasts</span>
         <h1 className={styles.headerTitle}>Podcasts</h1>
         <p className={styles.headerDesc}>
-          Your favorite shows and episodes, all in one place.
+          Seus programas e episódios favoritos, tudo em um só lugar.
         </p>
       </header>
 
       {isLoading ? (
-        <LoadingState message="Loading podcasts..." />
+        <LoadingState message="Carregando podcasts..." />
       ) : isError ? (
-        <ErrorState message="Could not load podcasts." onRetry={refetch} />
+        <ErrorState message="Não foi possível carregar os podcasts." onRetry={refetch} />
       ) : shows.length === 0 ? (
-        <p className={styles.empty}>No podcasts in your library yet.</p>
+        <p className={styles.empty}>Nenhum podcast na sua biblioteca ainda.</p>
       ) : (
         <div className={styles.showList}>
           {shows.map(item => (

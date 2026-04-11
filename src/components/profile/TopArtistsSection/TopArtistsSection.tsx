@@ -13,7 +13,7 @@ const DESKTOP_LIMIT = 4;
 
 export function TopArtistsSection({ artists, isLoading }: TopArtistsSectionProps) {
   if (isLoading) {
-    return <LoadingState message="Loading top artists…" />;
+    return <LoadingState message="Carregando seus artistas favoritos…" />;
   }
 
   if (artists.length === 0) {
@@ -23,12 +23,12 @@ export function TopArtistsSection({ artists, isLoading }: TopArtistsSectionProps
   const desktopArtists = artists.slice(0, DESKTOP_LIMIT);
 
   return (
-    <section className={styles.section} aria-label="Top Artists">
+    <section className={styles.section} aria-label="Artistas favoritos">
       {/* ── Header Mobile ── */}
       <div className={styles.headerMobile}>
         <div className={styles.headerText}>
-          <h2 className={styles.titleMobile}>Your Top Artists</h2>
-          <p className={styles.subtitle}>Based on your recent playback</p>
+          <h2 className={styles.titleMobile}>Seus artistas favoritos</h2>
+          <p className={styles.subtitle}>Com base no que você ouviu recentemente</p>
         </div>
         <a
           href="https://open.spotify.com/collection/artists"
@@ -36,20 +36,20 @@ export function TopArtistsSection({ artists, isLoading }: TopArtistsSectionProps
           rel="noopener noreferrer"
           className={styles.seeAllLink}
         >
-          SEE ALL
+          VER TUDO
         </a>
       </div>
 
       {/* ── Header Desktop ── */}
       <div className={styles.headerDesktop}>
-        <h2 className={styles.titleDesktop}>Top Artists</h2>
+        <h2 className={styles.titleDesktop}>Artistas</h2>
         <a
           href="https://open.spotify.com/collection/artists"
           target="_blank"
           rel="noopener noreferrer"
           className={styles.showAllLink}
         >
-          See All
+          Ver tudo
         </a>
       </div>
 

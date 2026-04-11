@@ -60,8 +60,8 @@ export function PlayerPage() {
 
   const { data: recentData, isLoading, isError, refetch } = useRecentlyPlayed(10);
 
-  if (isLoading) return <LoadingState message="Loading player…" />;
-  if (isError) return <ErrorState message="Could not load player." onRetry={refetch} />;
+  if (isLoading) return <LoadingState message="Carregando o player…" />;
+  if (isError) return <ErrorState message="Não foi possível carregar o player." onRetry={refetch} />;
 
   const tracks = recentData?.items.map(i => i.track) ?? [];
   const nowPlaying = tracks[0] ?? null;
@@ -71,7 +71,7 @@ export function PlayerPage() {
     return (
       <div className={styles.empty}>
         <Music size={48} strokeWidth={1.5} />
-        <p>No recently played tracks.</p>
+        <p>Nenhuma música tocada recentemente.</p>
       </div>
     );
   }
@@ -121,7 +121,7 @@ export function PlayerPage() {
               <button
                 className={styles.artPlayBtn}
                 onClick={togglePlay}
-                aria-label={isPlaying ? 'Pause' : 'Play'}
+                aria-label={isPlaying ? 'Pausar' : 'Tocar'}
               >
                 {isPlaying
                   ? <Pause size={40} fill="currentColor" strokeWidth={0} />
@@ -147,7 +147,7 @@ export function PlayerPage() {
             <button
               className={`${styles.actionIconBtn} ${isLiked ? styles.actionIconBtnLiked : ''}`}
               onClick={() => setIsLiked(p => !p)}
-              aria-label={isLiked ? 'Unlike' : 'Like'}
+              aria-label={isLiked ? 'Remover dos favoritos' : 'Curtir'}
             >
               <Heart size={24} fill={isLiked ? 'currentColor' : 'none'} strokeWidth={isLiked ? 0 : 2} />
             </button>
@@ -155,7 +155,7 @@ export function PlayerPage() {
             <button
               className={styles.playActionBtn}
               onClick={togglePlay}
-              aria-label={isPlaying ? 'Pause' : 'Play'}
+              aria-label={isPlaying ? 'Pausar' : 'Tocar'}
             >
               {isPlaying
                 ? <Pause size={26} fill="currentColor" strokeWidth={0} />
@@ -163,7 +163,7 @@ export function PlayerPage() {
               }
             </button>
 
-            <button className={styles.actionIconBtn} aria-label="More options">
+            <button className={styles.actionIconBtn} aria-label="Mais opções">
               <MoreHorizontal size={24} />
             </button>
           </div>
@@ -188,26 +188,26 @@ export function PlayerPage() {
 
           {/* Controles de playback grandes */}
           <div className={styles.controls}>
-            <button className={styles.controlBtn} aria-label="Shuffle">
+            <button className={styles.controlBtn} aria-label="Ordem aleatória">
               <Shuffle size={22} />
             </button>
-            <button className={styles.controlBtn} aria-label="Previous">
+            <button className={styles.controlBtn} aria-label="Anterior">
               <SkipBack size={28} fill="currentColor" strokeWidth={0} />
             </button>
             <button
               className={styles.playLargeBtn}
               onClick={togglePlay}
-              aria-label={isPlaying ? 'Pause' : 'Play'}
+              aria-label={isPlaying ? 'Pausar' : 'Tocar'}
             >
               {isPlaying
                 ? <Pause size={34} fill="currentColor" strokeWidth={0} />
                 : <Play size={34} fill="currentColor" strokeWidth={0} />
               }
             </button>
-            <button className={styles.controlBtn} aria-label="Next">
+            <button className={styles.controlBtn} aria-label="Próxima">
               <SkipForward size={28} fill="currentColor" strokeWidth={0} />
             </button>
-            <button className={styles.controlBtn} aria-label="Repeat">
+            <button className={styles.controlBtn} aria-label="Repetir">
               <Repeat size={22} />
             </button>
           </div>
@@ -215,7 +215,7 @@ export function PlayerPage() {
           {/* Next in Queue — visível no mobile, oculto no desktop (está na sidebar) */}
           {queue.length > 0 && (
             <section className={`${styles.queueSection} ${styles.queueMobile}`}>
-              <h2 className={styles.queueTitle}>Next in Queue</h2>
+              <h2 className={styles.queueTitle}>Próxima na fila</h2>
               <div className={styles.queueList}>
                 {queue.map((track, i) => (
                   <QueueItem key={track.id} track={track} rank={i + 1} />
@@ -230,7 +230,7 @@ export function PlayerPage() {
 
           {/* Next in Queue */}
           <section className={styles.sidePanel}>
-            <h2 className={styles.sidePanelTitle}>Next in Queue</h2>
+            <h2 className={styles.sidePanelTitle}>Próxima na fila</h2>
             {queue.length > 0 ? (
               <div className={styles.queueList}>
                 {queue.map((track, i) => (
@@ -238,17 +238,17 @@ export function PlayerPage() {
                 ))}
               </div>
             ) : (
-              <p className={styles.sidePanelEmpty}>Queue is empty.</p>
+              <p className={styles.sidePanelEmpty}>A fila está vazia.</p>
             )}
           </section>
 
           {/* Lyrics */}
           <section className={styles.sidePanel}>
-            <h2 className={styles.sidePanelTitle}>Lyrics</h2>
+            <h2 className={styles.sidePanelTitle}>Letras</h2>
             <div className={styles.lyricsContent}>
               <p className={styles.lyricsPlaceholder}>
-                Lyrics are not available via the Spotify Web API.
-                Open Spotify to see synchronized lyrics for this track.
+                As letras não estão disponíveis via API do Spotify.
+                Abra o Spotify para ver as letras sincronizadas desta faixa.
               </p>
             </div>
           </section>
@@ -257,7 +257,7 @@ export function PlayerPage() {
           <section className={styles.sidePanel}>
             <h2 className={styles.sidePanelTitle}>
               <Mic2 size={16} />
-              About {nowPlaying.artists[0]?.name}
+              Sobre {nowPlaying.artists[0]?.name}
             </h2>
             <div className={styles.aboutContent}>
               {imageUrl && (
@@ -266,8 +266,7 @@ export function PlayerPage() {
                 </div>
               )}
               <p className={styles.aboutText}>
-                Explore {nowPlaying.artists[0]?.name}'s full discography, top tracks,
-                and related artists on Spotify.
+                Explore a discografia completa de {nowPlaying.artists[0]?.name}, suas principais faixas e artistas relacionados no Spotify.
               </p>
               <a
                 href={nowPlaying.artists[0]?.external_urls.spotify}
@@ -275,7 +274,7 @@ export function PlayerPage() {
                 rel="noopener noreferrer"
                 className={styles.aboutLink}
               >
-                View on Spotify →
+                Ver no Spotify →
               </a>
             </div>
           </section>

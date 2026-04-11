@@ -9,7 +9,7 @@ interface ArtistCardProps {
 }
 
 export function ArtistCard({ name, imageUrl, genres, spotifyUrl }: ArtistCardProps) {
-  const genre = genres?.[0] ?? 'Artist';
+  const genre = genres?.[0] ?? 'Artista';
 
   return (
     <a

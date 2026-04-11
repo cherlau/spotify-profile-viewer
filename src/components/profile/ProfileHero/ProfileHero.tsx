@@ -72,7 +72,7 @@ function MobileHero({ displayName, avatarUrl, followers, following, playlists, p
             </div>
           )}
           {/* Badge verificado */}
-          <span className={styles.verifiedBadge} aria-label="Verified">
+          <span className={styles.verifiedBadge} aria-label="Verificado">
             <BadgeCheck size={20} />
           </span>
         </div>
@@ -87,11 +87,11 @@ function MobileHero({ displayName, avatarUrl, followers, following, playlists, p
         <div className={styles.statsRow}>
           <div className={styles.statItem}>
             <span className={styles.statNumber}>{followers.toLocaleString()}</span>
-            <span className={styles.statLabel}>Followers</span>
+            <span className={styles.statLabel}>Seguidores</span>
           </div>
           <div className={styles.statItem}>
             <span className={styles.statNumber}>{following.toLocaleString()}</span>
-            <span className={styles.statLabel}>Following</span>
+            <span className={styles.statLabel}>Seguindo</span>
           </div>
           <div className={styles.statItem}>
             <span className={styles.statNumber}>{playlists.toLocaleString()}</span>
@@ -136,11 +136,11 @@ function DesktopHero({ displayName, avatarUrl, followers, following, playlists, 
           <div className={styles.statsRowDesktop}>
             <div className={styles.statItem}>
               <span className={styles.statNumber}>{followers.toLocaleString()}</span>
-              <span className={styles.statLabel}>Followers</span>
+              <span className={styles.statLabel}>Seguidores</span>
             </div>
             <div className={styles.statItem}>
               <span className={styles.statNumber}>{following.toLocaleString()}</span>
-              <span className={styles.statLabel}>Following</span>
+              <span className={styles.statLabel}>Seguindo</span>
             </div>
             <div className={styles.statItem}>
               <span className={styles.statNumber}>{playlists.toLocaleString()}</span>

@@ -18,13 +18,13 @@ export function ProfilePage() {
   const { data: followedArtistsData } = useFollowedArtists(50);
 
   if (profileLoading) {
-    return <LoadingState message="Loading your profile…" />;
+    return <LoadingState message="Carregando seu perfil…" />;
   }
 
   if (profileError || !profile) {
     return (
       <ErrorState
-        message="Could not load your profile."
+        message="Não foi possível carregar seu perfil."
         onRetry={refetch}
       />
     );

@@ -3,8 +3,7 @@ import {
   Home,
   Search,
   Library,
-  PlusSquare,
-  Heart,
+  DiscAlbum,
   Mic2,
   Crown,
   Music2,
@@ -12,14 +11,14 @@ import {
 import styles from './Sidebar.module.css';
 
 const navItems = [
-  { icon: Home, label: 'Home', to: '/' },
-  { icon: Search, label: 'Search', to: '/search' },
-  { icon: Music2, label: 'Now Playing', to: '/player' },
+  { icon: Home, label: 'Início', to: '/' },
+  { icon: Search, label: 'Buscar', to: '/search' },
+  { icon: Music2, label: 'Tocando Agora', to: '/player' },
 ];
 
 const collectionItems = [
-  { icon: Library, label: 'Library', to: '/library' },
-  { icon: Library, label: 'Playlists', to: '/playlists' },
+  { icon: Library, label: 'Biblioteca', to: '/library' },
+  { icon: DiscAlbum, label: 'Playlists', to: '/playlists' },
   { icon: Mic2, label: 'Podcasts', to: '/podcasts' },
 ];
 
@@ -50,7 +49,7 @@ export function Sidebar() {
 
       {/* Separador "YOUR COLLECTION" */}
       <div className={styles.separator}>
-        <span className={styles.separatorLabel}>Your Collection</span>
+        <span className={styles.separatorLabel}>Sua Coleção</span>
       </div>
 
       {/* Sub-itens da coleção */}
@@ -72,9 +71,9 @@ export function Sidebar() {
       {/* Card Premium no rodapé */}
       <div className={styles.premiumCard}>
         <Crown size={16} className={styles.premiumIcon} />
-        <p className={styles.premiumTitle}>Premium Member</p>
-        <p className={styles.premiumDesc}>Enjoy unlimited skips and ad-free listening</p>
-        <button className={styles.premiumButton}>Upgrade Plan</button>
+        <p className={styles.premiumTitle}>Membro Premium</p>
+        <p className={styles.premiumDesc}>Ouça músicas sem anúncios e pule quantas faixas quiser</p>
+        <button className={styles.premiumButton}>Mudar de plano</button>
       </div>
     </aside>
   );

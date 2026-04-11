@@ -15,9 +15,9 @@ export function LoginPage() {
         </div>
 
         {/* Heading */}
-        <h1 style={styles.heading}>Your music,<br />your story.</h1>
+        <h1 style={styles.heading}>Sua música,<br />sua história.</h1>
         <p style={styles.subtext}>
-          Connect your Spotify account to explore your top artists, tracks, and listening habits.
+          Conecte sua conta do Spotify para explorar seus artistas e faixas favoritos, além de seus hábitos de audição.
         </p>
 
         {/* CTA */}
@@ -29,13 +29,13 @@ export function LoginPage() {
           <svg style={styles.buttonIcon} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm5.52 17.28a.748.748 0 0 1-1.03.25c-2.822-1.724-6.376-2.114-10.563-1.158a.748.748 0 1 1-.333-1.458c4.584-1.048 8.515-.596 11.677 1.337a.747.747 0 0 1 .249 1.03zm1.473-3.28a.935.935 0 0 1-1.287.308c-3.23-1.985-8.153-2.56-11.976-1.402a.937.937 0 0 1-.542-1.791c4.363-1.324 9.786-.683 13.497 1.597a.935.935 0 0 1 .308 1.288zm.127-3.408C15.37 8.505 9.218 8.296 5.81 9.34a1.122 1.122 0 1 1-.65-2.148C9.423 5.985 16.224 6.23 20.1 8.53a1.123 1.123 0 0 1-1.08 1.962v.1z" />
           </svg>
-          {isLoading ? 'Connecting…' : 'Connect with Spotify'}
+          {isLoading ? 'Conectando…' : 'Conectar com o Spotify'}
         </button>
 
         <p style={styles.legal}>
-          Requires a Spotify Premium account.
+          Requer uma conta Premium do Spotify.
           <br />
-          We only request read permissions — we never modify your library.
+          Solicitamos apenas permissão de leitura — nunca alteramos sua biblioteca.
         </p>
       </div>
     </div>

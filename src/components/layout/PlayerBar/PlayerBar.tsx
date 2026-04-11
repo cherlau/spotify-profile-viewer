@@ -4,7 +4,7 @@ export function PlayerBar() {
   return (
     <div className={styles.playerDesktop}>
       <iframe
-        title="Spotify Player"
+        title="Player do Spotify"
         src="https://open.spotify.com/embed/playlist/2cdTXqcjfyGIHBtwDIlk8P?utm_source=generator&theme=0"
         width="100%"
         height="80"

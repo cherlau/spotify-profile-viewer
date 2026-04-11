@@ -13,9 +13,9 @@ import styles from './LibraryPage.module.css';
 type Tab = 'music' | 'albums' | 'artists';
 
 const TABS: { key: Tab; label: string }[] = [
-  { key: 'music', label: 'Music' },
-  { key: 'artists', label: 'Artists' },
-  { key: 'albums', label: 'Albums' }
+  { key: 'music', label: 'Música' },
+  { key: 'artists', label: 'Artistas' },
+  { key: 'albums', label: 'Álbuns' }
 ];
 
 function formatDuration(ms: number): string {
@@ -64,7 +64,7 @@ function AlbumRow({ album }: { album: SpotifyAlbum }) {
         </span>
       </div>
       <div className={styles.trackActions}>
-        <button className={styles.actionBtn} aria-label="More options">
+        <button className={styles.actionBtn} aria-label="Mais opções">
           <MoreHorizontal size={18} />
         </button>
       </div>
@@ -91,12 +91,12 @@ function ShowRow({ show }: { show: SpotifyShow }) {
         <span className={styles.trackSub}>
           {show.publisher}
           {show.total_episodes != null && (
-            <><span className={styles.trackDot}> • </span>{show.total_episodes} episodes</>
+            <><span className={styles.trackDot}> • </span>{show.total_episodes} episódios</>
           )}
         </span>
       </div>
       <div className={styles.trackActions}>
-        <button className={styles.actionBtn} aria-label="More options">
+        <button className={styles.actionBtn} aria-label="Mais opções">
           <MoreHorizontal size={18} />
         </button>
       </div>
@@ -124,7 +124,7 @@ function ArtistRow({ artist }: { artist: SpotifyArtist }) {
         {genres && <span className={styles.trackSub}>{genres}</span>}
       </div>
       <div className={styles.trackActions}>
-        <button className={styles.actionBtn} aria-label="More options">
+        <button className={styles.actionBtn} aria-label="Mais opções">
           <MoreHorizontal size={18} />
         </button>
       </div>
@@ -159,7 +159,7 @@ function TrackRow({ track }: TrackRowProps) {
         )}
         {hovered && (
           <div className={styles.playOverlay}>
-            <button className={styles.playBtn} aria-label={`Play ${track.name}`}>
+            <button className={styles.playBtn} aria-label={`Tocar ${track.name}`}>
               <Play size={16} fill="currentColor" />
             </button>
           </div>
@@ -178,10 +178,10 @@ function TrackRow({ track }: TrackRowProps) {
 
       {/* Ações */}
       <div className={styles.trackActions}>
-        <button className={styles.actionBtn} aria-label="Like">
+        <button className={styles.actionBtn} aria-label="Curtir">
           <Heart size={18} />
         </button>
-        <button className={styles.actionBtn} aria-label="More options">
+        <button className={styles.actionBtn} aria-label="Mais opções">
           <MoreHorizontal size={18} />
         </button>
       </div>
@@ -244,30 +244,30 @@ export function LibraryPage() {
     <div className={styles.page}>
       {/* Header editorial */}
       <header className={styles.header}>
-        <span className={styles.headerLabel}>Your Collection</span>
+        <span className={styles.headerLabel}>Sua Coleção</span>
         <h1 className={styles.headerTitle}>
-          {searchQuery ? `"${searchQuery}"` : 'Your Library'}
+          {searchQuery ? `"${searchQuery}"` : 'Biblioteca'}
         </h1>
         <p className={styles.headerDesc}>
           {searchQuery
-            ? `${totalResults} result${totalResults !== 1 ? 's' : ''} across music, artists, albums and podcasts`
-            : 'Everything you\'ve saved, played, and loved — all in one place.'}
+            ? `${totalResults} resultado${totalResults !== 1 ? 's' : ''} em músicas, artistas, álbuns e podcasts`
+            : 'Tudo o que você salvou, ouviu e amou — tudo em um só lugar.'}
         </p>
       </header>
 
       {searchQuery ? (
         /* ── Modo de busca: resultados agrupados por categoria ─────── */
         <div>
-          {isAnyLoading && <LoadingState message="Searching…" />}
+          {isAnyLoading && <LoadingState message="Buscando…" />}
 
           {!isAnyLoading && totalResults === 0 && (
-            <p className={styles.empty}>No results found for "{searchQuery}".</p>
+            <p className={styles.empty}>Nenhum resultado encontrado para "{searchQuery}".</p>
           )}
 
           {filteredTracks.length > 0 && (
             <section className={styles.tracksSection}>
               <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>Music</h2>
+                <h2 className={styles.sectionTitle}>Música</h2>
                 <span className={styles.resultCount}>{filteredTracks.length}</span>
               </div>
               <div className={styles.trackList}>
@@ -281,7 +281,7 @@ export function LibraryPage() {
           {filteredArtists.length > 0 && (
             <section className={styles.tracksSection}>
               <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>Artists</h2>
+                <h2 className={styles.sectionTitle}>Artistas</h2>
                 <span className={styles.resultCount}>{filteredArtists.length}</span>
               </div>
               <div className={styles.trackList}>
@@ -295,7 +295,7 @@ export function LibraryPage() {
           {filteredAlbums.length > 0 && (
             <section className={styles.tracksSection}>
               <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>Albums</h2>
+                <h2 className={styles.sectionTitle}>Álbuns</h2>
                 <span className={styles.resultCount}>{filteredAlbums.length}</span>
               </div>
               <div className={styles.trackList}>
@@ -341,15 +341,15 @@ export function LibraryPage() {
           {activeTab === 'music' && (
             <section className={styles.tracksSection}>
               <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>Recently Played</h2>
-                <button className={styles.seeAll}>SEE ALL</button>
+                <h2 className={styles.sectionTitle}>Tocadas recentemente</h2>
+                <button className={styles.seeAll}>VER TUDO</button>
               </div>
               {recentLoading ? (
-                <LoadingState message="Loading tracks…" />
+                <LoadingState message="Carregando músicas…" />
               ) : recentError ? (
-                <ErrorState message="Could not load recently played tracks." onRetry={refetchRecent} />
+                <ErrorState message="Não foi possível carregar as músicas tocadas recentemente." onRetry={refetchRecent} />
               ) : tracks.length === 0 ? (
-                <p className={styles.empty}>No tracks found.</p>
+                <p className={styles.empty}>Nenhuma música encontrada.</p>
               ) : (
                 <div className={styles.trackList}>
                   {tracks.slice(0, 20).map(track => (
@@ -364,14 +364,14 @@ export function LibraryPage() {
           {activeTab === 'artists' && (
             <section className={styles.tracksSection}>
               <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>Following</h2>
+                <h2 className={styles.sectionTitle}>Seguindo</h2>
               </div>
               {artistsLoading ? (
-                <LoadingState message="Loading artists…" />
+                <LoadingState message="Carregando artistas…" />
               ) : artistsError ? (
-                <ErrorState message="Could not load followed artists." onRetry={refetchArtists} />
+                <ErrorState message="Não foi possível carregar os artistas seguidos." onRetry={refetchArtists} />
               ) : artists.length === 0 ? (
-                <p className={styles.empty}>No followed artists yet.</p>
+                <p className={styles.empty}>Nenhum artista seguido ainda.</p>
               ) : (
                 <div className={styles.trackList}>
                   {artists.map(artist => (
@@ -386,14 +386,14 @@ export function LibraryPage() {
           {activeTab === 'albums' && (
             <section className={styles.tracksSection}>
               <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>Saved Albums</h2>
+                <h2 className={styles.sectionTitle}>Álbuns salvos</h2>
               </div>
               {albumsLoading ? (
-                <LoadingState message="Loading albums…" />
+                <LoadingState message="Carregando álbuns…" />
               ) : albumsError ? (
-                <ErrorState message="Could not load saved albums." onRetry={refetchAlbums} />
+                <ErrorState message="Não foi possível carregar os álbuns salvos." onRetry={refetchAlbums} />
               ) : albums.length === 0 ? (
-                <p className={styles.empty}>No saved albums yet.</p>
+                <p className={styles.empty}>Nenhum álbum salvo ainda.</p>
               ) : (
                 <div className={styles.trackList}>
                   {albums.map(album => (
@@ -408,14 +408,14 @@ export function LibraryPage() {
           {activeTab === 'podcasts' && (
             <section className={styles.tracksSection}>
               <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>Your Podcasts</h2>
+                <h2 className={styles.sectionTitle}>Seus Podcasts</h2>
               </div>
               {showsLoading ? (
-                <LoadingState message="Loading podcasts…" />
+                <LoadingState message="Carregando podcasts…" />
               ) : showsError ? (
-                <ErrorState message="Could not load your podcasts." onRetry={refetchShows} />
+                <ErrorState message="Não foi possível carregar seus podcasts." onRetry={refetchShows} />
               ) : shows.length === 0 ? (
-                <p className={styles.empty}>No podcasts in your library yet.</p>
+                <p className={styles.empty}>Nenhum podcast na sua biblioteca ainda.</p>
               ) : (
                 <div className={styles.trackList}>
                   {shows.map(show => (

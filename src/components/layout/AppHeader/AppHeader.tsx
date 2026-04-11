@@ -7,9 +7,9 @@ import { useProfile } from '../../../hooks/useProfile';
 import styles from './AppHeader.module.css';
 
 const desktopNavLinks = [
-  { label: 'Discover', to: '/' },
+  { label: 'Descobrir', to: '/' },
   { label: 'Playlists', to: '/playlists' },
-  { label: 'Library', to: '/library' },
+  { label: 'Biblioteca', to: '/library' },
 ];
 
 // Foto se disponível, inicial caso contrário
@@ -61,12 +61,12 @@ function AccountMenu({
           rel="noopener noreferrer"
         >
           <ExternalLink size={14} />
-          Spotify profile
+          Perfil no Spotify
         </a>
       )}
       <button className={styles.menuItem} onClick={onLogout}>
         <LogOut size={14} />
-        Sign out
+        Sair
       </button>
     </div>
   );
@@ -149,12 +149,12 @@ export function AppHeader() {
               value={query}
               onChange={handleSearchChange}
               onKeyDown={handleSearchKeyDown}
-              placeholder="Search artists, tracks, podcasts…"
+              placeholder="Buscar artistas, músicas, podcasts…"
               className={styles.searchInput}
-              aria-label="Search"
+              aria-label="Buscar"
             />
             {query && (
-              <button className={styles.clearBtn} onClick={handleClear} aria-label="Clear search">
+              <button className={styles.clearBtn} onClick={handleClear} aria-label="Limpar busca">
                 <X size={14} />
               </button>
             )}
@@ -183,7 +183,7 @@ export function AppHeader() {
               <button
                 className={styles.avatarBtn}
                 onClick={() => setMenuOpen(o => !o)}
-                aria-label="Account menu"
+                aria-label="Menu da conta"
                 aria-expanded={menuOpen}
               >
                 <AvatarImage
@@ -213,7 +213,7 @@ export function AppHeader() {
               <button
                 className={styles.avatarBtn}
                 onClick={() => setMenuOpen(o => !o)}
-                aria-label="Account menu"
+                aria-label="Menu da conta"
                 aria-expanded={menuOpen}
               >
                 <AvatarImage

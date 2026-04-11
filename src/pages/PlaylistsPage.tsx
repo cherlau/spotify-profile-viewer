@@ -9,8 +9,8 @@ import styles from './PlaylistsPage.module.css';
 type Filter = 'all' | 'by_you';
 
 const FILTERS: { key: Filter; label: string }[] = [
-  { key: 'all', label: 'All Playlists' },
-  { key: 'by_you', label: 'By You' }
+  { key: 'all', label: 'Todas as Playlists' },
+  { key: 'by_you', label: 'Criadas por você' }
 ];
 
 export function PlaylistsPage() {
@@ -20,11 +20,11 @@ export function PlaylistsPage() {
   const { data: profile } = useProfile();
 
   if (playlistsLoading) {
-    return <LoadingState message="Loading your library…" />;
+    return <LoadingState message="Carregando sua biblioteca…" />;
   }
 
   if (playlistsError) {
-    return <ErrorState message="Could not load your playlists." onRetry={refetch} />;
+    return <ErrorState message="Não foi possível carregar suas playlists." onRetry={refetch} />;
   }
 
   const allPlaylists = playlistsData?.items ?? [];
@@ -42,7 +42,7 @@ export function PlaylistsPage() {
       {/* Cabeçalho da página */}
       <header className={styles.header}>
         <div className={styles.headerTop}>
-          <span className={styles.headerLabel}>Your Music</span>
+          <span className={styles.headerLabel}>Suas Músicas</span>
         </div>
         <div className={styles.headerBottom}>
           <h1 className={styles.headerTitle}>Playlists.</h1>
@@ -67,7 +67,7 @@ export function PlaylistsPage() {
       {/* Grid de playlists */}
       <section className={styles.gridSection}>
         {filteredPlaylists.length === 0 ? (
-          <p className={styles.empty}>No playlists found.</p>
+          <p className={styles.empty}>Nenhuma playlist encontrada.</p>
         ) : (
           <div className={styles.grid}>
             {/* Card em destaque */}
@@ -85,13 +85,13 @@ export function PlaylistsPage() {
                   )}
                   <div className={styles.featuredOverlay}>
                     <div className={styles.featuredMeta}>
-                      <span className={styles.featuredLabel}>Featured Playlist</span>
+                      <span className={styles.featuredLabel}>Playlist em destaque</span>
                       <h2 className={styles.featuredName}>{featured.name}</h2>
                       {featured.description && (
                         <p className={styles.featuredDesc}>{featured.description}</p>
                       )}
                     </div>
-                    <button className={styles.playButtonLarge} aria-label="Play">
+                    <button className={styles.playButtonLarge} aria-label="Tocar">
                       <Play size={24} fill="currentColor" />
                     </button>
                   </div>
@@ -113,7 +113,7 @@ export function PlaylistsPage() {
                     <div className={styles.cardImagePlaceholder} />
                   )}
                   <div className={styles.cardOverlay}>
-                    <button className={styles.playButton} aria-label="Play">
+                    <button className={styles.playButton} aria-label="Tocar">
                       <Play size={20} fill="currentColor" />
                     </button>
                   </div>

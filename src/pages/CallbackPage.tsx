@@ -27,8 +27,8 @@ export function CallbackPage() {
     if (error) {
       setErrorMessage(
         error === 'access_denied'
-          ? 'You denied access to your Spotify account.'
-          : `Spotify returned an error: ${error}`,
+          ? 'Você negou o acesso à sua conta do Spotify.'
+          : `O Spotify retornou um erro: ${error}`,
       );
       setStatus('error');
       return;
@@ -36,7 +36,7 @@ export function CallbackPage() {
 
     // Edge case 2: missing required params
     if (!code || !state) {
-      setErrorMessage('Invalid callback — required parameters are missing.');
+      setErrorMessage('Callback inválido — parâmetros obrigatórios ausentes.');
       setStatus('error');
       return;
     }
@@ -48,7 +48,7 @@ export function CallbackPage() {
         navigate('/', { replace: true });
       })
       .catch((err: unknown) => {
-        const message = err instanceof Error ? err.message : 'Authentication failed.';
+        const message = err instanceof Error ? err.message : 'Falha na autenticação.';
         setErrorMessage(message);
         setStatus('error');
       });
@@ -59,10 +59,10 @@ export function CallbackPage() {
       <div style={styles.root}>
         <div style={styles.card}>
           <div style={styles.errorIcon} aria-hidden="true">✕</div>
-          <h1 style={styles.heading}>Authentication failed</h1>
+          <h1 style={styles.heading}>Falha na autenticação</h1>
           <p style={styles.message}>{errorMessage}</p>
           <button style={styles.button} onClick={() => navigate('/login', { replace: true })}>
-            Back to login
+            Voltar para o login
           </button>
         </div>
       </div>
@@ -72,8 +72,8 @@ export function CallbackPage() {
   return (
     <div style={styles.root}>
       <div style={styles.card}>
-        <div style={styles.spinner} role="status" aria-label="Authenticating…" />
-        <p style={styles.message}>Connecting to Spotify…</p>
+        <div style={styles.spinner} role="status" aria-label="Autenticando…" />
+        <p style={styles.message}>Conectando ao Spotify…</p>
       </div>
     </div>
   );

@@ -3,10 +3,10 @@ import { Home, Search, Library, User } from 'lucide-react';
 import styles from './BottomNav.module.css';
 
 const navItems = [
-  { icon: Home, label: 'Home', to: '/' },
-  { icon: Search, label: 'Search', to: '/search' },
-  { icon: Library, label: 'Library', to: '/library' },
-  { icon: User, label: 'Profile', to: '/profile' },
+  { icon: Home, label: 'Início', to: '/' },
+  { icon: Search, label: 'Buscar', to: '/search' },
+  { icon: Library, label: 'Biblioteca', to: '/library' },
+  { icon: User, label: 'Perfil', to: '/profile' },
 ];
 
 export function BottomNav() {
