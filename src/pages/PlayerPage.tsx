@@ -1,11 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Play, Pause, Heart, MoreHorizontal,
   Shuffle, SkipBack, SkipForward, Repeat, Music, Mic2,
 } from 'lucide-react';
-import { useRecentlyPlayed } from '../hooks/useRecentlyPlayed';
+import { usePlaybackState } from '../hooks/usePlaybackState';
+import { useQueue } from '../hooks/useQueue';
+import { play, pause, next, previous, seek } from '../api/player';
 import { LoadingState } from '../components/shared/LoadingState';
 import { ErrorState } from '../components/shared/ErrorState';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '../api/queryKeys';
 import type { SpotifyTrack } from '../types/spotify';
 import styles from './PlayerPage.module.css';
 
@@ -53,47 +57,124 @@ function QueueItem({ track, rank }: QueueItemProps) {
 // ─── PlayerPage ───────────────────────────────────────────────────────────────
 
 export function PlayerPage() {
-  const [isPlaying, setIsPlaying] = useState(true);
+  const queryClient = useQueryClient();
+  const [isActive, setIsActive] = useState(true);
+
+  // O polling é configurado aqui e desativado quando isActive for false
+  const { data: playback, isLoading, isError, refetch } = usePlaybackState({
+    refetchInterval: isActive ? 4000 : false,
+    enabled: isActive,
+  });
+
+  const { data: queueData } = useQueue({
+    refetchInterval: isActive ? 4000 : false,
+    enabled: isActive,
+  });
+
   const [isLiked, setIsLiked] = useState(false);
-  // Progresso visual estático em % (0-100)
-  const [progress, setProgress] = useState(35);
+  const [localProgressMs, setLocalProgressMs] = useState<number | null>(null);
+  const [errorFeedback, setErrorFeedback] = useState<string | null>(null);
 
-  const { data: recentData, isLoading, isError, refetch } = useRecentlyPlayed(10);
+  // Garante que o polling pare imediatamente ao navegar para fora
+  useEffect(() => {
+    setIsActive(true);
+    return () => setIsActive(false);
+  }, []);
 
-  if (isLoading) return <LoadingState message="Carregando o player…" />;
+  // Sincroniza o progresso local quando o playback muda
+  useEffect(() => {
+    if (playback?.progress_ms !== undefined) {
+      setLocalProgressMs(playback.progress_ms);
+    }
+  }, [playback?.progress_ms]);
+
+  // Incrementa o progresso local a cada segundo se estiver tocando
+  useEffect(() => {
+    if (!playback?.is_playing || localProgressMs === null) return;
+
+    const interval = setInterval(() => {
+      setLocalProgressMs(prev => (prev !== null ? prev + 1000 : null));
+    }, 1000);
+
+    // Cleanup: Para o intervalo quando o componente desmonta ou o estado de reprodução muda
+    return () => clearInterval(interval);
+  }, [playback?.is_playing, localProgressMs]);
+
+  if (isLoading) return <LoadingState message="Conectando ao seu Spotify…" />;
   if (isError) return <ErrorState message="Não foi possível carregar o player." onRetry={refetch} />;
 
-  const tracks = recentData?.items.map(i => i.track) ?? [];
-  const nowPlaying = tracks[0] ?? null;
-  const queue = tracks.slice(1, 4);
-
-  if (!nowPlaying) {
+  if (!playback || !playback.item) {
     return (
       <div className={styles.empty}>
         <Music size={48} strokeWidth={1.5} />
-        <p>Nenhuma música tocada recentemente.</p>
+        <p>Nenhuma música tocando agora ou nenhum dispositivo ativo.</p>
+        <p style={{ fontSize: '0.9rem', opacity: 0.7, marginTop: '0.5rem' }}>
+          Abra o Spotify em um dispositivo para começar a ouvir.
+        </p>
       </div>
     );
   }
 
+  const nowPlaying = playback.item;
+  // Busca a fila real da API e limita aos primeiros 4 itens
+  const queue: SpotifyTrack[] = queueData?.queue?.slice(0, 4) ?? [];
+
   const imageUrl = nowPlaying.album.images?.[0]?.url ?? null;
   const artistNames = nowPlaying.artists.map(a => a.name).join(', ');
   const albumName = nowPlaying.album.name;
-  const totalTime = formatDuration(nowPlaying.duration_ms);
-  const currentTime = formatDuration(nowPlaying.duration_ms * progress / 100);
+  
+  const durationMs = nowPlaying.duration_ms;
+  const currentMs = Math.min(localProgressMs ?? 0, durationMs);
+  const progressPercent = (currentMs / durationMs) * 100;
+  
+  const totalTime = formatDuration(durationMs);
+  const currentTime = formatDuration(currentMs);
 
-  function handleProgressClick(e: React.MouseEvent<HTMLDivElement>) {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const pct = Math.min(100, Math.max(0, ((e.clientX - rect.left) / rect.width) * 100));
-    setProgress(pct);
+  async function handleControlAction(action: () => Promise<void>) {
+    try {
+      setErrorFeedback(null);
+      await action();
+      // Refetch imediato para atualizar a UI
+      queryClient.invalidateQueries({ queryKey: queryKeys.player });
+      queryClient.invalidateQueries({ queryKey: queryKeys.queue });
+    } catch (err) {
+	  console.error('Player control error:', err);
+    }
   }
 
   function togglePlay() {
-    setIsPlaying(p => !p);
+    if (playback?.is_playing) {
+      handleControlAction(pause);
+    } else {
+      handleControlAction(play);
+    }
+  }
+
+  function handleNext() {
+    handleControlAction(next);
+  }
+
+  function handlePrevious() {
+    handleControlAction(previous);
+  }
+
+  function handleProgressClick(e: React.MouseEvent<HTMLDivElement>) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const pct = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+    const targetMs = pct * durationMs;
+    setLocalProgressMs(targetMs);
+    handleControlAction(() => seek(targetMs));
   }
 
   return (
     <div className={styles.page}>
+      {/* Feedback de Erro (Premium ou outros) */}
+      {errorFeedback && (
+        <div className={styles.errorBanner} onClick={() => setErrorFeedback(null)}>
+          {errorFeedback} <span>✕</span>
+        </div>
+      )}
+
       {/* Fundo desfocado com a capa — visível apenas no desktop */}
       {imageUrl && (
         <div
@@ -108,7 +189,7 @@ export function PlayerPage() {
         {/* ── Área principal do player ────────────────────────── */}
         <div className={styles.playerArea}>
 
-          {/* Capa do álbum com overlay play */}
+          {/* Capa do álbum */}
           <div className={styles.albumArtWrapper}>
             {imageUrl ? (
               <img src={imageUrl} alt={albumName} className={styles.albumArt} />
@@ -117,18 +198,6 @@ export function PlayerPage() {
                 <Music size={80} strokeWidth={1.5} />
               </div>
             )}
-            <div className={styles.albumArtOverlay}>
-              <button
-                className={styles.artPlayBtn}
-                onClick={togglePlay}
-                aria-label={isPlaying ? 'Pausar' : 'Tocar'}
-              >
-                {isPlaying
-                  ? <Pause size={40} fill="currentColor" strokeWidth={0} />
-                  : <Play size={40} fill="currentColor" strokeWidth={0} />
-                }
-              </button>
-            </div>
           </div>
 
           {/* Informações da track */}
@@ -142,32 +211,6 @@ export function PlayerPage() {
             </p>
           </div>
 
-          {/* Botões de ação: Heart | Play | More */}
-          <div className={styles.actionRow}>
-            <button
-              className={`${styles.actionIconBtn} ${isLiked ? styles.actionIconBtnLiked : ''}`}
-              onClick={() => setIsLiked(p => !p)}
-              aria-label={isLiked ? 'Remover dos favoritos' : 'Curtir'}
-            >
-              <Heart size={24} fill={isLiked ? 'currentColor' : 'none'} strokeWidth={isLiked ? 0 : 2} />
-            </button>
-
-            <button
-              className={styles.playActionBtn}
-              onClick={togglePlay}
-              aria-label={isPlaying ? 'Pausar' : 'Tocar'}
-            >
-              {isPlaying
-                ? <Pause size={26} fill="currentColor" strokeWidth={0} />
-                : <Play size={26} fill="currentColor" strokeWidth={0} />
-              }
-            </button>
-
-            <button className={styles.actionIconBtn} aria-label="Mais opções">
-              <MoreHorizontal size={24} />
-            </button>
-          </div>
-
           {/* Barra de progresso com timestamps */}
           <div className={styles.progressSection}>
             <span className={styles.timestamp}>{currentTime}</span>
@@ -177,37 +220,51 @@ export function PlayerPage() {
               role="slider"
               aria-valuemin={0}
               aria-valuemax={100}
-              aria-valuenow={Math.round(progress)}
+              aria-valuenow={Math.round(progressPercent)}
               tabIndex={0}
             >
-              <div className={styles.progressFill} style={{ width: `${progress}%` }} />
-              <div className={styles.progressThumb} style={{ left: `${progress}%` }} />
+              <div className={styles.progressFill} style={{ width: `${progressPercent}%` }} />
+              <div className={styles.progressThumb} style={{ left: `${progressPercent}%` }} />
             </div>
             <span className={styles.timestamp}>{totalTime}</span>
           </div>
 
           {/* Controles de playback grandes */}
           <div className={styles.controls}>
-            <button className={styles.controlBtn} aria-label="Ordem aleatória">
+            <button 
+              className={`${styles.controlBtn} ${playback.shuffle_state ? styles.controlActive : ''}`} 
+              aria-label="Ordem aleatória"
+            >
               <Shuffle size={22} />
             </button>
-            <button className={styles.controlBtn} aria-label="Anterior">
+            <button 
+              className={styles.controlBtn} 
+              onClick={handlePrevious}
+              aria-label="Anterior"
+            >
               <SkipBack size={28} fill="currentColor" strokeWidth={0} />
             </button>
             <button
               className={styles.playLargeBtn}
               onClick={togglePlay}
-              aria-label={isPlaying ? 'Pausar' : 'Tocar'}
+              aria-label={playback.is_playing ? 'Pausar' : 'Tocar'}
             >
-              {isPlaying
+              {playback.is_playing
                 ? <Pause size={34} fill="currentColor" strokeWidth={0} />
                 : <Play size={34} fill="currentColor" strokeWidth={0} />
               }
             </button>
-            <button className={styles.controlBtn} aria-label="Próxima">
+            <button 
+              className={styles.controlBtn} 
+              onClick={handleNext}
+              aria-label="Próxima"
+            >
               <SkipForward size={28} fill="currentColor" strokeWidth={0} />
             </button>
-            <button className={styles.controlBtn} aria-label="Repetir">
+            <button 
+              className={`${styles.controlBtn} ${playback.repeat_state !== 'off' ? styles.controlActive : ''}`} 
+              aria-label="Repetir"
+            >
               <Repeat size={22} />
             </button>
           </div>
@@ -238,7 +295,7 @@ export function PlayerPage() {
                 ))}
               </div>
             ) : (
-              <p className={styles.sidePanelEmpty}>A fila está vazia.</p>
+              <p className={styles.sidePanelEmpty}>A fila está vazia ou não disponível.</p>
             )}
           </section>
 

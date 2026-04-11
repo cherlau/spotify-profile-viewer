@@ -29,8 +29,10 @@ async function resolveMock<T>(path: string): Promise<T> {
   await new Promise((r) => setTimeout(r, 300));
 
   // Normaliza o path: remove base URL e query string
+  // Usamos uma regex para garantir que removemos a BASE_URL independente de como ela termina
+  const baseUrlPattern = new RegExp(`^${BASE_URL.replace(/\//g, '\\/')}`);
   const cleanPath = path
-    .replace(/^https:\/\/api\.spotify\.com\/v1/, '')
+    .replace(baseUrlPattern, '')
     .split('?')[0];
 
   const {
@@ -42,6 +44,7 @@ async function resolveMock<T>(path: string): Promise<T> {
     mockFollowedArtists,
     mockSavedAlbums,
     mockSavedShows,
+    mockQueue,
   } = await import('../mocks/spotify-data');
 
   if (cleanPath === '/me') return mockProfile as T;
@@ -52,6 +55,7 @@ async function resolveMock<T>(path: string): Promise<T> {
   if (cleanPath.startsWith('/me/following')) return mockFollowedArtists as T;
   if (cleanPath === '/me/albums') return mockSavedAlbums as T;
   if (cleanPath === '/me/shows') return mockSavedShows as T;
+  if (cleanPath === '/me/player/queue') return mockQueue as T;
 
   throw new Error(`[MOCK] Nenhum mock encontrado para o path: ${cleanPath}`);
 }

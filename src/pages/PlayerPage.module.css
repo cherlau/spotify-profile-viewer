@@ -63,47 +63,6 @@
   color: var(--color-text-secondary);
 }
 
-/* Overlay com botão play centralizado */
-.albumArtOverlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.25s;
-}
-
-.albumArtWrapper:hover .albumArtOverlay {
-  background: rgba(0, 0, 0, 0.45);
-}
-
-.artPlayBtn {
-  width: 72px;
-  height: 72px;
-  border-radius: var(--radius-full);
-  background: var(--color-accent);
-  color: var(--color-accent-dark);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: var(--shadow-glow-green);
-  opacity: 0;
-  transform: scale(0.85);
-  transition: opacity 0.25s, transform 0.25s;
-}
-
-.albumArtWrapper:hover .artPlayBtn {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.artPlayBtn:hover {
-  transform: scale(1.06) !important;
-}
-
 /* ── Track Info ──────────────────────────────────────────── */
 
 .trackInfo {
@@ -187,27 +146,6 @@
 
 .actionIconBtnLiked {
   color: var(--color-accent-text) !important;
-}
-
-/* Botão play da action row */
-.playActionBtn {
-  width: 56px;
-  height: 56px;
-  border-radius: var(--radius-full);
-  background: var(--color-accent);
-  color: var(--color-accent-dark);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: var(--shadow-glow-green);
-  transition: transform 0.15s, box-shadow 0.15s;
-}
-
-.playActionBtn:hover {
-  transform: scale(1.06);
-  box-shadow: 0 0 28px 0 rgba(30, 215, 96, 0.5);
 }
 
 /* ── Progress Bar ────────────────────────────────────────── */
@@ -331,6 +269,43 @@
 .playLargeBtn:hover {
   transform: scale(1.05);
   box-shadow: 0 0 32px 0 rgba(30, 215, 96, 0.5);
+}
+
+.controlActive {
+  color: var(--color-accent) !important;
+}
+
+/* ── Feedback Banner ─────────────────────────────────────── */
+
+.errorBanner {
+  position: fixed;
+  top: var(--space-24);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #e91e63;
+  color: white;
+  padding: var(--space-12) var(--space-24);
+  border-radius: var(--radius-full);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 1000;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  cursor: pointer;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from { transform: translate(-50%, -100%); opacity: 0; }
+  to { transform: translate(-50%, 0); opacity: 1; }
+}
+
+.errorBanner span {
+  opacity: 0.7;
+  font-size: 18px;
 }
 
 /* ── Next in Queue (mobile) ─────────────────────────────── */

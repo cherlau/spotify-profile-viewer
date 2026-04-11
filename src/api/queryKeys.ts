@@ -11,4 +11,6 @@ export const queryKeys = {
   followedArtists: (limit: number) => ['followed-artists', { limit }] as const,
   savedAlbums: (limit: number) => ['saved-albums', { limit }] as const,
   savedShows: (limit: number) => ['saved-shows', { limit }] as const,
+  player: ['player'] as const,
+  queue: ['queue'] as const,
 } as const;

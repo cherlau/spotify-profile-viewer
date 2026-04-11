@@ -9,6 +9,8 @@ export const SCOPES = [
   'user-read-recently-played',
   'user-follow-read',
   'user-library-read',
+  'user-read-playback-state',
+  'user-modify-playback-state',
 ].join(' ');
 
 export const SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/authorize';

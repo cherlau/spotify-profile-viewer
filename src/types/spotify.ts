@@ -271,6 +271,41 @@ export interface SavedShowsResponse {
   items: SavedShowObject[];
 }
 
+// ─── GET /me/player ──────────────────────────────────────────────────────────
+
+export interface SpotifyDevice {
+  id: string | null;
+  is_active: boolean;
+  is_private_session: boolean;
+  is_restricted: boolean;
+  name: string;
+  type: string;
+  volume_percent: number | null;
+}
+
+export interface SpotifyPlaybackState {
+  device: SpotifyDevice;
+  repeat_state: "off" | "track" | "context";
+  shuffle_state: boolean;
+  context: {
+    type: string;
+    href: string;
+    external_urls: SpotifyExternalUrls;
+    uri: string;
+  } | null;
+  timestamp: number;
+  progress_ms: number | null;
+  is_playing: boolean;
+  item: SpotifyTrack | null;
+  currently_playing_type: "track" | "episode" | "ad" | "unknown";
+}
+
+/** Response shape for GET /me/player/queue (scope: user-read-playback-state) */
+export interface SpotifyQueueResponse {
+  currently_playing: SpotifyTrack | null;
+  queue: SpotifyTrack[];
+}
+
 // ─── Auth — Token exchange response (auth-flow.md) ────────────────────────────
 
 export interface TokenResponse {

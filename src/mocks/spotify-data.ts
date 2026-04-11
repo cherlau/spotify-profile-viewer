@@ -15,6 +15,7 @@ import type {
   SpotifyTrack,
   SpotifyAlbumSimplified,
   SpotifyArtistSimplified,
+  SpotifyQueueResponse,
 } from '../types/spotify';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -404,4 +405,11 @@ export const mockSavedShows: SavedShowsResponse = {
       uri: `spotify:show:${s.id}`,
     },
   })),
+};
+
+// ─── GET /me/player/queue ────────────────────────────────────────────────────
+
+export const mockQueue: SpotifyQueueResponse = {
+  currently_playing: topTracksItems[0],
+  queue: topTracksItems.slice(1, 6),
 };
