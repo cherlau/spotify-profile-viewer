@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { usePlaybackState } from '../hooks/usePlaybackState';
 import { useQueue } from '../hooks/useQueue';
-import { play, pause, next, previous, seek } from '../api/player';
+import { play, pause, next, previous, seek, toggleShuffle, setRepeatMode } from '../api/player';
 import { LoadingState } from '../components/shared/LoadingState';
 import { ErrorState } from '../components/shared/ErrorState';
 import { useQueryClient } from '@tanstack/react-query';
@@ -158,6 +158,16 @@ export function PlayerPage() {
     handleControlAction(previous);
   }
 
+  function handleToggleShuffle() {
+    handleControlAction(() => toggleShuffle(!playback.shuffle_state));
+  }
+
+  function handleToggleRepeat() {
+    const nextMode = playback.repeat_state === 'off' ? 'context' : 
+                     playback.repeat_state === 'context' ? 'track' : 'off';
+    handleControlAction(() => setRepeatMode(nextMode));
+  }
+
   function handleProgressClick(e: React.MouseEvent<HTMLDivElement>) {
     const rect = e.currentTarget.getBoundingClientRect();
     const pct = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
@@ -235,6 +245,7 @@ export function PlayerPage() {
           <div className={styles.controls}>
             <button 
               className={`${styles.controlBtn} ${playback.shuffle_state ? styles.controlActive : ''}`} 
+              onClick={handleToggleShuffle}
               aria-label="Ordem aleatória"
             >
               <Shuffle size={22} />
@@ -265,6 +276,7 @@ export function PlayerPage() {
             </button>
             <button 
               className={`${styles.controlBtn} ${playback.repeat_state !== 'off' ? styles.controlActive : ''}`} 
+              onClick={handleToggleRepeat}
               aria-label="Repetir"
             >
               <Repeat size={22} />

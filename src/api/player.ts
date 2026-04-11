@@ -67,3 +67,19 @@ export async function previous(): Promise<void> {
 export async function seek(positionMs: number): Promise<void> {
   await fetchWithAuth(`/me/player/seek?position_ms=${Math.round(positionMs)}`, { method: 'PUT' });
 }
+
+/**
+ * PUT /me/player/shuffle
+ * Scope: user-modify-playback-state
+ */
+export async function toggleShuffle(state: boolean): Promise<void> {
+  await fetchWithAuth(`/me/player/shuffle?state=${state}`, { method: 'PUT' });
+}
+
+/**
+ * PUT /me/player/repeat
+ * Scope: user-modify-playback-state
+ */
+export async function setRepeatMode(state: 'track' | 'context' | 'off'): Promise<void> {
+  await fetchWithAuth(`/me/player/repeat?state=${state}`, { method: 'PUT' });
+}
