@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation, useSearchParams } from 'react-router-dom';
 import {
   Home,
   Search,
@@ -12,7 +12,7 @@ import styles from './Sidebar.module.css';
 
 const navItems = [
   { icon: Home, label: 'Início', to: '/' },
-  { icon: Search, label: 'Buscar', to: '/search' },
+  { icon: Search, label: 'Buscar', to: '/library?mode=search' },
   { icon: Music2, label: 'Tocando Agora', to: '/player' },
 ];
 
@@ -23,6 +23,15 @@ const collectionItems = [
 ];
 
 export function Sidebar() {
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  const isSearchMode =
+    location.pathname === '/library' &&
+    (searchParams.get('mode') === 'search' || !!searchParams.get('q'));
+
+  const isLibraryMode = location.pathname === '/library' && !isSearchMode;
+
   return (
     <aside className={styles.sidebar}>
       {/* Logo */}
@@ -32,19 +41,21 @@ export function Sidebar() {
 
       {/* Navegação principal */}
       <nav className={styles.nav}>
-        {navItems.map(({ icon: Icon, label, to }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={to === '/'}
-            className={({ isActive }) =>
-              `${styles.navItem} ${isActive ? styles.navItemActive : ''}`
-            }
-          >
-            <Icon size={20} />
-            <span>{label}</span>
-          </NavLink>
-        ))}
+        {navItems.map(({ icon: Icon, label, to }) => {
+          const isActive = to.includes('/library?mode=search') ? isSearchMode : location.pathname === to;
+          
+          return (
+            <NavLink
+              key={to}
+              to={to}
+              end={to === '/'}
+              className={`${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
+            >
+              <Icon size={20} />
+              <span>{label}</span>
+            </NavLink>
+          );
+        })}
       </nav>
 
       {/* Separador "YOUR COLLECTION" */}
@@ -54,18 +65,20 @@ export function Sidebar() {
 
       {/* Sub-itens da coleção */}
       <nav className={styles.collection}>
-        {collectionItems.map(({ icon: Icon, label, to }) => (
-          <NavLink
-            key={to}
-            to={to}
-            className={({ isActive }) =>
-              `${styles.navItem} ${isActive ? styles.navItemActive : ''}`
-            }
-          >
-            <Icon size={20} />
-            <span>{label}</span>
-          </NavLink>
-        ))}
+        {collectionItems.map(({ icon: Icon, label, to }) => {
+          const isActive = to === '/library' ? isLibraryMode : location.pathname === to;
+
+          return (
+            <NavLink
+              key={to}
+              to={to}
+              className={`${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
+            >
+              <Icon size={20} />
+              <span>{label}</span>
+            </NavLink>
+          );
+        })}
       </nav>
 
       {/* Card Premium no rodapé */}

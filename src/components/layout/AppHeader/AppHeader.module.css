@@ -34,10 +34,18 @@
   align-items: center;
   gap: var(--space-8);
   background-color: var(--color-bg-input);
+  border: 1px solid transparent;
   border-radius: var(--radius-full);
   padding: var(--space-8) var(--space-16);
   flex: 1;
   max-width: 320px;
+  transition: all 0.2s ease;
+}
+
+.searchBar:focus-within {
+  background-color: var(--color-bg-elevated);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
 }
 
 .searchIcon {

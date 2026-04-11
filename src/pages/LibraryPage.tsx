@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo, useDeferredValue } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Play, Heart, MoreHorizontal, Music, Mic2, Disc3 } from 'lucide-react';
 import { useRecentlyPlayed } from '../hooks/useRecentlyPlayed';
@@ -33,10 +33,13 @@ function deduplicateTracks(tracks: SpotifyTrack[]): SpotifyTrack[] {
   });
 }
 
-/** Verifica se um texto contém a query (case-insensitive). Retorna false se text for nulo/undefined. */
-function matches(text: string | null | undefined, q: string): boolean {
+/** 
+ * Verifica se um texto contém a query. 
+ * Otimização: A query já deve vir em minúsculas para evitar toLowerCase() repetitivo.
+ */
+function matches(text: string | null | undefined, lowerQuery: string): boolean {
   if (!text) return false;
-  return text.toLowerCase().includes(q.toLowerCase());
+  return text.toLowerCase().includes(lowerQuery);
 }
 
 function AlbumRow({ album }: { album: SpotifyAlbum }) {
@@ -162,38 +165,55 @@ export function LibraryPage() {
 
   // Query de busca vinda da URL (preenchida pelo AppHeader)
   const searchQuery = searchParams.get('q')?.trim() ?? '';
+  
+  // Prioriza a responsividade do input, processando os resultados em background
+  const deferredQuery = useDeferredValue(searchQuery);
 
   const { data: recentData, isLoading: recentLoading, isError: recentError, refetch: refetchRecent } = useRecentlyPlayed(50);
   const { data: artistsData, isLoading: artistsLoading, isError: artistsError, refetch: refetchArtists } = useFollowedArtists(50);
   const { data: albumsData, isLoading: albumsLoading, isError: albumsError, refetch: refetchAlbums } = useSavedAlbums(50);
 
-  const rawTracks = (recentData?.items ?? []).map(item => item.track);
-  const tracks = deduplicateTracks(rawTracks);
-  const artists = artistsData?.artists.items ?? [];
-  const albums = albumsData?.items.map(i => i.album) ?? [];
+  const tracks = useMemo(() => {
+    const rawTracks = (recentData?.items ?? []).map(item => item.track);
+    return deduplicateTracks(rawTracks);
+  }, [recentData]);
 
-  // Resultados filtrados pela query — busca em nome, artistas e gênero
-  const filteredTracks = searchQuery
-    ? tracks.filter(t =>
-        matches(t.name, searchQuery) ||
-        t.artists.some(a => matches(a.name, searchQuery)) ||
-        matches(t.album.name, searchQuery)
-      )
-    : tracks;
+  const artists = useMemo(() => artistsData?.artists.items ?? [], [artistsData]);
+  const albums = useMemo(() => albumsData?.items.map(i => i.album) ?? [], [albumsData]);
 
-  const filteredArtists = searchQuery
-    ? artists.filter(a =>
-        matches(a.name, searchQuery) ||
-        (a.genres ?? []).some(g => matches(g, searchQuery))
-      )
-    : artists;
+  const lowerQuery = useMemo(() => deferredQuery.toLowerCase(), [deferredQuery]);
 
-  const filteredAlbums = searchQuery
-    ? albums.filter(a =>
-        matches(a.name, searchQuery) ||
-        a.artists.some(ar => matches(ar.name, searchQuery))
-      )
-    : albums;
+  // Resultados filtrados pela query — busca em nome, artistas e gênero (Memoizado)
+  const filteredTracks = useMemo(() => 
+    deferredQuery
+      ? tracks.filter(t =>
+          matches(t.name, lowerQuery) ||
+          t.artists.some(a => matches(a.name, lowerQuery)) ||
+          matches(t.album.name, lowerQuery)
+        )
+      : tracks,
+    [tracks, lowerQuery, deferredQuery]
+  );
+
+  const filteredArtists = useMemo(() => 
+    deferredQuery
+      ? artists.filter(a =>
+          matches(a.name, lowerQuery) ||
+          (a.genres ?? []).some(g => matches(g, lowerQuery))
+        )
+      : artists,
+    [artists, lowerQuery, deferredQuery]
+  );
+
+  const filteredAlbums = useMemo(() => 
+    deferredQuery
+      ? albums.filter(a =>
+          matches(a.name, lowerQuery) ||
+          a.artists.some(ar => matches(ar.name, lowerQuery))
+        )
+      : albums,
+    [albums, lowerQuery, deferredQuery]
+  );
 
   const isAnyLoading = recentLoading || artistsLoading || albumsLoading;
   const totalResults = filteredTracks.length + filteredArtists.length + filteredAlbums.length;
@@ -209,7 +229,7 @@ export function LibraryPage() {
         <p className={styles.headerDesc}>
           {searchQuery
             ? `${totalResults} resultado${totalResults !== 1 ? 's' : ''} em músicas, artistas, álbuns e podcasts`
-            : 'Tudo o que você salvou, ouviu e amou — tudo em um só lugar.'}
+            : 'Tudo o que você salvou, ouviu e amou, tudo em um só lugar.'}
         </p>
       </header>
 

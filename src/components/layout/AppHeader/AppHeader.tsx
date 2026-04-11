@@ -72,6 +72,70 @@ function AccountMenu({
   );
 }
 
+// Sub-componente isolado para a barra de busca.
+// Isso evita que o AppHeader inteiro (e seus hooks de perfil/auth) re-renderizem a cada tecla.
+function SearchInput({
+  initialQuery,
+  onQueryChange,
+  mode,
+}: {
+  initialQuery: string;
+  onQueryChange: (q: string) => void;
+  mode: string | null;
+}) {
+  const [localQuery, setLocalQuery] = useState(initialQuery);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Sincroniza o estado local quando a URL muda externamente (ex: limpando a busca)
+  useEffect(() => {
+    setLocalQuery(initialQuery);
+  }, [initialQuery]);
+
+  // Foca o input se entrar em modo de busca
+  useEffect(() => {
+    if (mode === 'search' && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [mode]);
+
+  // Debounce para notificar o componente pai sobre a mudança
+  useEffect(() => {
+    if (localQuery === initialQuery) return;
+
+    const timer = setTimeout(() => {
+      onQueryChange(localQuery);
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [localQuery, initialQuery, onQueryChange]);
+
+  function handleClear() {
+    setLocalQuery('');
+    onQueryChange('');
+  }
+
+  return (
+    <div className={styles.searchBar}>
+      <Search size={16} className={styles.searchIcon} />
+      <input
+        ref={inputRef}
+        type="text"
+        value={localQuery}
+        onChange={e => setLocalQuery(e.target.value)}
+        onKeyDown={e => e.key === 'Escape' && handleClear()}
+        placeholder="Buscar artistas, músicas, podcasts…"
+        className={styles.searchInput}
+        aria-label="Buscar"
+      />
+      {localQuery && (
+        <button className={styles.clearBtn} onClick={handleClear} aria-label="Limpar busca">
+          <X size={14} />
+        </button>
+      )}
+    </div>
+  );
+}
+
 export function AppHeader() {
   const isDesktop = useIsDesktop();
   const navigate = useNavigate();
@@ -85,31 +149,7 @@ export function AppHeader() {
 
   // Query de busca derivada diretamente da URL
   const query = searchParams.get('q') ?? '';
-
-  // Estado local para o input de busca (evita o lag de navegar a cada tecla)
-  const [localQuery, setLocalQuery] = useState(query);
-
-  // Sincroniza o estado local quando a URL muda externamente (ex: limpando a busca)
-  useEffect(() => {
-    setLocalQuery(query);
-  }, [query]);
-
-  // Debounce para atualizar a URL apenas após o usuário parar de digitar
-  useEffect(() => {
-    if (localQuery === query) return;
-
-    const timer = setTimeout(() => {
-      if (localQuery.trim()) {
-        navigate(`/library?q=${encodeURIComponent(localQuery)}`, {
-          replace: location.pathname === '/library',
-        });
-      } else if (location.pathname === '/library') {
-        navigate('/library', { replace: true });
-      }
-    }, 150);
-
-    return () => clearTimeout(timer);
-  }, [localQuery, query, navigate, location.pathname]);
+  const mode = searchParams.get('mode');
 
   // Dados do usuário vindos da API
   const displayName = profile?.display_name ?? '';
@@ -138,19 +178,14 @@ export function AppHeader() {
     navigate('/login', { replace: true });
   }
 
-  function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setLocalQuery(e.target.value);
-  }
-
-  function handleClear() {
-    setLocalQuery('');
-    if (location.pathname === '/library') {
+  function handleQueryChange(newQuery: string) {
+    if (newQuery.trim()) {
+      navigate(`/library?q=${encodeURIComponent(newQuery)}`, {
+        replace: location.pathname === '/library',
+      });
+    } else if (location.pathname === '/library') {
       navigate('/library', { replace: true });
     }
-  }
-
-  function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Escape') handleClear();
   }
 
   if (!isDesktop) return null;
@@ -160,39 +195,29 @@ export function AppHeader() {
       {isDesktop ? (
         /* ── Desktop ───────────────────────────────────────────────── */
         <div className={styles.inner}>
-          {/* Barra de pesquisa */}
-          <div className={styles.searchBar}>
-            <Search size={16} className={styles.searchIcon} />
-            <input
-              type="text"
-              value={localQuery}
-              onChange={handleSearchChange}
-              onKeyDown={handleSearchKeyDown}
-              placeholder="Buscar artistas, músicas, podcasts…"
-              className={styles.searchInput}
-              aria-label="Buscar"
-            />
-            {localQuery && (
-              <button className={styles.clearBtn} onClick={handleClear} aria-label="Limpar busca">
-                <X size={14} />
-              </button>
-            )}
-          </div>
+          {/* Barra de pesquisa (Isolada para performance) */}
+          <SearchInput
+            initialQuery={query}
+            onQueryChange={handleQueryChange}
+            mode={mode}
+          />
 
           {/* Links de navegação */}
           <nav className={styles.desktopNav}>
-            {desktopNavLinks.map(({ label, to }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={to === '/'}
-                className={({ isActive }) =>
-                  `${styles.desktopNavLink} ${isActive ? styles.desktopNavLinkActive : ''}`
-                }
-              >
-                {label}
-              </NavLink>
-            ))}
+            {desktopNavLinks.map(({ label, to }) => {
+              const isActive = to === '/library' ? (location.pathname === '/library' && !mode && !query) : (location.pathname === to);
+              
+              return (
+                <NavLink
+                  key={to}
+                  to={to}
+                  end={to === '/'}
+                  className={`${styles.desktopNavLink} ${isActive ? styles.desktopNavLinkActive : ''}`}
+                >
+                  {label}
+                </NavLink>
+              );
+            })}
           </nav>
 
           {/* Avatar + dropdown de conta */}
