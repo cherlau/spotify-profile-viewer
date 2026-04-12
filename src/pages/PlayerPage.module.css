@@ -475,7 +475,7 @@
 
 .lyricsContent {
   flex: 1;
-  max-height: 40vh;
+  max-height: 35.2vh;
   overflow-y: auto;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE/Edge */
@@ -650,4 +650,23 @@
   .desktopSidebar::-webkit-scrollbar {
     display: none;
   }
+
+  .lyricsPlaceholder {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin: 0;
+  }
+  
+  .lyricsPlaceholder {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin: 0;
+  }
+  
 }
