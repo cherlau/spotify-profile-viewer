@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Music, Mic2 } from 'lucide-react';
 import { usePlaybackState } from '../hooks/usePlaybackState';
 import { useQueue } from '../hooks/useQueue';
+import { useProfile } from '../hooks/useProfile';
 import { LoadingState } from '../components/shared/LoadingState';
 import { ErrorState } from '../components/shared/ErrorState';
 import { EqualizerLoader } from '../components/shared/EqualizerLoader';
@@ -132,6 +133,7 @@ export function PlayerPage() {
   const trackName = nowPlaying?.name;
 
   const { lyrics, isLoading: isLoadingLyrics } = useLyrics(trackName, artistName);
+  const { data: profile } = useProfile();
 
   // Sincroniza o relógio local com o Spotify sempre que o hook de playback atualizar
   useEffect(() => {
@@ -179,6 +181,18 @@ export function PlayerPage() {
 
   if (isLoading) return <LoadingState message="Conectando ao seu Spotify…" />;
   if (isError) return <ErrorState message="Não foi possível carregar o player." onRetry={refetch} />;
+
+  if (profile && profile.product !== 'premium') {
+    return (
+      <div className={styles.empty}>
+        <Music size={48} strokeWidth={1.5} />
+        <p>O Player requer uma conta Spotify Premium.</p>
+        <p style={{ fontSize: '0.9rem', opacity: 0.7, marginTop: '0.5rem' }}>
+          Infelizmente, o Spotify limita o uso do SDK de reprodução apenas para usuários Premium.
+        </p>
+      </div>
+    );
+  }
 
   if (!playback || !nowPlaying) {
     return (
