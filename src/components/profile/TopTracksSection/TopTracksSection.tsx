@@ -7,7 +7,6 @@ import styles from './TopTracksSection.module.css';
 
 interface TopTracksSectionProps {
   tracks: SpotifyTrack[];
-  isLoading: boolean;
 }
 
 const TRACKS_LIMIT = 4;
@@ -91,12 +90,8 @@ function TrackRow({ track, rank, onPlay }: { track: SpotifyTrack; rank: number; 
   );
 }
 
-export function TopTracksSection({ tracks, isLoading }: TopTracksSectionProps) {
+export function TopTracksSection({ tracks }: TopTracksSectionProps) {
   const { playTrack } = usePlayer();
-
-  if (isLoading) {
-    return <LoadingState/>;
-  }
 
   if (tracks.length === 0) {
     return null;

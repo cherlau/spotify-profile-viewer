@@ -5,17 +5,12 @@ import styles from './TopArtistsSection.module.css';
 
 interface TopArtistsSectionProps {
   artists: SpotifyArtist[];
-  isLoading: boolean;
 }
 
 /* Desktop mostra 4 artistas em grid; mobile mostra todos em scroll horizontal */
 const DESKTOP_LIMIT = 4;
 
-export function TopArtistsSection({ artists, isLoading }: TopArtistsSectionProps) {
-  if (isLoading) {
-    return <LoadingState/>;
-  }
-
+export function TopArtistsSection({ artists }: TopArtistsSectionProps) {
   if (artists.length === 0) {
     return null;
   }

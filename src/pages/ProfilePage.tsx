@@ -17,7 +17,9 @@ export function ProfilePage() {
   const { data: playlistsData } = usePlaylists(50);
   const { data: followedArtistsData } = useFollowedArtists(50);
 
-  if (profileLoading) {
+  const isInitialLoading = profileLoading || artistsLoading || tracksLoading;
+
+  if (isInitialLoading) {
     return <LoadingState/>;
   }
 
@@ -50,11 +52,9 @@ export function ProfilePage() {
       <div className={styles.sections}>
         <TopArtistsSection
           artists={artists}
-          isLoading={artistsLoading}
         />
         <TopTracksSection
           tracks={tracks}
-          isLoading={tracksLoading}
         />
       </div>
     </div>
