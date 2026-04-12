@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Music, Mic2 } from 'lucide-react';
 import { usePlaybackState } from '../hooks/usePlaybackState';
 import { useQueue } from '../hooks/useQueue';
@@ -13,6 +13,71 @@ function formatDuration(ms: number): string {
   const m = Math.floor(ms / 60000);
   const s = Math.floor((ms % 60000) / 1000);
   return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+/**
+ * Faz o parse do formato LRC [mm:ss.xx] para milissegundos e texto.
+ */
+function parseLRC(lrc: string): { timeMs: number; text: string }[] {
+  return lrc
+    .split('\n')
+    .map(line => {
+      const match = line.match(/\[(\d+):(\d+\.\d+)\](.*)/);
+      if (!match) return null;
+      const minutes = parseInt(match[1], 10);
+      const seconds = parseFloat(match[2]);
+      const text = match[3].trim();
+      return {
+        timeMs: (minutes * 60 + seconds) * 1000,
+        text
+      };
+    })
+    .filter((line): line is { timeMs: number; text: string } => line !== null);
+}
+
+// ─── Custom Hooks ─────────────────────────────────────────────────────────────
+
+interface LyricLine {
+  timeMs: number;
+  text: string;
+}
+
+/**
+ * Busca as letras da track atual na API LRCLIB e faz o parse se disponíveis.
+ */
+function useLyrics(trackName: string | undefined, artistName: string | undefined) {
+  const [lyrics, setLyrics] = useState<LyricLine[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!trackName || !artistName) return;
+
+    const fetchLyrics = async () => {
+      setIsLoading(true);
+      try {
+        const query = new URLSearchParams({ track_name: trackName, artist_name: artistName });
+        const response = await fetch(`https://lrclib.net/api/get?${query}`);
+        
+        if (!response.ok) throw new Error('Lyrics not found');
+        
+        const data = await response.json();
+        if (data.syncedLyrics) {
+          setLyrics(parseLRC(data.syncedLyrics));
+        } else {
+          setLyrics([]);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar letras:', error);
+        setLyrics([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchLyrics();
+  }, [trackName, artistName]);
+
+  return { lyrics, isLoading };
 }
 
 // ─── QueueItem ────────────────────────────────────────────────────────────────
@@ -52,8 +117,10 @@ function QueueItem({ track, rank }: QueueItemProps) {
 
 export function PlayerPage() {
   const [isActive, setIsActive] = useState(true);
+  const [localProgressMs, setLocalProgressMs] = useState(0);
+  const lyricsContainerRef = useRef<HTMLDivElement>(null);
+  const activeLyricRef = useRef<HTMLParagraphElement>(null);
 
-  // O polling é configurado aqui e desativado quando isActive for false
   const { data: playback, isLoading, isError, refetch } = usePlaybackState({
     refetchInterval: isActive ? 4000 : false,
     enabled: isActive,
@@ -64,7 +131,51 @@ export function PlayerPage() {
     enabled: isActive,
   });
 
-  // Garante que o polling pare imediatamente ao navegar para fora
+  const nowPlaying = playback?.item;
+  const artistName = nowPlaying?.artists[0]?.name;
+  const trackName = nowPlaying?.name;
+
+  const { lyrics, isLoading: isLoadingLyrics } = useLyrics(trackName, artistName);
+
+  // Sincroniza o relógio local com o Spotify sempre que o hook de playback atualizar
+  useEffect(() => {
+    if (playback?.progress_ms !== undefined) {
+      setLocalProgressMs(playback.progress_ms || 0);
+    }
+  }, [playback?.progress_ms, playback?.timestamp]);
+
+  // Cronômetro local para progresso fluido (500ms) quando a música está tocando
+  useEffect(() => {
+    if (!playback?.is_playing) return;
+
+    const interval = setInterval(() => {
+      setLocalProgressMs(prev => prev + 500);
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [playback?.is_playing]);
+
+  // Identifica a linha da letra ativa baseado no progresso local
+  const currentLineIndex = useMemo(() => {
+    if (!lyrics.length) return -1;
+    return lyrics.findLastIndex(line => line.timeMs <= localProgressMs);
+  }, [lyrics, localProgressMs]);
+
+  // Auto-scroll para manter a linha ativa centralizada no container de letras
+  useEffect(() => {
+    if (activeLyricRef.current && lyricsContainerRef.current) {
+      const container = lyricsContainerRef.current;
+      const activeLine = activeLyricRef.current;
+      
+      const scrollTarget = activeLine.offsetTop - container.clientHeight / 2 + activeLine.clientHeight / 2;
+      
+      container.scrollTo({
+        top: scrollTarget,
+        behavior: 'smooth'
+      });
+    }
+  }, [currentLineIndex]);
+
   useEffect(() => {
     setIsActive(true);
     return () => setIsActive(false);
@@ -73,7 +184,7 @@ export function PlayerPage() {
   if (isLoading) return <LoadingState message="Conectando ao seu Spotify…" />;
   if (isError) return <ErrorState message="Não foi possível carregar o player." onRetry={refetch} />;
 
-  if (!playback || !playback.item) {
+  if (!playback || !nowPlaying) {
     return (
       <div className={styles.empty}>
         <Music size={48} strokeWidth={1.5} />
@@ -85,17 +196,13 @@ export function PlayerPage() {
     );
   }
 
-  const nowPlaying = playback.item;
-  // Busca a fila real da API e limita aos primeiros 4 itens
   const queue: SpotifyTrack[] = queueData?.queue?.slice(0, 4) ?? [];
-
   const imageUrl = nowPlaying.album.images?.[0]?.url ?? null;
   const artistNames = nowPlaying.artists.map(a => a.name).join(', ');
   const albumName = nowPlaying.album.name;
 
   return (
     <div className={styles.page}>
-      {/* Fundo desfocado com a capa — visível apenas no desktop */}
       {imageUrl && (
         <div
           className={styles.bgBlur}
@@ -105,11 +212,7 @@ export function PlayerPage() {
       )}
 
       <div className={styles.layout}>
-
-        {/* ── Área principal do player ────────────────────────── */}
         <div className={styles.playerArea}>
-
-          {/* Capa do álbum */}
           <div className={styles.albumArtWrapper}>
             {imageUrl ? (
               <img src={imageUrl} alt={albumName} className={styles.albumArt} />
@@ -120,7 +223,6 @@ export function PlayerPage() {
             )}
           </div>
 
-          {/* Informações da track */}
           <div className={styles.trackInfo}>
             <span className={styles.trackLabel}>{albumName}</span>
             <h1 className={styles.trackTitle}>{nowPlaying.name}</h1>
@@ -131,7 +233,6 @@ export function PlayerPage() {
             </p>
           </div>
 
-          {/* Next in Queue — visível no mobile, oculto no desktop (está na sidebar) */}
           {queue.length > 0 && (
             <section className={`${styles.queueSection} ${styles.queueMobile}`}>
               <h2 className={styles.queueTitle}>Próxima na fila</h2>
@@ -144,10 +245,7 @@ export function PlayerPage() {
           )}
         </div>
 
-        {/* ── Sidebar desktop — queue + lyrics + about artist ─── */}
         <aside className={styles.desktopSidebar}>
-
-          {/* Next in Queue */}
           <section className={styles.sidePanel}>
             <h2 className={styles.sidePanelTitle}>Próxima na fila</h2>
             {queue.length > 0 ? (
@@ -161,18 +259,46 @@ export function PlayerPage() {
             )}
           </section>
 
-          {/* Lyrics */}
           <section className={styles.sidePanel}>
             <h2 className={styles.sidePanelTitle}>Letras</h2>
-            <div className={styles.lyricsContent}>
-              <p className={styles.lyricsPlaceholder}>
-                As letras não estão disponíveis via API do Spotify.
-                Abra o Spotify para ver as letras sincronizadas desta faixa.
-              </p>
+            <div 
+              className={styles.lyricsContent} 
+              ref={lyricsContainerRef}
+              style={{ maxHeight: '400px', overflowY: 'auto', position: 'relative' }}
+            >
+              {isLoadingLyrics ? (
+                <p className={styles.lyricsPlaceholder}>Carregando letras...</p>
+              ) : lyrics.length > 0 ? (
+                <div style={{ padding: '20px 0' }}>
+                  {lyrics.map((line, index) => {
+                    const isActiveLine = index === currentLineIndex;
+                    return (
+                      <p
+                        key={`${line.timeMs}-${index}`}
+                        ref={isActiveLine ? activeLyricRef : null}
+                        style={{
+                          fontSize: '1.25rem',
+                          fontWeight: 'bold',
+                          margin: '0.75rem 0',
+                          transition: 'all 0.3s ease',
+                          color: isActiveLine ? '#fff' : 'rgba(255, 255, 255, 0.4)',
+                          transform: isActiveLine ? 'scale(1.05)' : 'scale(1)',
+                          cursor: 'default'
+                        }}
+                      >
+                        {line.text}
+                      </p>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className={styles.lyricsPlaceholder}>
+                  Letras sincronizadas não encontradas para esta faixa.
+                </p>
+              )}
             </div>
           </section>
 
-          {/* About Artist */}
           <section className={styles.sidePanel}>
             <h2 className={styles.sidePanelTitle}>
               <Mic2 size={16} />
@@ -197,7 +323,6 @@ export function PlayerPage() {
               </a>
             </div>
           </section>
-
         </aside>
       </div>
     </div>
