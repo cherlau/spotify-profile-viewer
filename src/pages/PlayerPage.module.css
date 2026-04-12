@@ -464,17 +464,60 @@
 }
 
 /* Lyrics */
+.lyricsSection {
+  width: 100%;
+  margin-top: var(--space-48);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .lyricsContent {
-  /* container das letras */
+  flex: 1;
+  max-height: 40vh;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+  position: relative;
+  /* Efeito de degradê nas bordas para suavizar o surgimento das letras */
+  mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+}
+
+.lyricsContent::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.lyricsList {
+  padding: 40px 0 25vh 0; /* Padding extra no final para scroll centralizado */
+}
+
+.lyricLine {
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.3;
+  margin: 2rem 0;
+  color: #ffffff;
+  opacity: 0.4;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  cursor: default;
+  text-align: center;
+}
+
+.activeLyricLine {
+  opacity: 1;
+  transform: scale(1.04);
 }
 
 .lyricsPlaceholder {
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 400;
   color: var(--color-text-secondary);
   line-height: 1.6;
   margin: 0;
+  text-align: center;
 }
 
 /* About Artist */

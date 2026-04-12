@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Music, Mic2 } from 'lucide-react';
 import { usePlaybackState } from '../hooks/usePlaybackState';
 import { useQueue } from '../hooks/useQueue';
@@ -43,39 +44,33 @@ interface LyricLine {
 }
 
 /**
- * Busca as letras da track atual na API LRCLIB e faz o parse se disponíveis.
+ * Busca as letras da track atual na API LRCLIB e faz o parse se disponíveis utilizando React Query para cache.
  */
 function useLyrics(trackName: string | undefined, artistName: string | undefined) {
-  const [lyrics, setLyrics] = useState<LyricLine[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if (!trackName || !artistName) return;
-
-    const fetchLyrics = async () => {
-      setIsLoading(true);
+  const { data: lyrics = [], isLoading } = useQuery({
+    queryKey: ['lyrics', trackName, artistName],
+    queryFn: async () => {
       try {
-        const query = new URLSearchParams({ track_name: trackName, artist_name: artistName });
+        const query = new URLSearchParams({ 
+          track_name: trackName!, 
+          artist_name: artistName! 
+        });
         const response = await fetch(`https://lrclib.net/api/get?${query}`);
         
-        if (!response.ok) throw new Error('Lyrics not found');
+        if (!response.ok) return [];
         
         const data = await response.json();
-        if (data.syncedLyrics) {
-          setLyrics(parseLRC(data.syncedLyrics));
-        } else {
-          setLyrics([]);
-        }
+        return data.syncedLyrics ? parseLRC(data.syncedLyrics) : [];
       } catch (error) {
-        console.error('Erro ao buscar letras:', error);
-        setLyrics([]);
-      } finally {
-        setIsLoading(false);
+        return [];
       }
-    };
-
-    fetchLyrics();
-  }, [trackName, artistName]);
+    },
+    enabled: !!trackName && !!artistName,
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 60, // 1 hora
+    refetchOnWindowFocus: false,
+    retry: false,
+  });
 
   return { lyrics, isLoading };
 }
@@ -233,6 +228,36 @@ export function PlayerPage() {
             </p>
           </div>
 
+          <section className={styles.lyricsSection}>
+            <div 
+              className={styles.lyricsContent} 
+              ref={lyricsContainerRef}
+            >
+              {isLoadingLyrics ? (
+                <p className={styles.lyricsPlaceholder}>Carregando letras...</p>
+              ) : lyrics.length > 0 ? (
+                <div className={styles.lyricsList}>
+                  {lyrics.map((line, index) => {
+                    const isActiveLine = index === currentLineIndex;
+                    return (
+                      <p
+                        key={`${line.timeMs}-${index}`}
+                        ref={isActiveLine ? activeLyricRef : null}
+                        className={`${styles.lyricLine} ${isActiveLine ? styles.activeLyricLine : ''}`}
+                      >
+                        {line.text}
+                      </p>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className={styles.lyricsPlaceholder}>
+                  Letras sincronizadas não encontradas para esta faixa.
+                </p>
+              )}
+            </div>
+          </section>
+
           {queue.length > 0 && (
             <section className={`${styles.queueSection} ${styles.queueMobile}`}>
               <h2 className={styles.queueTitle}>Próxima na fila</h2>
@@ -257,46 +282,6 @@ export function PlayerPage() {
             ) : (
               <p className={styles.sidePanelEmpty}>A fila está vazia ou não disponível.</p>
             )}
-          </section>
-
-          <section className={styles.sidePanel}>
-            <h2 className={styles.sidePanelTitle}>Letras</h2>
-            <div 
-              className={styles.lyricsContent} 
-              ref={lyricsContainerRef}
-              style={{ maxHeight: '400px', overflowY: 'auto', position: 'relative' }}
-            >
-              {isLoadingLyrics ? (
-                <p className={styles.lyricsPlaceholder}>Carregando letras...</p>
-              ) : lyrics.length > 0 ? (
-                <div style={{ padding: '20px 0' }}>
-                  {lyrics.map((line, index) => {
-                    const isActiveLine = index === currentLineIndex;
-                    return (
-                      <p
-                        key={`${line.timeMs}-${index}`}
-                        ref={isActiveLine ? activeLyricRef : null}
-                        style={{
-                          fontSize: '1.25rem',
-                          fontWeight: 'bold',
-                          margin: '0.75rem 0',
-                          transition: 'all 0.3s ease',
-                          color: isActiveLine ? '#fff' : 'rgba(255, 255, 255, 0.4)',
-                          transform: isActiveLine ? 'scale(1.05)' : 'scale(1)',
-                          cursor: 'default'
-                        }}
-                      >
-                        {line.text}
-                      </p>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className={styles.lyricsPlaceholder}>
-                  Letras sincronizadas não encontradas para esta faixa.
-                </p>
-              )}
-            </div>
           </section>
 
           <section className={styles.sidePanel}>
