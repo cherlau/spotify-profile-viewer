@@ -7,6 +7,7 @@
  */
 
 const REFRESH_TOKEN_KEY = 'spotify_refresh_token';
+const ACCESS_TOKEN_KEY = 'spotify_access_token';
 const TOKEN_EXPIRY_KEY = 'spotify_token_expiry';
 
 export const SESSION_KEYS = {
@@ -14,21 +15,18 @@ export const SESSION_KEYS = {
   STATE: 'spotify_auth_state',
 } as const;
 
-// In-memory access token — intentionally not in storage
-let _accessToken: string | null = null;
-
 export const tokenStore = {
-  // ── Access token (memory) ────────────────────────────────────────
+  // ── Access token (localStorage) ──────────────────────────────────
   getAccessToken(): string | null {
-    return _accessToken;
+    return localStorage.getItem(ACCESS_TOKEN_KEY);
   },
   setAccessToken(token: string, expiresIn: number): void {
-    _accessToken = token;
+    localStorage.setItem(ACCESS_TOKEN_KEY, token);
     const expiresAt = Date.now() + expiresIn * 1000;
     localStorage.setItem(TOKEN_EXPIRY_KEY, String(expiresAt));
   },
   clearAccessToken(): void {
-    _accessToken = null;
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(TOKEN_EXPIRY_KEY);
   },
   isAccessTokenExpired(): boolean {
@@ -48,7 +46,7 @@ export const tokenStore = {
 
   // ── Full clear (logout) ──────────────────────────────────────────
   clear(): void {
-    _accessToken = null;
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(TOKEN_EXPIRY_KEY);
   },

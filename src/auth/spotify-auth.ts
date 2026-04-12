@@ -71,40 +71,55 @@ export async function handleCallback(code: string, returnedState: string): Promi
 
 // ── Refresh ──────────────────────────────────────────────────────────────────
 
+let refreshPromise: Promise<string> | null = null;
+
 export async function refreshAccessToken(): Promise<string> {
-  const refresh = tokenStore.getRefreshToken();
-  if (!refresh) throw new Error('No refresh token available');
+  // Se já houver um refresh em andamento, retorna a mesma promessa
+  if (refreshPromise) {
+    return refreshPromise;
+  }
 
-  const body = new URLSearchParams({
-    grant_type: 'refresh_token',
-    refresh_token: refresh,
-    client_id: CLIENT_ID,
-  });
+  refreshPromise = (async () => {
+    try {
+      const refresh = tokenStore.getRefreshToken();
+      if (!refresh) throw new Error('No refresh token available');
 
-  const response = await fetch(SPOTIFY_TOKEN_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body,
-  });
+      const body = new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token: refresh,
+        client_id: CLIENT_ID,
+      });
 
-  if (!response.ok) {
-    // Só limpamos o store se o Spotify confirmar que o token é inválido (400 Bad Request)
-    // Erros 500 ou outros podem ser instabilidades temporárias e não devem deslogar o usuário.
-    if (response.status === 400) {
-      tokenStore.clear();
+      const response = await fetch(SPOTIFY_TOKEN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body,
+      });
+
+      if (!response.ok) {
+        // Só limpamos o store se o Spotify confirmar que o token é inválido (400 Bad Request)
+        if (response.status === 400) {
+          tokenStore.clear();
+        }
+        throw new Error(`Token refresh failed (${response.status})`);
+      }
+
+      const data: TokenResponse = await response.json();
+      tokenStore.setAccessToken(data.access_token, data.expires_in);
+
+      // Spotify may return a new refresh_token — always persist it if present
+      if (data.refresh_token) {
+        tokenStore.setRefreshToken(data.refresh_token);
+      }
+
+      return data.access_token;
+    } finally {
+      // Limpa a promessa para permitir futuros refreshes
+      refreshPromise = null;
     }
-    throw new Error(`Token refresh failed (${response.status})`);
-  }
+  })();
 
-  const data: TokenResponse = await response.json();
-  tokenStore.setAccessToken(data.access_token, data.expires_in);
-
-  // Spotify may return a new refresh_token — always persist it if present
-  if (data.refresh_token) {
-    tokenStore.setRefreshToken(data.refresh_token);
-  }
-
-  return data.access_token;
+  return refreshPromise;
 }
 
 // ── Logout ───────────────────────────────────────────────────────────────────

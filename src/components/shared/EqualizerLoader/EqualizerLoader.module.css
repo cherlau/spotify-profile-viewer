@@ -1,64 +1,103 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+}
+
 .container {
   display: flex;
   align-items: flex-end;
   justify-content: center;
   gap: 4px;
-  width: 100px;
-  height: 100px;
-  background-color: #1c1c1c;
-  border-radius: 8px;
-  padding: 20px;
+  background-color: transparent;
+  padding: 0;
+}
+
+.small {
+  width: 40px;
+  height: 20px;
+  gap: 2px;
+}
+
+/* Deixei o container mais baixo e mais largo */
+.medium {
+  width: 64px;
+  height: 40px; 
+}
+
+/* Deixei o container mais baixo e mais largo */
+.large {
+  width: 96px;
+  height: 64px; 
+}
+
+.small .bar {
+  width: 4px;
+}
+
+.medium .bar {
+  width: 6px;
+}
+
+.large .bar {
+  width: 10px;
+}
+
+.message {
+  color: var(--color-text-secondary, #b3b3b3);
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0;
 }
 
 .bar {
-  width: 8px;
-  background-color: #5a5a5a;
+  /* Se preferir aquela cor cinza da imagem, troque a linha abaixo para: background-color: #5A5A5A; */
+  background-color: var(--color-primary, #1ed760); 
   border-radius: 2px 2px 0 0;
   animation: equalizerJump ease-in-out infinite;
 }
 
-/* Aplicando durações e delays diferentes para cada uma das 6 barras */
+/* Tempos aumentados de ~0.9s para ~1.5s 
+  Isso deixa o movimento muito mais lento e relaxante 
+*/
 .bar:nth-child(1) {
-  height: 40%;
-  animation-duration: 0.8s;
+  animation-duration: 1.4s;
   animation-delay: -0.2s;
 }
 
 .bar:nth-child(2) {
-  height: 70%;
-  animation-duration: 1s;
-  animation-delay: -0.4s;
+  animation-duration: 1.7s;
+  animation-delay: -0.8s;
 }
 
 .bar:nth-child(3) {
-  height: 50%;
-  animation-duration: 0.9s;
-  animation-delay: -0.1s;
-}
-
-.bar:nth-child(4) {
-  height: 85%;
-  animation-duration: 1.1s;
+  animation-duration: 1.3s;
   animation-delay: -0.5s;
 }
 
+.bar:nth-child(4) {
+  animation-duration: 1.6s;
+  animation-delay: -0.1s;
+}
+
 .bar:nth-child(5) {
-  height: 60%;
-  animation-duration: 0.85s;
-  animation-delay: -0.3s;
+  animation-duration: 1.5s;
+  animation-delay: -0.4s;
 }
 
-.bar:nth-child(6) {
-  height: 45%;
-  animation-duration: 0.95s;
-  animation-delay: -0.6s;
-}
-
+/* O teto da animação baixou de 90% para 60%.
+  As barras não vão mais esticar tanto para cima.
+*/
 @keyframes equalizerJump {
   0%, 100% {
-    height: 20%;
+    height: 15%;
   }
   50% {
-    height: 90%;
+    height: 60%;
   }
 }

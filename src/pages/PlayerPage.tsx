@@ -5,6 +5,7 @@ import { usePlaybackState } from '../hooks/usePlaybackState';
 import { useQueue } from '../hooks/useQueue';
 import { LoadingState } from '../components/shared/LoadingState';
 import { ErrorState } from '../components/shared/ErrorState';
+import { EqualizerLoader } from '../components/shared/EqualizerLoader';
 import type { SpotifyTrack } from '../types/spotify';
 import styles from './PlayerPage.module.css';
 
@@ -234,7 +235,9 @@ export function PlayerPage() {
               ref={lyricsContainerRef}
             >
               {isLoadingLyrics ? (
-                <p className={styles.lyricsPlaceholder}>Carregando letras...</p>
+                <div className={styles.lyricsPlaceholder}>
+                  <EqualizerLoader />
+                </div>
               ) : lyrics.length > 0 ? (
                 <div className={styles.lyricsList}>
                   {lyrics.map((line, index) => {
