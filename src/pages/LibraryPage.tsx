@@ -110,17 +110,21 @@ interface TrackRowProps {
 
 function TrackRow({ track, onPlay }: TrackRowProps) { 
   const [hovered, setHovered] = useState(false);
+  const { playbackState } = usePlayer();
   const imageUrl = track.album.images?.[0]?.url ?? null;
   const artistNames = track.artists.map(a => a.name).join(', ');
   const duration = formatDuration(track.duration_ms);
 
+  const isCurrentTrack = playbackState?.item?.id === track.id;
+  const isPlaying = isCurrentTrack && playbackState?.is_playing;
+
   return (
     <div
-      className={styles.trackItem}
+      className={`${styles.trackItem} ${isCurrentTrack ? styles.trackItemActive : ''}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Capa com overlay play */}
+      {/* Capa com overlay play ou wave */}
       <div className={styles.trackArtWrapper}>
         {imageUrl ? (
           <img src={imageUrl} alt={track.album.name} className={styles.trackArt} />
@@ -129,22 +133,37 @@ function TrackRow({ track, onPlay }: TrackRowProps) {
             <Music size={20} />
           </div>
         )}
-        {hovered && (
-          <div className={styles.playOverlay}>
-            <button 
-              className={styles.playBtn} 
-              aria-label={`Tocar ${track.name}`}
-              onClick={onPlay}
-            >
-              <Play size={16} fill="currentColor" />
-            </button>
+        
+        {/* Mostra wave se estiver tocando, senão mostra play se hover */}
+        {isPlaying ? (
+          <div className={styles.playOverlay} style={{ opacity: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}>
+            <div className="playing-wave">
+              <span />
+              <span />
+              <span />
+              <span />
+            </div>
           </div>
+        ) : (
+          hovered && (
+            <div className={styles.playOverlay}>
+              <button 
+                className={styles.playBtn} 
+                aria-label={`Tocar ${track.name}`}
+                onClick={onPlay}
+              >
+                <Play size={16} fill="currentColor" />
+              </button>
+            </div>
+          )
         )}
       </div>
 
       {/* Nome e metadados */}
       <div className={styles.trackMeta}>
-        <span className={styles.trackName}>{track.name}</span>
+        <span className={`${styles.trackName} ${isCurrentTrack ? styles.trackNameActive : ''}`}>
+          {track.name}
+        </span>
         <span className={styles.trackSub}>
           {artistNames}
           <span className={styles.trackDot}> • </span>
@@ -155,7 +174,7 @@ function TrackRow({ track, onPlay }: TrackRowProps) {
       {/* Ações */}
       <div className={styles.trackActions}>
         <button className={styles.actionBtn} aria-label="Curtir">
-          <Heart size={18} />
+          <Heart size={18} color={isCurrentTrack ? '#1db954' : 'currentColor'} fill={isCurrentTrack ? '#1db954' : 'none'} />
         </button>
         <button className={styles.actionBtn} aria-label="Mais opções">
           <MoreHorizontal size={18} />

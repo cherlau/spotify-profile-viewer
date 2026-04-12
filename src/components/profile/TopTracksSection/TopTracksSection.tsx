@@ -20,17 +20,32 @@ function formatDuration(ms: number): string {
 
 function TrackRow({ track, rank, onPlay }: { track: SpotifyTrack; rank: number; onPlay: () => void }) {
   const [hovered, setHovered] = useState(false);
+  const { playbackState } = usePlayer();
   const imageUrl = track.album.images?.[0]?.url ?? null;
   const artistNames = track.artists.map(a => a.name).join(', ');
   const duration = formatDuration(track.duration_ms);
 
+  const isCurrentTrack = playbackState?.item?.id === track.id;
+  const isPlaying = isCurrentTrack && playbackState?.is_playing;
+
   return (
     <div
-      className={styles.trackItem}
+      className={`${styles.trackItem} ${isCurrentTrack ? styles.trackItemActive : ''}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <span className={styles.rank}>{rank.toString().padStart(2, '0')}</span>
+      <span className={`${styles.rank} ${isCurrentTrack ? styles.rankActive : ''}`}>
+        {isPlaying ? (
+          <div className="playing-wave" style={{ width: '12px', height: '12px' }}>
+            <span style={{ backgroundColor: '#1db954' }} />
+            <span style={{ backgroundColor: '#1db954' }} />
+            <span style={{ backgroundColor: '#1db954' }} />
+            <span style={{ backgroundColor: '#1db954' }} />
+          </div>
+        ) : (
+          rank.toString().padStart(2, '0')
+        )}
+      </span>
 
       <div className={styles.trackArtWrapper}>
         {imageUrl ? (
@@ -40,7 +55,7 @@ function TrackRow({ track, rank, onPlay }: { track: SpotifyTrack; rank: number; 
             <Music size={20} />
           </div>
         )}
-        {hovered && (
+        {hovered && !isPlaying && (
           <div className={styles.playOverlay}>
             <button 
               className={styles.playBtn} 
@@ -54,7 +69,9 @@ function TrackRow({ track, rank, onPlay }: { track: SpotifyTrack; rank: number; 
       </div>
 
       <div className={styles.trackMeta}>
-        <span className={styles.trackName}>{track.name}</span>
+        <span className={`${styles.trackName} ${isCurrentTrack ? styles.trackNameActive : ''}`}>
+          {track.name}
+        </span>
         <span className={styles.trackSub}>
           {artistNames}
           <span className={styles.trackDot}> • </span>
@@ -64,7 +81,7 @@ function TrackRow({ track, rank, onPlay }: { track: SpotifyTrack; rank: number; 
 
       <div className={styles.trackActions}>
         <button className={styles.actionBtn} aria-label="Curtir">
-          <Heart size={18} />
+          <Heart size={18} color={isCurrentTrack ? '#1db954' : 'currentColor'} fill={isCurrentTrack ? '#1db954' : 'none'} />
         </button>
         <button className={styles.actionBtn} aria-label="Mais opções">
           <MoreHorizontal size={18} />
