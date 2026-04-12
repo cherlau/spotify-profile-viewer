@@ -3,12 +3,13 @@
  * Source: specs/api-contract.md
  *
  * BREAKING CHANGES (Feb 2026) — fields that NO LONGER EXIST and must NOT be used:
- *   User:    country, email, explicit_content, followers, product
  *   Artist:  followers, popularity
  *   Track:   available_markets, linked_from, popularity
  *   Album:   album_group, available_markets, label, popularity
  *
  * Playlist: field "tracks" renamed to "items" (Feb 2026)
+ *
+ * GET /me retorna normalmente: country, explicit_content, followers, product
  */
 
 // ─── Shared primitives ────────────────────────────────────────────────────────
@@ -32,9 +33,19 @@ export interface SpotifyUserProfile {
   href: string;
   id: string;
   images: SpotifyImage[];
-  product: string;
+  product: string;           // "premium", "free", "open"
   type: "user";
   uri: string;
+  country: string;           // ex: "BR"
+  explicit_content: {
+    filter_enabled: boolean;
+    filter_locked: boolean;
+  };
+  followers: {
+    href: string | null;
+    total: number;
+  };
+  email?: string;            // só presente com scope user-read-email
 }
 
 // ─── GET /me/top/{type} ───────────────────────────────────────────────────────

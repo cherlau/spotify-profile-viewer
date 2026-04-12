@@ -4,6 +4,7 @@ import { Music, Mic2 } from 'lucide-react';
 import { usePlaybackState } from '../hooks/usePlaybackState';
 import { useQueue } from '../hooks/useQueue';
 import { useProfile } from '../hooks/useProfile';
+import { isPremiumUser } from '../utils/isPremiumUser';
 import { LoadingState } from '../components/shared/LoadingState';
 import { ErrorState } from '../components/shared/ErrorState';
 import { EqualizerLoader } from '../components/shared/EqualizerLoader';
@@ -118,14 +119,17 @@ export function PlayerPage() {
   const lyricsContainerRef = useRef<HTMLDivElement>(null);
   const activeLyricRef = useRef<HTMLParagraphElement>(null);
 
+  const { data: profile, isLoading: profileLoading } = useProfile();
+  const isPremium = isPremiumUser(profile);
+
   const { data: playback, isLoading, isError, refetch } = usePlaybackState({
-    refetchInterval: isActive ? 4000 : false,
-    enabled: isActive,
+    refetchInterval: isPremium && isActive ? 4000 : false,
+    enabled: isPremium && isActive,
   });
 
   const { data: queueData } = useQueue({
-    refetchInterval: isActive ? 4000 : false,
-    enabled: isActive,
+    refetchInterval: isPremium && isActive ? 4000 : false,
+    enabled: isPremium && isActive,
   });
 
   const nowPlaying = playback?.item;
@@ -133,7 +137,6 @@ export function PlayerPage() {
   const trackName = nowPlaying?.name;
 
   const { lyrics, isLoading: isLoadingLyrics } = useLyrics(trackName, artistName);
-  const { data: profile } = useProfile();
 
   // Sincroniza o relógio local com o Spotify sempre que o hook de playback atualizar
   useEffect(() => {
@@ -164,9 +167,9 @@ export function PlayerPage() {
     if (activeLyricRef.current && lyricsContainerRef.current) {
       const container = lyricsContainerRef.current;
       const activeLine = activeLyricRef.current;
-      
+
       const scrollTarget = activeLine.offsetTop - container.clientHeight / 2 + activeLine.clientHeight / 2;
-      
+
       container.scrollTo({
         top: scrollTarget,
         behavior: 'smooth'
@@ -179,10 +182,9 @@ export function PlayerPage() {
     return () => setIsActive(false);
   }, []);
 
-  if (isLoading) return <LoadingState message="Conectando ao seu Spotify…" />;
-  if (isError) return <ErrorState message="Não foi possível carregar o player." onRetry={refetch} />;
+  if (profileLoading) return <LoadingState />;
 
-  if (profile && profile.product !== 'premium') {
+  if (!isPremium) {
     return (
       <div className={styles.empty}>
         <Music size={48} strokeWidth={1.5} />
@@ -193,6 +195,9 @@ export function PlayerPage() {
       </div>
     );
   }
+
+  if (isLoading) return <LoadingState />;
+  if (isError) return <ErrorState message="Não foi possível carregar o player." onRetry={refetch} />;
 
   if (!playback || !nowPlaying) {
     return (

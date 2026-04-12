@@ -32,13 +32,14 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     tokenRef.current = token;
   }, [token]);
-  
-  const { data: profile } = useProfile();
 
-  // Polling a cada 5 segundos para manter o estado sincronizado
+  const { data: profile } = useProfile();
+  const isPremium = profile?.product === 'premium';
+
+  // Polling a cada 5 segundos — somente para usuários Premium
   const { data: playbackState, isLoading, refetch } = usePlaybackState({
-    enabled: isAuthenticated,
-    refetchInterval: 5000,
+    enabled: isAuthenticated && isPremium,
+    refetchInterval: isPremium ? 5000 : false,
   });
 
   // Sincroniza o estado otimista com o real quando a API responde
@@ -48,9 +49,9 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     }
   }, [playbackState]);
 
-  // Inicialização do Web Playback SDK
+  // Inicialização do Web Playback SDK — somente para usuários Premium
   useEffect(() => {
-    if (!token || player) return;
+    if (!token || player || !isPremium) return;
 
     const setupPlayer = () => {
       const newPlayer = new (window as any).Spotify.Player({
@@ -131,17 +132,12 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         player.disconnect();
       }
     };
-  }, [token, player, refetch]);
+  }, [token, player, refetch, isPremium]);
 
   const isPlaying = optimisticPlaying !== null ? optimisticPlaying : (playbackState?.is_playing ?? false);
   const isLocalPlayer = playbackState?.device?.id === deviceId;
 
   const playTrack = useCallback(async (trackUri: string | string[]) => {
-    if (profile && profile.product !== 'premium') {
-      alert('A reprodução via SDK requer uma conta Spotify Premium. O erro 403 (Forbidden) no Widevine é esperado para contas Free.');
-      return;
-    }
-
     setOptimisticPlaying(true);
     try {
       await playerApi.play(trackUri, deviceId);
@@ -154,7 +150,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         console.error('Erro ao tocar faixa:', error);
       }
     }
-  }, [deviceId, refetch, profile]);
+  }, [deviceId, refetch]);
 
   const togglePlay = useCallback(async () => {
     const nextState = !isPlaying;

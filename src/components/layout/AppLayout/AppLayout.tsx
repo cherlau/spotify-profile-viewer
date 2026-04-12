@@ -26,7 +26,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         {children}
       </main>
 
-      {/* Player bar — sempre visível quando há faixa tocando */}
+      {/* Player bar — visível quando há faixa tocando (PlayerBar retorna null sem playback) */}
       <PlayerBar />
 
       {/* Bottom nav — mobile only */}

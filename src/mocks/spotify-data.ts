@@ -128,6 +128,7 @@ export const mockProfile: SpotifyUserProfile = {
   ],
   type: 'user',
   uri: 'spotify:user:mockuserid123',
+  product: 'premium',
 };
 
 // ─── GET /me/top/tracks ───────────────────────────────────────────────────────
