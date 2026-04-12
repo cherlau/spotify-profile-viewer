@@ -2,7 +2,7 @@ import React, { createContext, useContext, useCallback, useEffect, useState, use
 import { usePlaybackState } from '../hooks/usePlaybackState';
 import { useProfile } from '../hooks/useProfile';
 import * as playerApi from '../api/player';
-import type { SpotifyPlaybackState } from '../types/spotify';
+import type { SpotifyPlaybackState, SpotifyTrack } from '../types/spotify';
 import { useSpotifyAuth } from '../hooks/useSpotifyAuth';
 
 interface PlayerContextType {
@@ -10,7 +10,8 @@ interface PlayerContextType {
   isLoading: boolean;
   isPlaying: boolean;
   deviceId: string | null;
-  playTrack: (trackUri: string | string[]) => Promise<void>;
+  optimisticTrack: SpotifyTrack | null;
+  playTrack: (trackUri: string | string[], track?: SpotifyTrack) => Promise<void>;
   togglePlay: () => Promise<void>;
   next: () => Promise<void>;
   previous: () => Promise<void>;
@@ -26,6 +27,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [player, setPlayer] = useState<any>(null);
   const [optimisticPlaying, setOptimisticPlaying] = useState<boolean | null>(null);
+  const [optimisticTrack, setOptimisticTrack] = useState<SpotifyTrack | null>(null);
   const tokenRef = useRef<string | null>(token);
 
   // Mantém o ref atualizado para o callback getOAuthToken
@@ -42,10 +44,14 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     refetchInterval: isPremium ? 5000 : false,
   });
 
-  // Sincroniza o estado otimista com o real quando a API responde
+  // Sincroniza os estados otimistas com o real quando a API responde
   useEffect(() => {
     if (playbackState !== undefined) {
       setOptimisticPlaying(null);
+      // Limpa a track otimista assim que o playbackState reflete a música correta
+      if (playbackState?.item) {
+        setOptimisticTrack(null);
+      }
     }
   }, [playbackState]);
 
@@ -137,13 +143,16 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const isPlaying = optimisticPlaying !== null ? optimisticPlaying : (playbackState?.is_playing ?? false);
   const isLocalPlayer = playbackState?.device?.id === deviceId;
 
-  const playTrack = useCallback(async (trackUri: string | string[]) => {
+  const playTrack = useCallback(async (trackUri: string | string[], track?: SpotifyTrack) => {
     setOptimisticPlaying(true);
+    // Exibe a track imediatamente no PlayerBar antes do refetch completar
+    if (track) setOptimisticTrack(track);
     try {
       await playerApi.play(trackUri, deviceId);
       await refetch();
     } catch (error: any) {
       setOptimisticPlaying(null);
+      setOptimisticTrack(null);
       if (error.status === 404) {
         alert('Nenhum dispositivo Spotify ativo encontrado. Aguarde o player carregar ou abra o Spotify em outro lugar.');
       } else {
@@ -243,6 +252,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         isLoading,
         isPlaying,
         deviceId,
+        optimisticTrack,
         playTrack,
         togglePlay,
         next,

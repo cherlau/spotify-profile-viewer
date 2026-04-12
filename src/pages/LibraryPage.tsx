@@ -243,7 +243,7 @@ export function LibraryPage() {
 
   const handlePlayFromList = (list: SpotifyTrack[], startIndex: number) => {
     const uris = list.slice(startIndex).map(t => t.uri);
-    playTrack(uris);
+    playTrack(uris, list[startIndex]);
   };
 
   const isAnyLoading = recentLoading || artistsLoading || albumsLoading;

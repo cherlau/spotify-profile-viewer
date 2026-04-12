@@ -101,7 +101,7 @@ export function TopTracksSection({ tracks }: TopTracksSectionProps) {
 
   const handlePlayFromList = (startIndex: number) => {
     const uris = displayTracks.slice(startIndex).map(t => t.uri);
-    playTrack(uris);
+    playTrack(uris, displayTracks[startIndex]);
   };
 
   return (

@@ -25,12 +25,13 @@ function formatTime(ms: number): string {
 
 export function PlayerBar() {
   const isDesktop = useIsDesktop();
-  const { 
-    playbackState, 
-    isPlaying, 
-    togglePlay, 
-    next, 
-    previous, 
+  const {
+    playbackState,
+    optimisticTrack,
+    isPlaying,
+    togglePlay,
+    next,
+    previous,
     setVolume: updateSpotifyVolume,
     toggleShuffle,
     setRepeatMode
@@ -47,10 +48,10 @@ export function PlayerBar() {
     }
   }, [playbackState?.device?.volume_percent]);
 
-  if (!playbackState || !playbackState.item) return null;
-
-  const track = playbackState.item;
-  const progressMs = playbackState.progress_ms ?? 0;
+  // Mostra o player imediatamente com a track otimista enquanto o playbackState não sincroniza
+  const track = playbackState?.item ?? optimisticTrack;
+  if (!track) return null;
+  const progressMs = playbackState?.progress_ms ?? 0;
   const durationMs = track.duration_ms;
   const progressPercent = (progressMs / durationMs) * 100;
 
@@ -89,7 +90,7 @@ export function PlayerBar() {
       <div className={styles.controls}>
         <div className={styles.controlButtons}>
           <button
-            className={`${styles.iconBtn} ${playbackState.shuffle_state ? styles.iconBtnActive : ''}`}
+            className={`${styles.iconBtn} ${playbackState?.shuffle_state ? styles.iconBtnActive : ''}`}
             onClick={toggleShuffle}
             aria-label="Shuffle"
           >
@@ -109,11 +110,11 @@ export function PlayerBar() {
             <SkipForward size={18} />
           </button>
           <button
-            className={`${styles.iconBtn} ${playbackState.repeat_state !== 'off' ? styles.iconBtnActive : ''}`}
+            className={`${styles.iconBtn} ${playbackState?.repeat_state !== 'off' ? styles.iconBtnActive : ''}`}
             onClick={setRepeatMode}
             aria-label="Repeat"
           >
-            {playbackState.repeat_state === 'track' ? <Repeat1 size={16} /> : <Repeat size={16} />}
+            {playbackState?.repeat_state === 'track' ? <Repeat1 size={16} /> : <Repeat size={16} />}
           </button>
         </div>
 
