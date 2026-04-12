@@ -13,7 +13,7 @@ const DESKTOP_LIMIT = 4;
 
 export function TopArtistsSection({ artists, isLoading }: TopArtistsSectionProps) {
   if (isLoading) {
-    return <LoadingState message="Carregando seus artistas favoritos…" />;
+    return <LoadingState/>;
   }
 
   if (artists.length === 0) {

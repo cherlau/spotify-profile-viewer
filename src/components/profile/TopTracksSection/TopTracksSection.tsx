@@ -95,7 +95,7 @@ export function TopTracksSection({ tracks, isLoading }: TopTracksSectionProps) {
   const { playTrack } = usePlayer();
 
   if (isLoading) {
-    return <LoadingState message="Carregando suas músicas mais tocadas…" />;
+    return <LoadingState/>;
   }
 
   if (tracks.length === 0) {

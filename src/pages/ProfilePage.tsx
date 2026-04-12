@@ -18,7 +18,7 @@ export function ProfilePage() {
   const { data: followedArtistsData } = useFollowedArtists(50);
 
   if (profileLoading) {
-    return <LoadingState message="Carregando seu perfil…" />;
+    return <LoadingState/>;
   }
 
   if (profileError || !profile) {

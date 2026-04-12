@@ -6,6 +6,8 @@
   gap: var(--space-16);
   padding: var(--space-96) var(--space-24);
   color: var(--color-text-secondary);
+  height: 100%;
+  width: 100%;
 }
 
 .spinner {

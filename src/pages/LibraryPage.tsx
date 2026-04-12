@@ -344,7 +344,7 @@ export function LibraryPage() {
                 <button className={styles.seeAll}>VER TUDO</button>
               </div>
               {recentLoading ? (
-                <LoadingState message="Carregando músicas…" />
+                <LoadingState/>
               ) : recentError ? (
                 <ErrorState message="Não foi possível carregar as músicas tocadas recentemente." onRetry={refetchRecent} />
               ) : tracks.length === 0 ? (
@@ -370,7 +370,7 @@ export function LibraryPage() {
                 <h2 className={styles.sectionTitle}>Seguindo</h2>
               </div>
               {artistsLoading ? (
-                <LoadingState message="Carregando artistas…" />
+                <LoadingState/>
               ) : artistsError ? (
                 <ErrorState message="Não foi possível carregar os artistas seguidos." onRetry={refetchArtists} />
               ) : artists.length === 0 ? (
@@ -392,7 +392,7 @@ export function LibraryPage() {
                 <h2 className={styles.sectionTitle}>Álbuns salvos</h2>
               </div>
               {albumsLoading ? (
-                <LoadingState message="Carregando álbuns…" />
+                <LoadingState/>
               ) : albumsError ? (
                 <ErrorState message="Não foi possível carregar os álbuns salvos." onRetry={refetchAlbums} />
               ) : albums.length === 0 ? (
