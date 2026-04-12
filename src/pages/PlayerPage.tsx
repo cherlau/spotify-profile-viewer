@@ -1,15 +1,9 @@
 import { useState, useEffect } from 'react';
-import {
-  Play, Pause, Heart, MoreHorizontal,
-  Shuffle, SkipBack, SkipForward, Repeat, Music, Mic2,
-} from 'lucide-react';
+import { Music, Mic2 } from 'lucide-react';
 import { usePlaybackState } from '../hooks/usePlaybackState';
 import { useQueue } from '../hooks/useQueue';
-import { play, pause, next, previous, seek, toggleShuffle, setRepeatMode } from '../api/player';
 import { LoadingState } from '../components/shared/LoadingState';
 import { ErrorState } from '../components/shared/ErrorState';
-import { useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from '../api/queryKeys';
 import type { SpotifyTrack } from '../types/spotify';
 import styles from './PlayerPage.module.css';
 
@@ -57,7 +51,6 @@ function QueueItem({ track, rank }: QueueItemProps) {
 // ─── PlayerPage ───────────────────────────────────────────────────────────────
 
 export function PlayerPage() {
-  const queryClient = useQueryClient();
   const [isActive, setIsActive] = useState(true);
 
   // O polling é configurado aqui e desativado quando isActive for false
@@ -71,34 +64,11 @@ export function PlayerPage() {
     enabled: isActive,
   });
 
-  const [isLiked, setIsLiked] = useState(false);
-  const [localProgressMs, setLocalProgressMs] = useState<number | null>(null);
-  const [errorFeedback, setErrorFeedback] = useState<string | null>(null);
-
   // Garante que o polling pare imediatamente ao navegar para fora
   useEffect(() => {
     setIsActive(true);
     return () => setIsActive(false);
   }, []);
-
-  // Sincroniza o progresso local quando o playback muda
-  useEffect(() => {
-    if (playback?.progress_ms !== undefined) {
-      setLocalProgressMs(playback.progress_ms);
-    }
-  }, [playback?.progress_ms]);
-
-  // Incrementa o progresso local a cada segundo se estiver tocando
-  useEffect(() => {
-    if (!playback?.is_playing || localProgressMs === null) return;
-
-    const interval = setInterval(() => {
-      setLocalProgressMs(prev => (prev !== null ? prev + 1000 : null));
-    }, 1000);
-
-    // Cleanup: Para o intervalo quando o componente desmonta ou o estado de reprodução muda
-    return () => clearInterval(interval);
-  }, [playback?.is_playing, localProgressMs]);
 
   if (isLoading) return <LoadingState message="Conectando ao seu Spotify…" />;
   if (isError) return <ErrorState message="Não foi possível carregar o player." onRetry={refetch} />;
@@ -122,112 +92,9 @@ export function PlayerPage() {
   const imageUrl = nowPlaying.album.images?.[0]?.url ?? null;
   const artistNames = nowPlaying.artists.map(a => a.name).join(', ');
   const albumName = nowPlaying.album.name;
-  
-  const durationMs = nowPlaying.duration_ms;
-  const currentMs = Math.min(localProgressMs ?? 0, durationMs);
-  const progressPercent = (currentMs / durationMs) * 100;
-  
-  const totalTime = formatDuration(durationMs);
-  const currentTime = formatDuration(currentMs);
-
-  async function handleControlAction(
-    action: () => Promise<void>,
-    optimisticUpdate?: (oldData: any) => any
-  ) {
-    try {
-      setErrorFeedback(null);
-
-      // 1. Atualização Otimista do Cache com pequeno delay (100ms)
-      // Isso evita que a UI mude "rápido demais" e pareça mais natural
-      if (optimisticUpdate) {
-        setTimeout(() => {
-          queryClient.setQueryData(queryKeys.player, (old: any) => {
-            if (!old) return old;
-            return optimisticUpdate(old);
-          });
-        }, 100);
-      }
-
-      // 2. Executa a ação na API imediatamente
-      await action();
-
-      // 3. Hack de Delay do Spotify (Sincronização Interna)
-      // Aguardamos 500ms antes de invalidar para garantir que o Spotify processou a mudança
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: queryKeys.player });
-        queryClient.invalidateQueries({ queryKey: queryKeys.queue });
-      }, 500);
-
-    } catch (err: any) {
-      console.error('Player control error:', err);
-      // Reverte o cache em caso de erro (o React Query fará refetch automático no próximo poll,
-      // mas podemos forçar um aqui se desejado)
-      queryClient.invalidateQueries({ queryKey: queryKeys.player });
-      
-      if (err.status === 403) {
-        setErrorFeedback("Esta ação requer uma conta Spotify Premium.");
-      }
-    }
-  }
-
-  function togglePlay() {
-    const isPlaying = playback?.is_playing;
-    handleControlAction(
-      isPlaying ? pause : play,
-      (old) => ({ ...old, is_playing: !isPlaying })
-    );
-  }
-
-  function handleNext() {
-    setLocalProgressMs(0);
-    handleControlAction(next);
-  }
-
-  function handlePrevious() {
-    setLocalProgressMs(0);
-    handleControlAction(previous);
-  }
-
-  function handleToggleShuffle() {
-    const nextShuffle = !playback.shuffle_state;
-    handleControlAction(
-      () => toggleShuffle(nextShuffle),
-      (old) => ({ ...old, shuffle_state: nextShuffle })
-    );
-  }
-
-  function handleToggleRepeat() {
-    const modes: ("off" | "context" | "track")[] = ['off', 'context', 'track'];
-    const currentIndex = modes.indexOf(playback.repeat_state);
-    const nextMode = modes[(currentIndex + 1) % modes.length];
-
-    handleControlAction(
-      () => setRepeatMode(nextMode),
-      (old) => ({ ...old, repeat_state: nextMode })
-    );
-  }
-
-  function handleProgressClick(e: React.MouseEvent<HTMLDivElement>) {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const pct = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
-    const targetMs = pct * durationMs;
-    
-    setLocalProgressMs(targetMs);
-    handleControlAction(
-      () => seek(targetMs),
-      (old) => ({ ...old, progress_ms: targetMs })
-    );
-  }
 
   return (
     <div className={styles.page}>
-      {/* Feedback de Erro (Premium ou outros) */}
-      {errorFeedback && (
-        <div className={styles.errorBanner} onClick={() => setErrorFeedback(null)}>
-          {errorFeedback} <span>✕</span>
-        </div>
-      )}
-
       {/* Fundo desfocado com a capa — visível apenas no desktop */}
       {imageUrl && (
         <div
@@ -262,68 +129,6 @@ export function PlayerPage() {
               <span className={styles.trackDot}> • </span>
               {albumName}
             </p>
-          </div>
-
-          {/* Barra de progresso com timestamps */}
-          <div className={styles.progressSection}>
-            <div
-              className={styles.progressBar}
-              onClick={handleProgressClick}
-              role="slider"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={Math.round(progressPercent)}
-              tabIndex={0}
-            >
-              <div className={styles.progressFill} style={{ width: `${progressPercent}%` }} />
-              <div className={styles.progressThumb} style={{ left: `${progressPercent}%` }} />
-            </div>
-            <div className={styles.timeLabels}>
-              <span className={styles.timestamp}>{currentTime}</span>
-              <span className={styles.timestamp}>{totalTime}</span>
-            </div>
-          </div>
-
-          {/* Controles de playback grandes */}
-          <div className={styles.controls}>
-            <button 
-              className={`${styles.controlBtn} ${playback.shuffle_state ? styles.controlActive : ''}`} 
-              onClick={handleToggleShuffle}
-              aria-label="Ordem aleatória"
-            >
-              <Shuffle size={22} />
-            </button>
-            <button 
-              className={styles.controlBtn} 
-              onClick={handlePrevious}
-              aria-label="Anterior"
-            >
-              <SkipBack size={28} fill="currentColor" strokeWidth={0} />
-            </button>
-            <button
-              className={styles.playLargeBtn}
-              onClick={togglePlay}
-              aria-label={playback.is_playing ? 'Pausar' : 'Tocar'}
-            >
-              {playback.is_playing
-                ? <Pause size={34} fill="currentColor" strokeWidth={0} />
-                : <Play size={34} fill="currentColor" strokeWidth={0} />
-              }
-            </button>
-            <button 
-              className={styles.controlBtn} 
-              onClick={handleNext}
-              aria-label="Próxima"
-            >
-              <SkipForward size={28} fill="currentColor" strokeWidth={0} />
-            </button>
-            <button 
-              className={`${styles.controlBtn} ${playback.repeat_state !== 'off' ? styles.controlActive : ''}`} 
-              onClick={handleToggleRepeat}
-              aria-label="Repetir"
-            >
-              <Repeat size={22} />
-            </button>
           </div>
 
           {/* Next in Queue — visível no mobile, oculto no desktop (está na sidebar) */}
