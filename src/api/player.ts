@@ -32,11 +32,13 @@ export async function getQueue(): Promise<SpotifyQueueResponse | null> {
  * PUT /me/player/play
  * Scope: user-modify-playback-state
  */
-export async function play(uri?: string, deviceId?: string | null): Promise<void> {
+export async function play(uri?: string | string[], deviceId?: string | null): Promise<void> {  
   let body: string | undefined;
   
   if (uri) {
-    if (uri.includes(':track:')) {
+    if (Array.isArray(uri)) {
+      body = JSON.stringify({ uris: uri });
+    } else if (uri.includes(':track:')) {   
       body = JSON.stringify({ uris: [uri] });
     } else {
       body = JSON.stringify({ context_uri: uri });

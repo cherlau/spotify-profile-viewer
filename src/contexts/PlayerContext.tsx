@@ -10,11 +10,13 @@ interface PlayerContextType {
   isLoading: boolean;
   isPlaying: boolean;
   deviceId: string | null;
-  playTrack: (trackUri: string) => Promise<void>;
+  playTrack: (trackUri: string | string[]) => Promise<void>;
   togglePlay: () => Promise<void>;
   next: () => Promise<void>;
   previous: () => Promise<void>;
   setVolume: (volumePercent: number) => Promise<void>;
+  toggleShuffle: () => Promise<void>;
+  setRepeatMode: () => Promise<void>;
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -134,7 +136,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const isPlaying = optimisticPlaying !== null ? optimisticPlaying : (playbackState?.is_playing ?? false);
   const isLocalPlayer = playbackState?.device?.id === deviceId;
 
-  const playTrack = useCallback(async (trackUri: string) => {
+  const playTrack = useCallback(async (trackUri: string | string[]) => {
     if (profile && profile.product !== 'premium') {
       alert('A reprodução via SDK requer uma conta Spotify Premium. O erro 403 (Forbidden) no Widevine é esperado para contas Free.');
       return;
@@ -189,12 +191,18 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
   const previous = useCallback(async () => {
     try {
-      await playerApi.previous();
+      // Se a música já passou de 3 segundos, volta pro início dela. 
+      // Caso contrário, volta para a faixa anterior. Comportamento padrão Spotify.
+      if (playbackState && (playbackState.progress_ms ?? 0) > 3000) {
+        await playerApi.seek(0);
+      } else {
+        await playerApi.previous();
+      }
       await refetch();
     } catch (error) {
       console.error('Erro ao voltar para anterior:', error);
     }
-  }, [refetch]);
+  }, [playbackState, refetch]);
 
   const setVolume = useCallback(async (volumePercent: number) => {
     try {
@@ -204,6 +212,33 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       console.error('Erro ao ajustar volume:', error);
     }
   }, [refetch]);
+
+  const toggleShuffle = useCallback(async () => {
+    if (!playbackState) return;
+    const nextShuffleState = !playbackState.shuffle_state;
+    try {
+      await playerApi.toggleShuffle(nextShuffleState);
+      await refetch();
+    } catch (error) {
+      console.error('Erro ao alternar shuffle:', error);
+    }
+  }, [playbackState, refetch]);
+
+  const setRepeatMode = useCallback(async () => {
+    if (!playbackState) return;
+    
+    // Cicla entre: off -> context -> track -> off
+    const modes: ('off' | 'context' | 'track')[] = ['off', 'context', 'track'];
+    const currentIndex = modes.indexOf(playbackState.repeat_state as any);
+    const nextMode = modes[(currentIndex + 1) % modes.length];
+    
+    try {
+      await playerApi.setRepeatMode(nextMode);
+      await refetch();
+    } catch (error) {
+      console.error('Erro ao alternar modo de repetição:', error);
+    }
+  }, [playbackState, refetch]);
 
   return (
     <PlayerContext.Provider
@@ -217,6 +252,8 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         next,
         previous,
         setVolume,
+        toggleShuffle,
+        setRepeatMode,
       }}
     >
       {children}

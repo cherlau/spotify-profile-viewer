@@ -6,6 +6,7 @@ import {
   Pause,
   SkipForward,
   Repeat,
+  Repeat1,
   Heart,
   Volume2,
   VolumeX,
@@ -30,7 +31,9 @@ export function PlayerBar() {
     togglePlay, 
     next, 
     previous, 
-    setVolume: updateSpotifyVolume 
+    setVolume: updateSpotifyVolume,
+    toggleShuffle,
+    setRepeatMode
   } = usePlayer();
 
   const [isLiked, setIsLiked] = useState(false);
@@ -87,6 +90,7 @@ export function PlayerBar() {
         <div className={styles.controlButtons}>
           <button
             className={`${styles.iconBtn} ${playbackState.shuffle_state ? styles.iconBtnActive : ''}`}
+            onClick={toggleShuffle}
             aria-label="Shuffle"
           >
             <Shuffle size={16} />
@@ -106,9 +110,10 @@ export function PlayerBar() {
           </button>
           <button
             className={`${styles.iconBtn} ${playbackState.repeat_state !== 'off' ? styles.iconBtnActive : ''}`}
+            onClick={setRepeatMode}
             aria-label="Repeat"
           >
-            <Repeat size={16} />
+            {playbackState.repeat_state === 'track' ? <Repeat1 size={16} /> : <Repeat size={16} />}
           </button>
         </div>
 

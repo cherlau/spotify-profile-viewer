@@ -105,11 +105,11 @@ function ArtistRow({ artist }: { artist: SpotifyArtist }) {
 
 interface TrackRowProps {
   track: SpotifyTrack;
+  onPlay: () => void;
 }
 
-function TrackRow({ track }: TrackRowProps) {
+function TrackRow({ track, onPlay }: TrackRowProps) { 
   const [hovered, setHovered] = useState(false);
-  const { playTrack } = usePlayer();
   const imageUrl = track.album.images?.[0]?.url ?? null;
   const artistNames = track.artists.map(a => a.name).join(', ');
   const duration = formatDuration(track.duration_ms);
@@ -134,7 +134,7 @@ function TrackRow({ track }: TrackRowProps) {
             <button 
               className={styles.playBtn} 
               aria-label={`Tocar ${track.name}`}
-              onClick={() => playTrack(track.uri)}
+              onClick={onPlay}
             >
               <Play size={16} fill="currentColor" />
             </button>
@@ -168,6 +168,7 @@ function TrackRow({ track }: TrackRowProps) {
 export function LibraryPage() {
   const [activeTab, setActiveTab] = useState<Tab>('music');
   const [searchParams] = useSearchParams();
+  const { playTrack } = usePlayer();
 
   // Query de busca vinda da URL (preenchida pelo AppHeader)
   const searchQuery = searchParams.get('q')?.trim() ?? '';
@@ -221,6 +222,11 @@ export function LibraryPage() {
     [albums, lowerQuery, deferredQuery]
   );
 
+  const handlePlayFromList = (list: SpotifyTrack[], startIndex: number) => {
+    const uris = list.slice(startIndex).map(t => t.uri);
+    playTrack(uris);
+  };
+
   const isAnyLoading = recentLoading || artistsLoading || albumsLoading;
   const totalResults = filteredTracks.length + filteredArtists.length + filteredAlbums.length;
 
@@ -255,8 +261,12 @@ export function LibraryPage() {
                 <span className={styles.resultCount}>{filteredTracks.length}</span>
               </div>
               <div className={styles.trackList}>
-                {filteredTracks.map(track => (
-                  <TrackRow key={track.id} track={track} />
+                {filteredTracks.map((track, index) => (
+                  <TrackRow 
+                    key={track.id} 
+                    track={track} 
+                    onPlay={() => handlePlayFromList(filteredTracks, index)}
+                  />
                 ))}
               </div>
             </section>
@@ -322,8 +332,12 @@ export function LibraryPage() {
                 <p className={styles.empty}>Nenhuma música encontrada.</p>
               ) : (
                 <div className={styles.trackList}>
-                  {tracks.slice(0, 20).map(track => (
-                    <TrackRow key={track.id} track={track} />
+                  {tracks.slice(0, 20).map((track, index) => (
+                    <TrackRow 
+                      key={track.id} 
+                      track={track} 
+                      onPlay={() => handlePlayFromList(tracks.slice(0, 20), index)}
+                    />
                   ))}
                 </div>
               )}
