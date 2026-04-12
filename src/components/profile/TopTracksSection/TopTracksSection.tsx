@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Play, Heart, MoreHorizontal, Music } from 'lucide-react';
 import type { SpotifyTrack } from '../../../types/spotify';
 import { LoadingState } from '../../shared/LoadingState';
+import { usePlayer } from '../../../contexts/PlayerContext';
 import styles from './TopTracksSection.module.css';
 
 interface TopTracksSectionProps {
@@ -17,7 +18,7 @@ function formatDuration(ms: number): string {
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
-function TrackRow({ track, rank }: { track: SpotifyTrack; rank: number }) {
+function TrackRow({ track, rank, onPlay }: { track: SpotifyTrack; rank: number; onPlay: () => void }) {
   const [hovered, setHovered] = useState(false);
   const imageUrl = track.album.images?.[0]?.url ?? null;
   const artistNames = track.artists.map(a => a.name).join(', ');
@@ -41,7 +42,11 @@ function TrackRow({ track, rank }: { track: SpotifyTrack; rank: number }) {
         )}
         {hovered && (
           <div className={styles.playOverlay}>
-            <button className={styles.playBtn} aria-label={`Tocar ${track.name}`}>
+            <button 
+              className={styles.playBtn} 
+              aria-label={`Tocar ${track.name}`}
+              onClick={onPlay}
+            >
               <Play size={16} fill="currentColor" />
             </button>
           </div>
@@ -70,6 +75,8 @@ function TrackRow({ track, rank }: { track: SpotifyTrack; rank: number }) {
 }
 
 export function TopTracksSection({ tracks, isLoading }: TopTracksSectionProps) {
+  const { playTrack } = usePlayer();
+
   if (isLoading) {
     return <LoadingState message="Carregando suas músicas mais tocadas…" />;
   }
@@ -79,6 +86,11 @@ export function TopTracksSection({ tracks, isLoading }: TopTracksSectionProps) {
   }
 
   const displayTracks = tracks.slice(0, TRACKS_LIMIT);
+
+  const handlePlayFromList = (startIndex: number) => {
+    const uris = displayTracks.slice(startIndex).map(t => t.uri);
+    playTrack(uris);
+  };
 
   return (
     <section className={styles.section} aria-label="Músicas mais tocadas">
@@ -96,7 +108,12 @@ export function TopTracksSection({ tracks, isLoading }: TopTracksSectionProps) {
 
       <div className={styles.trackList}>
         {displayTracks.map((track, index) => (
-          <TrackRow key={track.id} track={track} rank={index + 1} />
+          <TrackRow 
+            key={track.id} 
+            track={track} 
+            rank={index + 1} 
+            onPlay={() => handlePlayFromList(index)}
+          />
         ))}
       </div>
     </section>
