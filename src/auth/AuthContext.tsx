@@ -2,6 +2,8 @@ import { createContext, useCallback, useEffect, useState, type ReactNode } from 
 import { login as spotifyLogin, logout as spotifyLogout, refreshAccessToken } from './spotify-auth';
 import { tokenStore } from './token-store';
 
+const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
+
 interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -18,10 +20,12 @@ interface AuthContextValue extends AuthState {
 export const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AuthState>({
-    isAuthenticated: false,
-    isLoading: true,
-    token: null,
+  const [state, setState] = useState<AuthState>(() => {
+    // Lazy initializer — em modo mock já começa autenticado, sem esperar useEffect
+    if (USE_MOCK) {
+      return { isAuthenticated: true, isLoading: false, token: 'mock-access-token' };
+    }
+    return { isAuthenticated: false, isLoading: true, token: null };
   });
 
   const performRefresh = useCallback(async () => {
@@ -30,6 +34,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let isMounted = true;
+
+    // Modo mock — estado já foi definido pelo lazy initializer, nada a fazer
+    if (USE_MOCK) return;
 
     const hasRefreshToken = Boolean(tokenStore.getRefreshToken());
     console.log('[Auth] Inicializando... Tem refresh token?', hasRefreshToken);

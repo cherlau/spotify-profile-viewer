@@ -1,7 +1,11 @@
+import { Navigate } from 'react-router-dom';
 import { useSpotifyAuth } from '../hooks/useSpotifyAuth';
 
 export function LoginPage() {
-  const { login, isLoading } = useSpotifyAuth();
+  const { login, isLoading, isAuthenticated } = useSpotifyAuth();
+
+  // Usuário já autenticado (ex: modo mock ou sessão ativa) — vai direto para o app
+  if (isAuthenticated) return <Navigate to="/" replace />;
 
   return (
     <div style={styles.root}>

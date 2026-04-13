@@ -16,6 +16,7 @@ import type {
   SpotifyAlbumSimplified,
   SpotifyArtistSimplified,
   SpotifyQueueResponse,
+  SpotifyPlaybackState,
 } from '../types/spotify';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -129,6 +130,9 @@ export const mockProfile: SpotifyUserProfile = {
   type: 'user',
   uri: 'spotify:user:mockuserid123',
   product: 'premium',
+  country: 'BR',
+  explicit_content: { filter_enabled: false, filter_locked: false },
+  followers: { href: null, total: 1247 },
 };
 
 // ─── GET /me/top/tracks ───────────────────────────────────────────────────────
@@ -413,4 +417,31 @@ export const mockSavedShows: SavedShowsResponse = {
 export const mockQueue: SpotifyQueueResponse = {
   currently_playing: topTracksItems[0],
   queue: topTracksItems.slice(1, 6),
+};
+
+// ─── GET /me/player ───────────────────────────────────────────────────────────
+
+export const mockPlaybackState: SpotifyPlaybackState = {
+  device: {
+    id: 'mock-device-id-abc123',
+    is_active: true,
+    is_private_session: false,
+    is_restricted: false,
+    name: 'Spotify Profile App',
+    type: 'Computer',
+    volume_percent: 70,
+  },
+  repeat_state: 'off',
+  shuffle_state: false,
+  context: {
+    type: 'playlist',
+    href: 'https://api.spotify.com/v1/playlists/mockpl000',
+    external_urls: { spotify: 'https://open.spotify.com/playlist/mockpl000' },
+    uri: 'spotify:playlist:mockpl000',
+  },
+  timestamp: Date.now(),
+  progress_ms: 47230,
+  is_playing: true,
+  item: topTracksItems[0],
+  currently_playing_type: 'track',
 };

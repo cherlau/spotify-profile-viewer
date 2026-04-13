@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useCallback, useEffect, useState, useRef } from 'react';
+
+const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 import { usePlaybackState } from '../hooks/usePlaybackState';
 import { useProfile } from '../hooks/useProfile';
 import * as playerApi from '../api/player';
@@ -54,9 +56,9 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     }
   }, [playbackState]);
 
-  // Inicialização do Web Playback SDK — somente para usuários Premium
+  // Inicialização do Web Playback SDK — somente para usuários Premium (ignorado em modo mock)
   useEffect(() => {
-    if (!token || player || !isPremium) return;
+    if (!token || player || !isPremium || USE_MOCK) return;
 
     const setupPlayer = () => {
       const newPlayer = new (window as any).Spotify.Player({

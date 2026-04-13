@@ -40,6 +40,7 @@ async function resolveMock<T>(path: string): Promise<T> {
     mockSavedAlbums,
     mockSavedShows,
     mockQueue,
+    mockPlaybackState,
   } = await import('../mocks/spotify-data');
 
   if (cleanPath === '/me') return mockProfile as T;
@@ -51,13 +52,17 @@ async function resolveMock<T>(path: string): Promise<T> {
   if (cleanPath === '/me/albums') return mockSavedAlbums as T;
   if (cleanPath === '/me/shows') return mockSavedShows as T;
   if (cleanPath === '/me/player/queue') return mockQueue as T;
-  
-  // Mock para endpoints do Player (PUT/POST geralmente retornam 204 No Content, que aqui representamos como {})
+  if (cleanPath === '/me/player') return mockPlaybackState as T;
+
+  // Endpoints de controle do player — PUT/POST retornam 204 No Content (representado como {})
   if (cleanPath === '/me/player/play') return {} as T;
   if (cleanPath === '/me/player/pause') return {} as T;
   if (cleanPath === '/me/player/next') return {} as T;
   if (cleanPath === '/me/player/previous') return {} as T;
   if (cleanPath === '/me/player/volume') return {} as T;
+  if (cleanPath === '/me/player/shuffle') return {} as T;
+  if (cleanPath === '/me/player/repeat') return {} as T;
+  if (cleanPath === '/me/player/seek') return {} as T;
 
   throw new Error(`[MOCK] Nenhum mock encontrado para o path: ${cleanPath}`);
 }
