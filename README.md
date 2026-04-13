@@ -36,6 +36,7 @@ O projeto nasceu como um exercício de design system fiel (extraído do Figma) e
 - **Podcasts** — Shows salvos com link direto para o Spotify Web
 - **Player completo (Premium)** — Play/pause, próximo, anterior, shuffle, repeat e controle de volume via Web Playback SDK
 - **Letras sincronizadas** — Integração com lrclib.net na PlayerPage, synced com o tempo de reprodução
+- **Modo Real Audio** — Variável `VITE_ENABLE_REAL_AUDIO=true` para habilitar controles de playback e streaming real via Web Playback SDK
 - **Modo mock** — Variável `VITE_USE_MOCK=true` para desenvolvimento offline sem a API real
 - **Totalmente responsivo** — Mobile-first com breakpoint em 768px; sidebar no desktop, bottom nav no mobile
 - **Cache inteligente** — React Query com staleTime de 5min e gcTime de 30min
