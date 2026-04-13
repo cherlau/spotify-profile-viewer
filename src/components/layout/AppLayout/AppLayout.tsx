@@ -4,6 +4,7 @@ import { Sidebar } from '../Sidebar';
 import { AppHeader } from '../AppHeader';
 import { PlayerBar } from '../PlayerBar';
 import { BottomNav } from '../BottomNav';
+import { ENABLE_REAL_AUDIO } from '../../../config/featureFlags';
 import styles from './AppLayout.module.css';
 
 interface AppLayoutProps {
@@ -24,8 +25,8 @@ export function AppLayout({ children }: AppLayoutProps) {
         {children}
       </main>
 
-      {/* Player bar — visível quando há faixa tocando (PlayerBar retorna null sem playback) */}
-      <PlayerBar />
+      {/* Player bar — apenas no Modo Real; no Modo Portfólio é ocultado */}
+      {ENABLE_REAL_AUDIO && <PlayerBar />}
 
       {!isDesktop && <BottomNav />}
     </div>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Play, Heart, MoreHorizontal, Music } from 'lucide-react';
 import type { SpotifyTrack } from '../../../types/spotify';
 import { usePlayer } from '../../../contexts/PlayerContext';
+import { ENABLE_REAL_AUDIO } from '../../../config/featureFlags';
 import styles from './TopTracksSection.module.css';
 
 interface TopTracksSectionProps {
@@ -53,10 +54,10 @@ function TrackRow({ track, rank, onPlay }: { track: SpotifyTrack; rank: number; 
             <Music size={20} />
           </div>
         )}
-        {hovered && !isPlaying && (
+        {ENABLE_REAL_AUDIO && hovered && !isPlaying && (
           <div className={styles.playOverlay}>
-            <button 
-              className={styles.playBtn} 
+            <button
+              className={styles.playBtn}
               aria-label={`Tocar ${track.name}`}
               onClick={onPlay}
             >

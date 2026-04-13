@@ -5,6 +5,7 @@ import { useProfile } from '../hooks/useProfile';
 import { LoadingState } from '../components/shared/LoadingState';
 import { ErrorState } from '../components/shared/ErrorState';
 import { usePlayer } from '../contexts/PlayerContext';
+import { ENABLE_REAL_AUDIO } from '../config/featureFlags';
 import styles from './PlaylistsPage.module.css';
 
 type Filter = 'all' | 'by_you';
@@ -86,9 +87,11 @@ export function PlaylistsPage() {
                             <p className={styles.featuredDesc}>{featured.description}</p>
                           )}
                         </div>
-                        <button className={styles.playButtonLarge} aria-label="Tocar" onClick={() => playTrack(featured.uri)}>
-                          <Play size={24} fill="currentColor" />
-                        </button>
+                        {ENABLE_REAL_AUDIO && (
+                          <button className={styles.playButtonLarge} aria-label="Tocar" onClick={() => playTrack(featured.uri)}>
+                            <Play size={24} fill="currentColor" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -106,11 +109,13 @@ export function PlaylistsPage() {
                       ) : (
                         <div className={styles.cardImagePlaceholder} />
                       )}
-                      <div className={styles.cardOverlay}>
-                        <button className={styles.playButton} aria-label="Tocar" onClick={() => playTrack(pl.uri)}>
-                          <Play size={20} fill="currentColor" />
-                        </button>
-                      </div>
+                      {ENABLE_REAL_AUDIO && (
+                        <div className={styles.cardOverlay}>
+                          <button className={styles.playButton} aria-label="Tocar" onClick={() => playTrack(pl.uri)}>
+                            <Play size={20} fill="currentColor" />
+                          </button>
+                        </div>
+                      )}
                     </div>
                     <div className={styles.cardInfo}>
                       <span className={styles.cardName}>{pl.name}</span>

@@ -7,6 +7,7 @@ import { useSavedAlbums } from '../hooks/useSavedAlbums';
 import { LoadingState } from '../components/shared/LoadingState';
 import { ErrorState } from '../components/shared/ErrorState';
 import { usePlayer } from '../contexts/PlayerContext';
+import { ENABLE_REAL_AUDIO } from '../config/featureFlags';
 import type { SpotifyTrack, SpotifyArtist, SpotifyAlbum } from '../types/spotify';
 import styles from './LibraryPage.module.css';
 
@@ -129,26 +130,28 @@ function TrackRow({ track, onPlay }: TrackRowProps) {
           </div>
         )}
         
-        {isPlaying ? (
-          <div className={styles.playOverlay} style={{ opacity: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}>
-            <div className="playing-wave">
-              <span />
-              <span />
-              <span />
-              <span />
+        {ENABLE_REAL_AUDIO && (
+          isPlaying ? (
+            <div className={styles.playOverlay} style={{ opacity: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}>
+              <div className="playing-wave">
+                <span />
+                <span />
+                <span />
+                <span />
+              </div>
             </div>
-          </div>
-        ) : (
-          hovered && (
-            <div className={styles.playOverlay}>
-              <button 
-                className={styles.playBtn} 
-                aria-label={`Tocar ${track.name}`}
-                onClick={onPlay}
-              >
-                <Play size={16} fill="currentColor" />
-              </button>
-            </div>
+          ) : (
+            hovered && (
+              <div className={styles.playOverlay}>
+                <button
+                  className={styles.playBtn}
+                  aria-label={`Tocar ${track.name}`}
+                  onClick={onPlay}
+                >
+                  <Play size={16} fill="currentColor" />
+                </button>
+              </div>
+            )
           )
         )}
       </div>

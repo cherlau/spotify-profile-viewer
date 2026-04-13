@@ -4,7 +4,9 @@ import { Music, Mic2 } from 'lucide-react';
 import { usePlaybackState } from '../hooks/usePlaybackState';
 import { useQueue } from '../hooks/useQueue';
 import { useProfile } from '../hooks/useProfile';
+import { useRecentlyPlayed } from '../hooks/useRecentlyPlayed';
 import { isPremiumUser } from '../utils/isPremiumUser';
+import { ENABLE_REAL_AUDIO } from '../config/featureFlags';
 import { LoadingState } from '../components/shared/LoadingState';
 import { ErrorState } from '../components/shared/ErrorState';
 import { EqualizerLoader } from '../components/shared/EqualizerLoader';
@@ -42,14 +44,14 @@ function useLyrics(trackName: string | undefined, artistName: string | undefined
     queryKey: ['lyrics', trackName, artistName],
     queryFn: async () => {
       try {
-        const query = new URLSearchParams({ 
-          track_name: trackName!, 
-          artist_name: artistName! 
+        const query = new URLSearchParams({
+          track_name: trackName!,
+          artist_name: artistName!
         });
         const response = await fetch(`https://lrclib.net/api/get?${query}`);
-        
+
         if (!response.ok) return [];
-        
+
         const data = await response.json();
         return data.syncedLyrics ? parseLRC(data.syncedLyrics) : [];
       } catch (error) {
@@ -106,17 +108,25 @@ export function PlayerPage() {
   const { data: profile, isLoading: profileLoading } = useProfile();
   const isPremium = isPremiumUser(profile);
 
+  // Modo Real: busca o estado de playback em tempo real (requer Premium)
   const { data: playback, isLoading, isError, refetch } = usePlaybackState({
-    refetchInterval: isPremium && isActive ? 4000 : false,
-    enabled: isPremium && isActive,
+    refetchInterval: ENABLE_REAL_AUDIO && isPremium && isActive ? 4000 : false,
+    enabled: ENABLE_REAL_AUDIO && isPremium && isActive,
   });
 
   const { data: queueData } = useQueue({
-    refetchInterval: isPremium && isActive ? 4000 : false,
-    enabled: isPremium && isActive,
+    refetchInterval: ENABLE_REAL_AUDIO && isPremium && isActive ? 4000 : false,
+    enabled: ENABLE_REAL_AUDIO && isPremium && isActive,
   });
 
-  const nowPlaying = playback?.item;
+  // Modo Portfólio: usa a última música tocada (somente leitura)
+  const { data: recentData, isLoading: recentLoading } = useRecentlyPlayed(1);
+
+  // Determina a faixa exibida conforme o modo ativo
+  const nowPlaying: SpotifyTrack | null = ENABLE_REAL_AUDIO
+    ? playback?.item ?? null
+    : recentData?.items?.[0]?.track ?? null;
+
   const artistName = nowPlaying?.artists[0]?.name;
   const trackName = nowPlaying?.name;
 
@@ -166,6 +176,126 @@ export function PlayerPage() {
 
   if (profileLoading) return <LoadingState />;
 
+  // ── Modo Portfólio ─────────────────────────────────────────────────────────
+  if (!ENABLE_REAL_AUDIO) {
+    if (recentLoading) return <LoadingState />;
+
+    if (!nowPlaying) {
+      return (
+        <div className={styles.empty}>
+          <Music size={48} strokeWidth={1.5} />
+          <p>Nenhuma música tocada recentemente.</p>
+          <p style={{ fontSize: '0.9rem', opacity: 0.7, marginTop: '0.5rem' }}>
+            Ouça uma música no Spotify para ela aparecer aqui.
+          </p>
+        </div>
+      );
+    }
+
+    const imageUrl = nowPlaying.album.images?.[0]?.url ?? null;
+    const artistNames = nowPlaying.artists.map(a => a.name).join(', ');
+    const albumName = nowPlaying.album.name;
+
+    return (
+      <div className={styles.page}>
+        {imageUrl && (
+          <div
+            className={styles.bgBlur}
+            style={{ backgroundImage: `url(${imageUrl})` }}
+            aria-hidden="true"
+          />
+        )}
+
+        <div className={styles.layout}>
+          <div className={styles.playerArea}>
+            <div className={styles.albumArtWrapper}>
+              {imageUrl ? (
+                <img src={imageUrl} alt={albumName} className={styles.albumArt} />
+              ) : (
+                <div className={styles.albumArtPlaceholder}>
+                  <Music size={80} strokeWidth={1.5} />
+                </div>
+              )}
+            </div>
+
+            <div className={styles.trackInfo}>
+              <span className={styles.trackLabel}>{albumName}</span>
+              <h1 className={styles.trackTitle}>{nowPlaying.name}</h1>
+              <p className={styles.trackArtist}>
+                {artistNames}
+                <span className={styles.trackDot}> • </span>
+                {albumName}
+              </p>
+            </div>
+
+            <section className={styles.lyricsSection}>
+              <div className={styles.lyricsContent} ref={lyricsContainerRef}>
+                {isLoadingLyrics ? (
+                  <div className={styles.lyricsPlaceholder}>
+                    <EqualizerLoader />
+                  </div>
+                ) : lyrics.length > 0 ? (
+                  <div className={styles.lyricsList}>
+                    {lyrics.map((line, index) => (
+                      <p
+                        key={`${line.timeMs}-${index}`}
+                        className={styles.lyricLine}
+                      >
+                        {line.text}
+                      </p>
+                    ))}
+                  </div>
+                ) : (
+                  <p className={styles.lyricsPlaceholder}>
+                    Letras sincronizadas não encontradas para esta faixa.
+                  </p>
+                )}
+              </div>
+            </section>
+          </div>
+
+          <aside className={styles.desktopSidebar}>
+            <section className={styles.sidePanel}>
+              <h2 className={styles.sidePanelTitle}>
+                <Mic2 size={16} />
+                Sobre {nowPlaying.artists[0]?.name}
+              </h2>
+              <div className={styles.aboutContent}>
+                {imageUrl && (
+                  <div className={styles.aboutArtistImg}>
+                    <img src={imageUrl} alt={nowPlaying.artists[0]?.name} />
+                  </div>
+                )}
+                <p className={styles.aboutText}>
+                  Explore a discografia completa de {nowPlaying.artists[0]?.name}, suas principais faixas e artistas relacionados no Spotify.
+                </p>
+                <a
+                  href={nowPlaying.artists[0]?.external_urls.spotify}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.aboutLink}
+                >
+                  Ver no Spotify →
+                </a>
+              </div>
+            </section>
+
+            <section className={styles.sidePanel}>
+              <h2 className={styles.sidePanelTitle}>Letras</h2>
+              <div className={styles.lyricsContent}>
+                <p className={styles.lyricsPlaceholder}>
+                  As letras foram fornecidas pela comunidade do LRCLIB,
+                  pois não estão disponíveis na API oficial do Spotify.
+                </p>
+              </div>
+            </section>
+          </aside>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Modo Real ──────────────────────────────────────────────────────────────
   if (!isPremium) {
     return (
       <div className={styles.empty}>
@@ -231,8 +361,8 @@ export function PlayerPage() {
           </div>
 
           <section className={styles.lyricsSection}>
-            <div 
-              className={styles.lyricsContent} 
+            <div
+              className={styles.lyricsContent}
               ref={lyricsContainerRef}
             >
               {isLoadingLyrics ? (
@@ -291,10 +421,10 @@ export function PlayerPage() {
           <section className={styles.sidePanel}>
             <h2 className={styles.sidePanelTitle}>Letras</h2>
             <div className={styles.lyricsContent}>
-			  	<p className={styles.lyricsPlaceholder}>
-				  As letras foram fornecidas pela comunidade do LRCLIB, 
-				  pois não estão disponíveis na API oficial do Spotify.
-				</p>
+              <p className={styles.lyricsPlaceholder}>
+                As letras foram fornecidas pela comunidade do LRCLIB,
+                pois não estão disponíveis na API oficial do Spotify.
+              </p>
             </div>
           </section>
 
