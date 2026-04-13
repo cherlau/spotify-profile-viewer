@@ -13,7 +13,7 @@ import styles from './ProfilePage.module.css';
 export function ProfilePage() {
   const { data: profile, isLoading: profileLoading, isError: profileError, refetch } = useProfile();
   const { data: topArtistsData, isLoading: artistsLoading } = useTopArtists(10);
-  const { data: topTracksData, isLoading: tracksLoading } = useTopTracks(4);
+  const { data: topTracksData, isLoading: tracksLoading } = useTopTracks(10);
   const { data: playlistsData } = usePlaylists(50);
   const { data: followedArtistsData } = useFollowedArtists(50);
 

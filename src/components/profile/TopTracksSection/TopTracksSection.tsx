@@ -9,7 +9,7 @@ interface TopTracksSectionProps {
   tracks: SpotifyTrack[];
 }
 
-const TRACKS_LIMIT = 4;
+const TRACKS_LIMIT = 5;
 
 function formatDuration(ms: number): string {
   const minutes = Math.floor(ms / 60000);

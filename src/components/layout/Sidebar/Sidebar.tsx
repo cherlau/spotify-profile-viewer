@@ -5,7 +5,6 @@ import {
   Library,
   DiscAlbum,
   Mic2,
-  Crown,
   Music2,
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
@@ -36,7 +35,7 @@ export function Sidebar() {
     <aside className={styles.sidebar}>
       {/* Logo */}
       <div className={styles.logo}>
-        <span className={styles.logoText}>Perfil Spotify</span>
+        <span className={styles.logoText}>The Sonic Curator</span>
       </div>
 
       {/* Navegação principal */}
@@ -80,14 +79,6 @@ export function Sidebar() {
           );
         })}
       </nav>
-
-      {/* Card Premium no rodapé */}
-      <div className={styles.premiumCard}>
-        <Crown size={16} className={styles.premiumIcon} />
-        <p className={styles.premiumTitle}>Membro Premium</p>
-        <p className={styles.premiumDesc}>Ouça músicas sem anúncios e pule quantas faixas quiser</p>
-        <button className={styles.premiumButton}>Mudar de plano</button>
-      </div>
     </aside>
   );
 }

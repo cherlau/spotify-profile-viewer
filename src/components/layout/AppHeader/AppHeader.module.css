@@ -95,6 +95,9 @@
 }
 
 .desktopNavLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
   font-family: var(--font-display);
   font-size: var(--text-body-size);
   font-weight: 400;
