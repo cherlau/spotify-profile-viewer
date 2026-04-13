@@ -310,10 +310,10 @@ export function PlayerPage() {
           <section className={styles.sidePanel}>
             <h2 className={styles.sidePanelTitle}>Letras</h2>
             <div className={styles.lyricsContent}>
-              <p className={styles.lyricsPlaceholder}>
-                As letras não estão disponíveis via API do Spotify.
-                Abra o Spotify para ver as letras sincronizadas desta faixa.
-              </p>
+			  	<p className={styles.lyricsPlaceholder}>
+				  As letras foram fornecidas pela comunidade do LRCLIB, 
+				  pois não estão disponíveis na API oficial do Spotify.
+				</p>
             </div>
           </section>
 

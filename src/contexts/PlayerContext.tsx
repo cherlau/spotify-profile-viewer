@@ -61,7 +61,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
     const setupPlayer = () => {
       const newPlayer = new (window as any).Spotify.Player({
-        name: 'Web Player (Spotify Clone)',
+        name: 'Spotify Profile',
         getOAuthToken: (cb: (token: string) => void) => {
           if (tokenRef.current) {
             cb(tokenRef.current);
