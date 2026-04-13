@@ -20,8 +20,10 @@ export const PREMIUM_SCOPES = [
   'user-modify-playback-state', // play/pause/skip/volume (exclusivo Premium)
 ].join(' ');
 
-// Login padrão usa BASE_SCOPES — evita 403 em loop para usuários Free
-export const SCOPES = BASE_SCOPES;
+// Sempre solicita PREMIUM_SCOPES — o SDK do Web Playback requer `streaming` e
+// `user-modify-playback-state`. Para usuários Free esses scopes são concedidos
+// mas inativos; o PlayerContext só inicializa o SDK se isPremium for true.
+export const SCOPES = PREMIUM_SCOPES;
 
 export const SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/authorize';
 export const SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token';
