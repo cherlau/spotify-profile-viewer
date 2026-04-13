@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Play } from 'lucide-react';
+import { Play, ExternalLink } from 'lucide-react';
 import { usePlaylists } from '../hooks/usePlaylists';
 import { useProfile } from '../hooks/useProfile';
 import { LoadingState } from '../components/shared/LoadingState';
@@ -30,6 +30,10 @@ export function PlaylistsPage() {
   });
 
   const [featured, ...standard] = filteredPlaylists;
+
+  const handleOpenSpotify = (url: string) => {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
 
   return (
     <div className={styles.page}>
@@ -68,8 +72,14 @@ export function PlaylistsPage() {
             ) : (
               <div className={styles.grid}>
                 {featured && (
-                  <div className={`${styles.card} ${styles.cardFeatured}`}>
+                  <div 
+                    className={`${styles.card} ${styles.cardFeatured}`}
+                    onClick={() => handleOpenSpotify(featured.external_urls.spotify)}
+                  >
                     <div className={styles.cardImageWrapper}>
+                      <div className={styles.externalLink}>
+                        <ExternalLink size={16} />
+                      </div>
                       {featured.images?.[0] ? (
                         <img
                           src={featured.images[0].url}
@@ -88,7 +98,14 @@ export function PlaylistsPage() {
                           )}
                         </div>
                         {ENABLE_REAL_AUDIO && (
-                          <button className={styles.playButtonLarge} aria-label="Tocar" onClick={() => playTrack(featured.uri)}>
+                          <button 
+                            className={styles.playButtonLarge} 
+                            aria-label="Tocar" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              playTrack(featured.uri);
+                            }}
+                          >
                             <Play size={24} fill="currentColor" />
                           </button>
                         )}
@@ -98,8 +115,15 @@ export function PlaylistsPage() {
                 )}
 
                 {standard.map(pl => (
-                  <div key={pl.id} className={styles.card}>
+                  <div 
+                    key={pl.id} 
+                    className={styles.card}
+                    onClick={() => handleOpenSpotify(pl.external_urls.spotify)}
+                  >
                     <div className={styles.cardImageWrapper}>
+                      <div className={styles.externalLink}>
+                        <ExternalLink size={16} />
+                      </div>
                       {pl.images?.[0] ? (
                         <img
                           src={pl.images[0].url}
@@ -111,7 +135,14 @@ export function PlaylistsPage() {
                       )}
                       {ENABLE_REAL_AUDIO && (
                         <div className={styles.cardOverlay}>
-                          <button className={styles.playButton} aria-label="Tocar" onClick={() => playTrack(pl.uri)}>
+                          <button 
+                            className={styles.playButton} 
+                            aria-label="Tocar" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              playTrack(pl.uri);
+                            }}
+                          >
                             <Play size={20} fill="currentColor" />
                           </button>
                         </div>
@@ -133,3 +164,4 @@ export function PlaylistsPage() {
     </div>
   );
 }
+

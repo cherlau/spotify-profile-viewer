@@ -270,6 +270,28 @@
   transform: scale(1.05);
 }
 
+.externalLink {
+  position: absolute;
+  top: var(--space-12);
+  right: var(--space-12);
+  z-index: 10;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, background 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.externalLink:hover {
+  transform: scale(1.1);
+  background: rgba(0, 0, 0, 0.8);
+}
+
 /* Texto abaixo do card */
 .cardInfo {
   padding-top: var(--space-8);
