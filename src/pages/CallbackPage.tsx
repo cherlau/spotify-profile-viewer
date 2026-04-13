@@ -23,7 +23,6 @@ export function CallbackPage() {
     const state = params.get('state');
     const error = params.get('error');
 
-    // Edge case 1: user denied permission
     if (error) {
       setErrorMessage(
         error === 'access_denied'
@@ -34,7 +33,6 @@ export function CallbackPage() {
       return;
     }
 
-    // Edge case 2: missing required params
     if (!code || !state) {
       setErrorMessage('Callback inválido — parâmetros obrigatórios ausentes.');
       setStatus('error');

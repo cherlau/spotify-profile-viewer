@@ -1,6 +1,5 @@
 import type { SpotifyArtist } from '../../../types/spotify';
 import { ArtistCard } from '../ArtistCard';
-import { LoadingState } from '../../shared/LoadingState';
 import styles from './TopArtistsSection.module.css';
 
 interface TopArtistsSectionProps {
@@ -19,7 +18,6 @@ export function TopArtistsSection({ artists }: TopArtistsSectionProps) {
 
   return (
     <section className={styles.section} aria-label="Artistas favoritos">
-      {/* ── Header Mobile ── */}
       <div className={styles.headerMobile}>
         <div className={styles.headerText}>
           <h2 className={styles.titleMobile}>Seus artistas favoritos</h2>
@@ -35,7 +33,6 @@ export function TopArtistsSection({ artists }: TopArtistsSectionProps) {
         </a>
       </div>
 
-      {/* ── Header Desktop ── */}
       <div className={styles.headerDesktop}>
         <h2 className={styles.titleDesktop}>Artistas</h2>
         <a
@@ -48,7 +45,6 @@ export function TopArtistsSection({ artists }: TopArtistsSectionProps) {
         </a>
       </div>
 
-      {/* ── Grid Mobile: scroll horizontal (todos os artistas) ── */}
       <div className={styles.scrollContainer} role="list">
         {artists.map((artist) => (
           <div key={artist.id} role="listitem">
@@ -62,7 +58,6 @@ export function TopArtistsSection({ artists }: TopArtistsSectionProps) {
         ))}
       </div>
 
-      {/* ── Grid Desktop: 4 colunas ── */}
       <div className={styles.gridDesktop} role="list">
         {desktopArtists.map((artist) => (
           <div key={artist.id} role="listitem">

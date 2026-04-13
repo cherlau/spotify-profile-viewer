@@ -3,14 +3,11 @@ import { generateCodeVerifier, generateCodeChallenge, generateState } from './pk
 import { tokenStore, SESSION_KEYS } from './token-store';
 import type { TokenResponse } from '../types/spotify';
 
-// ── Login ────────────────────────────────────────────────────────────────────
-
 export async function login(): Promise<void> {
   const codeVerifier = generateCodeVerifier();
   const codeChallenge = await generateCodeChallenge(codeVerifier);
   const state = generateState();
 
-  // Store verifier + state in sessionStorage before redirecting
   sessionStorage.setItem(SESSION_KEYS.CODE_VERIFIER, codeVerifier);
   sessionStorage.setItem(SESSION_KEYS.STATE, state);
 
@@ -26,8 +23,6 @@ export async function login(): Promise<void> {
 
   window.location.href = `${SPOTIFY_AUTH_URL}?${params}`;
 }
-
-// ── Callback ─────────────────────────────────────────────────────────────────
 
 export async function handleCallback(code: string, returnedState: string): Promise<void> {
   const savedState = sessionStorage.getItem(SESSION_KEYS.STATE);
@@ -69,12 +64,9 @@ export async function handleCallback(code: string, returnedState: string): Promi
   tokenStore.setRefreshToken(data.refresh_token);
 }
 
-// ── Refresh ──────────────────────────────────────────────────────────────────
-
 let refreshPromise: Promise<string> | null = null;
 
 export async function refreshAccessToken(): Promise<string> {
-  // Se já houver um refresh em andamento, retorna a mesma promessa
   if (refreshPromise) {
     return refreshPromise;
   }
@@ -114,15 +106,12 @@ export async function refreshAccessToken(): Promise<string> {
 
       return data.access_token;
     } finally {
-      // Limpa a promessa para permitir futuros refreshes
       refreshPromise = null;
     }
   })();
 
   return refreshPromise;
 }
-
-// ── Logout ───────────────────────────────────────────────────────────────────
 
 export function logout(): void {
   tokenStore.clear();

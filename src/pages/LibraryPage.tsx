@@ -24,7 +24,6 @@ function formatDuration(ms: number): string {
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
-/** Remove duplicatas pelo id da track, mantendo a mais recente. */
 function deduplicateTracks(tracks: SpotifyTrack[]): SpotifyTrack[] {
   const seen = new Set<string>();
   return tracks.filter(t => {
@@ -34,10 +33,7 @@ function deduplicateTracks(tracks: SpotifyTrack[]): SpotifyTrack[] {
   });
 }
 
-/** 
- * Verifica se um texto contém a query. 
- * Otimização: A query já deve vir em minúsculas para evitar toLowerCase() repetitivo.
- */
+// A query já deve vir em minúsculas para evitar toLowerCase() repetitivo.
 function matches(text: string | null | undefined, lowerQuery: string): boolean {
   if (!text) return false;
   return text.toLowerCase().includes(lowerQuery);
@@ -124,7 +120,6 @@ function TrackRow({ track, onPlay }: TrackRowProps) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Capa com overlay play ou wave */}
       <div className={styles.trackArtWrapper}>
         {imageUrl ? (
           <img src={imageUrl} alt={track.album.name} className={styles.trackArt} />
@@ -134,7 +129,6 @@ function TrackRow({ track, onPlay }: TrackRowProps) {
           </div>
         )}
         
-        {/* Mostra wave se estiver tocando, senão mostra play se hover */}
         {isPlaying ? (
           <div className={styles.playOverlay} style={{ opacity: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}>
             <div className="playing-wave">
@@ -159,7 +153,6 @@ function TrackRow({ track, onPlay }: TrackRowProps) {
         )}
       </div>
 
-      {/* Nome e metadados */}
       <div className={styles.trackMeta}>
         <span className={`${styles.trackName} ${isCurrentTrack ? styles.trackNameActive : ''}`}>
           {track.name}
@@ -171,7 +164,6 @@ function TrackRow({ track, onPlay }: TrackRowProps) {
         </span>
       </div>
 
-      {/* Ações */}
       <div className={styles.trackActions}>
         <button className={styles.actionBtn} aria-label="Curtir">
           <Heart size={18} color={isCurrentTrack ? '#1db954' : 'currentColor'} fill={isCurrentTrack ? '#1db954' : 'none'} />
@@ -209,7 +201,6 @@ export function LibraryPage() {
 
   const lowerQuery = useMemo(() => deferredQuery.toLowerCase(), [deferredQuery]);
 
-  // Resultados filtrados pela query — busca em nome, artistas e gênero (Memoizado)
   const filteredTracks = useMemo(() => 
     deferredQuery
       ? tracks.filter(t =>
@@ -251,7 +242,6 @@ export function LibraryPage() {
 
   return (
     <div className={styles.page}>
-      {/* Header editorial */}
       <header className={styles.header}>
         <span className={styles.headerLabel}>Sua Coleção</span>
         <h1 className={styles.headerTitle}>
@@ -265,7 +255,6 @@ export function LibraryPage() {
       </header>
 
       {searchQuery ? (
-        /* ── Modo de busca: resultados agrupados por categoria ─────── */
         <div>
           {isAnyLoading && <LoadingState message="Buscando…" />}
 
@@ -320,7 +309,6 @@ export function LibraryPage() {
           )}
         </div>
       ) : (
-        /* ── Modo normal: tabs por categoria ───────────────────────── */
         <>
           <div className={styles.tabsWrapper}>
             <div className={styles.tabs}>

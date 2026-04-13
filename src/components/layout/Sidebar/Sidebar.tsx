@@ -33,12 +33,10 @@ export function Sidebar() {
 
   return (
     <aside className={styles.sidebar}>
-      {/* Logo */}
       <div className={styles.logo}>
         <span className={styles.logoText}>The Sonic Curator</span>
       </div>
 
-      {/* Navegação principal */}
       <nav className={styles.nav}>
         {navItems.map(({ icon: Icon, label, to }) => {
           const isActive = to.includes('/library?mode=search') ? isSearchMode : location.pathname === to;
@@ -57,12 +55,10 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Separador "YOUR COLLECTION" */}
       <div className={styles.separator}>
         <span className={styles.separatorLabel}>Sua Coleção</span>
       </div>
 
-      {/* Sub-itens da coleção */}
       <nav className={styles.collection}>
         {collectionItems.map(({ icon: Icon, label, to }) => {
           const isActive = to === '/library' ? isLibraryMode : location.pathname === to;

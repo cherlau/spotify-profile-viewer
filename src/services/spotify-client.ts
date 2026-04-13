@@ -20,16 +20,11 @@ import { refreshAccessToken } from '../auth/spotify-auth';
 
 export const BASE_URL = 'https://api.spotify.com/v1';
 
-// ─── Mock interceptor ────────────────────────────────────────────────────────
-
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 
 async function resolveMock<T>(path: string): Promise<T> {
-  // Simula latência de rede para comportamento mais realista durante desenvolvimento
   await new Promise((r) => setTimeout(r, 300));
 
-  // Normaliza o path: remove base URL e query string
-  // Usamos uma regex para garantir que removemos a BASE_URL independente de como ela termina
   const baseUrlPattern = new RegExp(`^${BASE_URL.replace(/\//g, '\\/')}`);
   const cleanPath = path
     .replace(baseUrlPattern, '')
@@ -67,8 +62,6 @@ async function resolveMock<T>(path: string): Promise<T> {
   throw new Error(`[MOCK] Nenhum mock encontrado para o path: ${cleanPath}`);
 }
 
-// ─── Error types ─────────────────────────────────────────────────────────────
-
 export class SpotifyAuthError extends Error {
   constructor(message = 'Authentication required') {
     super(message);
@@ -94,21 +87,15 @@ export class SpotifyApiError extends Error {
   }
 }
 
-// ─── Token resolution ────────────────────────────────────────────────────────
-
 async function resolveToken(): Promise<string> {
-  // Try in-memory token first
   const token = tokenStore.getAccessToken();
 
   if (token && !tokenStore.isAccessTokenExpired()) {
     return token;
   }
 
-  // Token missing or expired — refresh before sending the request
   return refreshAccessToken();
 }
-
-// ─── Core fetch wrapper ──────────────────────────────────────────────────────
 
 async function doFetch(url: string, token: string, init: RequestInit = {}): Promise<Response> {
   return fetch(url, {
@@ -132,8 +119,6 @@ async function handleErrorResponse(response: Response): Promise<never> {
   throw new SpotifyApiError(response.status, message);
 }
 
-// ─── Public API ──────────────────────────────────────────────────────────────
-
 export async function fetchWithAuth<T>(
   path: string,
   init: RequestInit = {},
@@ -153,7 +138,6 @@ export async function fetchWithAuth<T>(
 
   let response = await doFetch(url, token, init);
 
-  // 401 → attempt one token refresh and retry
   if (response.status === 401) {
     let freshToken: string;
     try {
@@ -176,7 +160,6 @@ export async function fetchWithAuth<T>(
     await handleErrorResponse(response);
   }
 
-  // Handle successful responses (2xx)
   if (response.status === 204 || response.status === 202) {
     return {} as T;
   }

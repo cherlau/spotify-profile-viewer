@@ -15,7 +15,6 @@ import { useIsDesktop } from '../../../hooks/useMediaQuery';
 import { usePlayer } from '../../../contexts/PlayerContext';
 import styles from './PlayerBar.module.css';
 
-/** Converte milissegundos em "m:ss" */
 function formatTime(ms: number): string {
   const totalSec = Math.floor(ms / 1000);
   const min = Math.floor(totalSec / 60);
@@ -41,7 +40,6 @@ export function PlayerBar() {
   const [isMuted, setIsMuted] = useState(false);
   const [localVolume, setLocalVolume] = useState(70);
   
-  // Sincroniza volume local com o do Spotify quando o estado mudar
   useEffect(() => {
     if (playbackState?.device?.volume_percent !== undefined) {
       setLocalVolume(playbackState.device.volume_percent);
@@ -62,9 +60,7 @@ export function PlayerBar() {
   };
 
   return isDesktop ? (
-    /* ── Desktop: barra full-width no rodapé ────────────────────── */
     <div className={styles.playerDesktop}>
-      {/* Esquerda: info da faixa */}
       <div className={styles.trackInfo}>
         <div className={styles.albumThumb}>
           {track.album.images?.[0]?.url ? (
@@ -86,7 +82,6 @@ export function PlayerBar() {
         </button>
       </div>
 
-      {/* Centro: controles + progress bar */}
       <div className={styles.controls}>
         <div className={styles.controlButtons}>
           <button
@@ -118,7 +113,6 @@ export function PlayerBar() {
           </button>
         </div>
 
-        {/* Barra de progresso */}
         <div className={styles.progressRow}>
           <span className={styles.timestamp}>{formatTime(progressMs)}</span>
           <div
@@ -135,7 +129,6 @@ export function PlayerBar() {
         </div>
       </div>
 
-      {/* Direita: volume */}
       <div className={styles.volumeControls}>
         <button
           className={styles.iconBtn}
@@ -164,9 +157,7 @@ export function PlayerBar() {
       </div>
     </div>
   ) : (
-    /* ── Mobile: pill flutuante ─────────────────────────────────── */
     <div className={styles.playerMobile}>
-      {/* Album art mini */}
       <div className={styles.albumThumbMobile}>
         {track.album.images?.[0]?.url ? (
           <img src={track.album.images[0].url} alt={track.name} className={styles.albumImg} />
@@ -175,13 +166,11 @@ export function PlayerBar() {
         )}
       </div>
 
-      {/* Nome + artista */}
       <div className={styles.trackMetaMobile}>
         <span className={styles.trackName}>{track.name}</span>
         <span className={styles.artistName}>{track.artists.map(a => a.name).join(', ')}</span>
       </div>
 
-      {/* Controles compactos */}
       <div className={styles.mobileControls}>
         <button className={styles.iconBtn} onClick={previous} aria-label="Previous">
           <SkipBack size={16} />

@@ -40,7 +40,6 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/callback" element={<CallbackPage />} />
 
-      {/* Área protegida — todas as páginas abaixo usam o AppLayout */}
       <Route
         path="/"
         element={
@@ -96,7 +95,6 @@ export default function App() {
         }
       />
 
-      {/* Catch-all */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

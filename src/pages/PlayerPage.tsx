@@ -11,8 +11,6 @@ import { EqualizerLoader } from '../components/shared/EqualizerLoader';
 import type { SpotifyTrack } from '../types/spotify';
 import styles from './PlayerPage.module.css';
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function formatDuration(ms: number): string {
   const m = Math.floor(ms / 60000);
   const s = Math.floor((ms % 60000) / 1000);
@@ -39,16 +37,6 @@ function parseLRC(lrc: string): { timeMs: number; text: string }[] {
     .filter((line): line is { timeMs: number; text: string } => line !== null);
 }
 
-// ─── Custom Hooks ─────────────────────────────────────────────────────────────
-
-interface LyricLine {
-  timeMs: number;
-  text: string;
-}
-
-/**
- * Busca as letras da track atual na API LRCLIB e faz o parse se disponíveis utilizando React Query para cache.
- */
 function useLyrics(trackName: string | undefined, artistName: string | undefined) {
   const { data: lyrics = [], isLoading } = useQuery({
     queryKey: ['lyrics', trackName, artistName],
@@ -77,8 +65,6 @@ function useLyrics(trackName: string | undefined, artistName: string | undefined
 
   return { lyrics, isLoading };
 }
-
-// ─── QueueItem ────────────────────────────────────────────────────────────────
 
 interface QueueItemProps {
   track: SpotifyTrack;
@@ -110,8 +96,6 @@ function QueueItem({ track, rank }: QueueItemProps) {
     </div>
   );
 }
-
-// ─── PlayerPage ───────────────────────────────────────────────────────────────
 
 export function PlayerPage() {
   const [isActive, setIsActive] = useState(true);
@@ -156,13 +140,11 @@ export function PlayerPage() {
     return () => clearInterval(interval);
   }, [playback?.is_playing]);
 
-  // Identifica a linha da letra ativa baseado no progresso local
   const currentLineIndex = useMemo(() => {
     if (!lyrics.length) return -1;
     return lyrics.findLastIndex(line => line.timeMs <= localProgressMs);
   }, [lyrics, localProgressMs]);
 
-  // Auto-scroll para manter a linha ativa centralizada no container de letras
   useEffect(() => {
     if (activeLyricRef.current && lyricsContainerRef.current) {
       const container = lyricsContainerRef.current;
@@ -306,7 +288,6 @@ export function PlayerPage() {
             )}
           </section>
 
-		  {/* Lyrics */}
           <section className={styles.sidePanel}>
             <h2 className={styles.sidePanelTitle}>Letras</h2>
             <div className={styles.lyricsContent}>

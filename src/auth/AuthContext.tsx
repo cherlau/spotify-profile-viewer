@@ -1,4 +1,4 @@
-import { createContext, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useEffect, useState, type ReactNode } from 'react';
 import { login as spotifyLogin, logout as spotifyLogout, refreshAccessToken } from './spotify-auth';
 import { tokenStore } from './token-store';
 
@@ -28,7 +28,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return refreshAccessToken();
   }, []);
 
-  // On mount: check token validity and attempt silent refresh if needed
   useEffect(() => {
     let isMounted = true;
 
@@ -40,7 +39,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Check if we have a valid access token in storage
     const storedToken = tokenStore.getAccessToken();
     if (storedToken && !tokenStore.isAccessTokenExpired()) {
       console.log('[Auth] Usando token em storage válido.');
@@ -48,7 +46,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Attempt silent refresh if token is missing or expired
     console.log('[Auth] Tentando silent refresh...');
     performRefresh()
       .then(token => {
@@ -60,7 +57,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!isMounted) return;
         console.error('[Auth] Falha no silent refresh:', err.message);
         
-        // Se falhar, o estado é atualizado para não autenticado.
         // O spotify-auth.ts já limpa o store em caso de erro 400.
         setState({ isAuthenticated: false, isLoading: false, token: null });
       });

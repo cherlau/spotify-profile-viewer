@@ -1,7 +1,6 @@
 export const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID as string;
 export const REDIRECT_URI = import.meta.env.VITE_SPOTIFY_REDIRECT_URI as string;
 
-// Scopes base — disponíveis para todos os usuários (Free e Premium)
 export const BASE_SCOPES = [
   'user-read-private',
   'user-top-read',

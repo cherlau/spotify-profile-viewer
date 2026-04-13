@@ -1,9 +1,5 @@
 import { useState, useEffect } from 'react';
 
-/**
- * Retorna true enquanto a media query for satisfeita.
- * Re-renderiza o componente toda vez que o match muda.
- */
 export function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
 

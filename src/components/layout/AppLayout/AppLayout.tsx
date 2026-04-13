@@ -15,13 +15,11 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className={styles.root}>
-      {/* Sidebar — desktop only */}
       {isDesktop && <Sidebar />}
 
       {/* Header busca o próprio perfil internamente */}
       <AppHeader />
 
-      {/* Conteúdo principal com offset para header + sidebar */}
       <main className={`${styles.main} ${isDesktop ? styles.mainDesktop : ''}`}>
         {children}
       </main>
@@ -29,7 +27,6 @@ export function AppLayout({ children }: AppLayoutProps) {
       {/* Player bar — visível quando há faixa tocando (PlayerBar retorna null sem playback) */}
       <PlayerBar />
 
-      {/* Bottom nav — mobile only */}
       {!isDesktop && <BottomNav />}
     </div>
   );

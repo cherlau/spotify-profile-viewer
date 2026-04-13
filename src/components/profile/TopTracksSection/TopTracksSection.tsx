@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Play, Heart, MoreHorizontal, Music } from 'lucide-react';
 import type { SpotifyTrack } from '../../../types/spotify';
-import { LoadingState } from '../../shared/LoadingState';
 import { usePlayer } from '../../../contexts/PlayerContext';
 import styles from './TopTracksSection.module.css';
 

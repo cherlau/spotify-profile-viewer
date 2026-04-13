@@ -32,7 +32,6 @@ export function PlaylistsPage() {
 
   return (
     <div className={styles.page}>
-      {/* Cabeçalho da página */}
       <header className={styles.header}>
         <div className={styles.headerTop}>
           <span className={styles.headerLabel}>Suas Músicas</span>
@@ -48,7 +47,6 @@ export function PlaylistsPage() {
         <ErrorState message="Não foi possível carregar suas playlists." onRetry={refetch} />
       ) : (
         <>
-          {/* Filtros rápidos horizontais */}
           <div className={styles.filtersWrapper}>
             <div className={styles.filters}>
               {FILTERS.map(({ key, label }) => (
@@ -63,13 +61,11 @@ export function PlaylistsPage() {
             </div>
           </div>
 
-          {/* Grid de playlists */}
           <section className={styles.gridSection}>
             {filteredPlaylists.length === 0 ? (
               <p className={styles.empty}>Nenhuma playlist encontrada.</p>
             ) : (
               <div className={styles.grid}>
-                {/* Card em destaque */}
                 {featured && (
                   <div className={`${styles.card} ${styles.cardFeatured}`}>
                     <div className={styles.cardImageWrapper}>
@@ -98,7 +94,6 @@ export function PlaylistsPage() {
                   </div>
                 )}
 
-                {/* Cards padrão */}
                 {standard.map(pl => (
                   <div key={pl.id} className={styles.card}>
                     <div className={styles.cardImageWrapper}>

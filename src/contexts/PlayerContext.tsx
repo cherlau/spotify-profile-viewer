@@ -38,24 +38,20 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const { data: profile } = useProfile();
   const isPremium = profile?.product === 'premium';
 
-  // Polling a cada 5 segundos — somente para usuários Premium
   const { data: playbackState, isLoading, refetch } = usePlaybackState({
     enabled: isAuthenticated && isPremium,
     refetchInterval: isPremium ? 5000 : false,
   });
 
-  // Sincroniza os estados otimistas com o real quando a API responde
   useEffect(() => {
     if (playbackState !== undefined) {
       setOptimisticPlaying(null);
-      // Limpa a track otimista assim que o playbackState reflete a música correta
       if (playbackState?.item) {
         setOptimisticTrack(null);
       }
     }
   }, [playbackState]);
 
-  // Inicialização do Web Playback SDK — somente para usuários Premium
   useEffect(() => {
     if (!token || player || !isPremium) return;
 
@@ -70,7 +66,6 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         volume: 0.5
       });
 
-      // Erros
       newPlayer.addListener('initialization_error', ({ message }: any) => { console.error('❌ Erro de Inicialização SDK:', message); });
       newPlayer.addListener('authentication_error', ({ message }: any) => { console.error('❌ Erro de Autenticação SDK:', message); });
       newPlayer.addListener('account_error', ({ message }: any) => { 
@@ -80,13 +75,11 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         console.error('❌ Erro de Reprodução SDK:', message);
       });
 
-      // Playback status updates
       newPlayer.addListener('player_state_changed', (state: any) => {
         if (!state) return;
         refetch();
       });
 
-      // Ready
       newPlayer.addListener('ready', ({ device_id }: { device_id: string }) => {
         console.log('✅ Player pronto no navegador! ID:', device_id);
         setDeviceId(device_id);
@@ -102,7 +95,6 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         }).catch(err => console.error('Erro ao transferir playback:', err));
       });
 
-      // Not Ready
       newPlayer.addListener('not_ready', ({ device_id }: { device_id: string }) => {
         console.warn('⚠️ O Player ficou offline:', device_id);
         setDeviceId(null);

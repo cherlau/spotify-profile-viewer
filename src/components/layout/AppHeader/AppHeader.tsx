@@ -22,7 +22,6 @@ function GithubIcon({ size = 16 }: { size?: number }) {
   );
 }
 
-// Foto se disponível, inicial caso contrário
 function AvatarImage({
   className,
   avatarUrl,
@@ -44,7 +43,6 @@ function AvatarImage({
   );
 }
 
-// Dropdown de conta
 function AccountMenu({
   alignRight,
   displayName,
@@ -82,8 +80,7 @@ function AccountMenu({
   );
 }
 
-// Sub-componente isolado para a barra de busca.
-// Isso evita que o AppHeader inteiro (e seus hooks de perfil/auth) re-renderizem a cada tecla.
+// Isolado para evitar que o AppHeader (e seus hooks de perfil/auth) re-renderize a cada tecla.
 function SearchInput({
   initialQuery,
   onQueryChange,
@@ -101,7 +98,6 @@ function SearchInput({
     setLocalQuery(initialQuery);
   }, [initialQuery]);
 
-  // Foca o input se entrar em modo de busca
   useEffect(() => {
     if (mode === 'search' && inputRef.current) {
       inputRef.current.focus();
@@ -157,20 +153,17 @@ export function AppHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Query de busca derivada diretamente da URL
   const query = searchParams.get('q') ?? '';
   const mode = searchParams.get('mode');
 
-  // Dados do usuário vindos da API
   const displayName = profile?.display_name ?? '';
   const avatarUrl =
     (profile?.images?.find(img => img.height === 64) ?? profile?.images?.[0])?.url ?? null;
   const profileUrl = profile?.external_urls?.spotify ?? null;
 
-  // Inicial para o placeholder do avatar
   const initial = displayName.trim().charAt(0).toUpperCase() || '?';
 
-  // Fecha o dropdown ao clicar fora (subscrevendo evento DOM — uso legítimo de useEffect)
+  // Fecha o dropdown ao clicar fora
   useEffect(() => {
     if (!menuOpen) return;
     function onClickOutside(e: MouseEvent) {
@@ -203,16 +196,13 @@ export function AppHeader() {
   return (
     <header className={styles.header}>
       {isDesktop ? (
-        /* ── Desktop ───────────────────────────────────────────────── */
         <div className={styles.inner}>
-          {/* Barra de pesquisa (Isolada para performance) */}
           <SearchInput
             initialQuery={query}
             onQueryChange={handleQueryChange}
             mode={mode}
           />
 
-          {/* Links de navegação */}
           <nav className={styles.desktopNav}>
             <a
               href={GITHUB_URL}
@@ -225,7 +215,6 @@ export function AppHeader() {
             </a>
           </nav>
 
-          {/* Avatar + dropdown de conta */}
           <div className={styles.actions}>
             <div className={styles.divider} />
             <div ref={menuRef} className={styles.avatarWrapper}>
@@ -254,10 +243,8 @@ export function AppHeader() {
           </div>
         </div>
       ) : (
-        /* ── Mobile ────────────────────────────────────────────────── */
         <div className={styles.inner}>
           <div className={styles.mobileLeft}>
-            {/* Avatar clicável com dropdown */}
             <div ref={menuRef} className={styles.avatarWrapper}>
               <button
                 className={styles.avatarBtn}

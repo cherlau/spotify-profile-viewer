@@ -30,7 +30,6 @@ export function ArtistCard({ name, imageUrl, genres, spotifyUrl }: ArtistCardPro
         ) : (
           <div className={styles.imageFallback} aria-hidden="true" />
         )}
-        {/* Overlay com ícone play (visível no hover via CSS) */}
         <div className={styles.overlay} aria-hidden="true">
           <Play size={30} fill="currentColor" className={styles.playIcon} />
         </div>

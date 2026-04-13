@@ -16,7 +16,6 @@ export const SESSION_KEYS = {
 } as const;
 
 export const tokenStore = {
-  // ── Access token (localStorage) ──────────────────────────────────
   getAccessToken(): string | null {
     return localStorage.getItem(ACCESS_TOKEN_KEY);
   },
@@ -36,7 +35,6 @@ export const tokenStore = {
     return Date.now() >= parseInt(expiry, 10) - 30_000;
   },
 
-  // ── Refresh token (localStorage) ────────────────────────────────
   getRefreshToken(): string | null {
     return localStorage.getItem(REFRESH_TOKEN_KEY);
   },
@@ -44,7 +42,6 @@ export const tokenStore = {
     localStorage.setItem(REFRESH_TOKEN_KEY, token);
   },
 
-  // ── Full clear (logout) ──────────────────────────────────────────
   clear(): void {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
