@@ -256,7 +256,7 @@ export function LibraryPage() {
 
       {searchQuery ? (
         <div>
-          {isAnyLoading && <LoadingState message="Buscando…" />}
+          {isAnyLoading && <LoadingState/>}
 
           {!isAnyLoading && totalResults === 0 && (
             <p className={styles.empty}>Nenhum resultado encontrado para "{searchQuery}".</p>

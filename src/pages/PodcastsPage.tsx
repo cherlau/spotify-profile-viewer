@@ -61,7 +61,7 @@ export function PodcastsPage() {
       </header>
 
       {isLoading ? (
-        <LoadingState message="Carregando podcasts..." />
+        <LoadingState/>
       ) : isError ? (
         <ErrorState message="Não foi possível carregar os podcasts." onRetry={refetch} />
       ) : shows.length === 0 ? (

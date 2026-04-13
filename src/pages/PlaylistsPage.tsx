@@ -42,7 +42,7 @@ export function PlaylistsPage() {
       </header>
 
       {playlistsLoading ? (
-        <LoadingState message="Carregando sua biblioteca…" />
+        <LoadingState/>
       ) : playlistsError ? (
         <ErrorState message="Não foi possível carregar suas playlists." onRetry={refetch} />
       ) : (
