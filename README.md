@@ -201,6 +201,28 @@ As letras são sincronizadas em tempo real com o progresso da música tocando: c
 
 ---
 
+## 🔑 Variáveis de Ambiente
+
+Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+
+```env
+VITE_SPOTIFY_CLIENT_ID=seu_client_id_aqui
+VITE_SPOTIFY_REDIRECT_URI=http://127.0.0.1:5173/callback
+VITE_USE_MOCK=false
+VITE_ENABLE_REAL_AUDIO=false
+```
+
+| Variável | Obrigatória | Descrição |
+|----------|-------------|-----------|
+| `VITE_SPOTIFY_CLIENT_ID` | ✅ Sim | Client ID do seu app no Spotify Developer Dashboard |
+| `VITE_SPOTIFY_REDIRECT_URI` | ✅ Sim | URI de callback após login. Deve estar cadastrada no Dashboard |
+| `VITE_USE_MOCK` | ❌ Não | `true` para usar dados mockados localmente sem a API real |
+| `VITE_ENABLE_REAL_AUDIO` | ❌ Não | `false` (padrão) ativa o **Modo Portfólio**: sem PlayerBar, sem botões de play, PlayerPage somente leitura. `true` ativa o **Modo Real**: scopes de streaming completos + Web Playback SDK (requer conta Premium) |
+
+> **Segurança:** todas as variáveis `VITE_*` são embutidas no bundle de build. Nunca coloque `client_secret` aqui — este projeto propositalmente não usa client_secret (fluxo PKCE).
+
+---
+
 ## 🚀 Como Rodar o Projeto
 
 ```bash
@@ -238,27 +260,6 @@ npm run lint
 
 ---
 
-## 🔑 Variáveis de Ambiente
-
-Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
-
-```env
-VITE_SPOTIFY_CLIENT_ID=seu_client_id_aqui
-VITE_SPOTIFY_REDIRECT_URI=http://127.0.0.1:5173/callback
-VITE_USE_MOCK=false
-VITE_ENABLE_REAL_AUDIO=false
-```
-
-| Variável | Obrigatória | Descrição |
-|----------|-------------|-----------|
-| `VITE_SPOTIFY_CLIENT_ID` | ✅ Sim | Client ID do seu app no Spotify Developer Dashboard |
-| `VITE_SPOTIFY_REDIRECT_URI` | ✅ Sim | URI de callback após login. Deve estar cadastrada no Dashboard |
-| `VITE_USE_MOCK` | ❌ Não | `true` para usar dados mockados localmente sem a API real |
-| `VITE_ENABLE_REAL_AUDIO` | ❌ Não | `false` (padrão) ativa o **Modo Portfólio**: sem PlayerBar, sem botões de play, PlayerPage somente leitura. `true` ativa o **Modo Real**: scopes de streaming completos + Web Playback SDK (requer conta Premium) |
-
-> **Segurança:** todas as variáveis `VITE_*` são embutidas no bundle de build. Nunca coloque `client_secret` aqui — este projeto propositalmente não usa client_secret (fluxo PKCE).
-
----
 
 ## 📄 Licença
 
