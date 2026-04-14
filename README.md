@@ -95,6 +95,9 @@ src/
 ├── contexts/
 │   └── PlayerContext.tsx    # Estado do player, SDK initialization, optimistic updates
 │
+├── config/
+│   └── featureFlags.ts      # Feature flags derivados de variáveis de ambiente (ENABLE_REAL_AUDIO)
+│
 ├── hooks/                   # Um hook por endpoint + hooks de utilidade
 │   ├── useSpotifyAuth.ts    # Acessa AuthContext
 │   ├── useProfile.ts        # → useQuery(['profile'])
@@ -107,6 +110,7 @@ src/
 │   ├── useSavedShows.ts     # → useQuery(['saved-shows'])
 │   ├── usePlaybackState.ts  # → useQuery(['player']) com polling a cada 5s (Premium)
 │   ├── useQueue.ts          # → useQuery(['queue'])
+│   ├── useLyrics.ts         # Busca e parseia letras sincronizadas via lrclib.net (LRC → ms)
 │   └── useMediaQuery.ts     # useIsDesktop() — breakpoint 768px
 │
 ├── pages/                   # Componentes de rota (um por página)
@@ -119,7 +123,7 @@ src/
 │   └── PodcastsPage.tsx     # Shows/podcasts salvos
 │
 ├── components/
-│   ├── layout/              # Shell da aplicação (AppHeader, Sidebar, BottomNav, PlayerBar)
+│   ├── layout/              # Shell da aplicação (AppLayout, AppHeader, Sidebar, BottomNav, PlayerBar)
 │   ├── profile/             # Componentes da tela de perfil (ProfileHero, ArtistCard, TrackItem...)
 │   └── shared/              # LoadingState, ErrorState, EqualizerLoader
 │
@@ -130,11 +134,12 @@ src/
 │   └── spotify.ts           # Interfaces TypeScript dos responses da API
 │
 ├── styles/
-│   ├── tokens.css           # Todas as CSS Custom Properties (cores, tipografia, espaçamentos)
-│   └── index.css            # Reset global + animações (spin, equalizer)
+│   └── tokens.css           # Todas as CSS Custom Properties (cores, tipografia, espaçamentos)
 │
-└── utils/
-    └── isPremiumUser.ts     # Helper para verificar se o usuário é Premium
+├── utils/
+│   └── isPremiumUser.ts     # Helper para verificar se o usuário é Premium
+│
+└── index.css                # Reset global + animações (spin, equalizer)
 ```
 
 **Padrão de dados:** página → hook → `fetchWithAuth` → Spotify API → React Query cache → componente re-renderiza. Nenhum componente faz fetch direto.
@@ -201,6 +206,7 @@ Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
 VITE_SPOTIFY_CLIENT_ID=seu_client_id_aqui
 VITE_SPOTIFY_REDIRECT_URI=http://127.0.0.1:5173/callback
 VITE_USE_MOCK=false
+VITE_ENABLE_REAL_AUDIO=false
 ```
 
 | Variável | Obrigatória | Descrição |
@@ -208,6 +214,7 @@ VITE_USE_MOCK=false
 | `VITE_SPOTIFY_CLIENT_ID` | ✅ Sim | Client ID do seu app no Spotify Developer Dashboard |
 | `VITE_SPOTIFY_REDIRECT_URI` | ✅ Sim | URI de callback após login. Deve estar cadastrada no Dashboard |
 | `VITE_USE_MOCK` | ❌ Não | `true` para usar dados mockados localmente sem a API real |
+| `VITE_ENABLE_REAL_AUDIO` | ❌ Não | `false` (padrão) ativa o **Modo Portfólio**: sem PlayerBar, sem botões de play, PlayerPage somente leitura. `true` ativa o **Modo Real**: scopes de streaming completos + Web Playback SDK (requer conta Premium) |
 
 > **Segurança:** todas as variáveis `VITE_*` são embutidas no bundle de build. Nunca coloque `client_secret` aqui — este projeto propositalmente não usa client_secret (fluxo PKCE).
 
@@ -239,6 +246,18 @@ Todos os endpoints são do escopo `/me` da Spotify Web API v1.
 
 > **Breaking changes de Fev/2026:** os campos `popularity`, `followers` (no user), `country`, `email`, `product`, `available_markets` e `linked_from` foram removidos da API. Este projeto já está atualizado para não depender desses campos.
 
+### API externa — Letras (lrclib.net)
+
+| Endpoint | Hook | Dados retornados |
+|----------|------|-----------------|
+| `GET https://lrclib.net/api/get?track_name=...&artist_name=...` | `useLyrics` | Letras sincronizadas em formato LRC, parseadas para `{ timeMs, text }[]` |
+
+As letras são sincronizadas em tempo real com o progresso da música tocando: cada linha é destacada automaticamente no momento exato em que deve ser cantada, com scroll suave acompanhando a reprodução.
+
+<!-- GIF das letras sincronizadas aqui -->
+
+> Sem autenticação. Cache infinito (`staleTime: Infinity`, `gcTime: 1h`). Falhas retornam array vazio — a PlayerPage renderiza normalmente sem letras.
+
 ---
 
 ## 🧩 Desafios Técnicos Superados
@@ -247,9 +266,9 @@ Todos os endpoints são do escopo `/me` da Spotify Web API v1.
 
 Implementar PKCE sem backend exige cuidado: o `code_verifier` precisa sobreviver ao redirect para o Spotify e voltar, o `state` precisa ser validado contra CSRF, e o refresh token precisa ser persistido de forma segura no localStorage com controle de expiração. O `token-store.ts` gerencia expiração com buffer de 30 segundos, e o `refreshAccessToken()` em `spotify-auth.ts` usa uma promise singleton para evitar múltiplas requisições de refresh simultâneas (problema clássico em SPAs com múltiplos hooks disparando ao mesmo tempo).
 
-### 2. Player com suporte dual Free/Premium sem quebrar a UX
+### 2. Dois modos de operação com um único flag
 
-O Spotify Web Playback SDK só funciona para usuários Premium, mas a API de leitura (`/me/player`) funciona para todos. A solução foi separar leitura de controle: `usePlaybackState` lê o estado atual para todos os usuários, enquanto o `PlayerContext` inicializa o SDK condicionalmente, e as actions de controle são desabilitadas para usuários Free com feedback visual claro — sem erros silenciosos.
+O projeto distingue **Modo Portfólio** (`VITE_ENABLE_REAL_AUDIO=false`, padrão) de **Modo Real** (`=true`). No Modo Portfólio, os scopes de streaming não são solicitados, a PlayerBar é ocultada e a PlayerPage funciona em modo somente leitura — ideal para demonstração sem conta Premium. No Modo Real, o `PlayerContext` inicializa o Spotify Web Playback SDK e registra o browser como dispositivo de reprodução; como o SDK exige Premium, as actions de controle são desabilitadas para usuários Free com feedback visual claro, sem erros silenciosos. A separação leitura/controle (`usePlaybackState` vs `PlayerContext`) garante que o estado atual do player é visível para qualquer usuário, independente do modo.
 
 ### 3. Design system fiel via CSS Custom Properties
 
