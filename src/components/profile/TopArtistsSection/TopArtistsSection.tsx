@@ -7,7 +7,7 @@ interface TopArtistsSectionProps {
 }
 
 /* Desktop mostra 4 artistas em grid; mobile mostra todos em scroll horizontal */
-const DESKTOP_LIMIT = 5;
+const DESKTOP_LIMIT = 6;
 
 export function TopArtistsSection({ artists }: TopArtistsSectionProps) {
   if (artists.length === 0) {

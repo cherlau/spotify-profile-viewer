@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useIsDesktop } from '../../../hooks/useMediaQuery';
 import { usePlayer } from '../../../contexts/PlayerContext';
+import { useLyrics } from '../../../hooks/useLyrics';
 import styles from './PlayerBar.module.css';
 
 function formatTime(ms: number): string {
@@ -48,6 +49,10 @@ export function PlayerBar() {
 
   // Mostra o player imediatamente com a track otimista enquanto o playbackState não sincroniza
   const track = playbackState?.item ?? optimisticTrack;
+
+  // Pré-carrega as letras assim que a música é identificada
+  useLyrics(track?.name, track?.artists?.[0]?.name);
+
   if (!track) return null;
   const progressMs = playbackState?.progress_ms ?? 0;
   const durationMs = track.duration_ms;
