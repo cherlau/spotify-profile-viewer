@@ -73,8 +73,6 @@ Todos os endpoints são do escopo `/me` da Spotify Web API v1.
 | `PUT /me/player/repeat` | `PlayerContext` | Alternar modo repeat (Premium) |
 | `PUT /me/player/volume` | `PlayerContext` | Ajustar volume (Premium) |
 
-> **Breaking changes de Fev/2026:** os campos `popularity`, `followers` (no user), `country`, `email`, `product`, `available_markets` e `linked_from` foram removidos da API. Este projeto já está atualizado para não depender desses campos.
-
 ### API externa — Letras (lrclib.net)
 
 | Endpoint | Hook | Dados retornados |
