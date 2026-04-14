@@ -290,7 +290,7 @@ Em vez de usar uma biblioteca de UI, todo o design foi implementado a partir de 
 
 ## 📄 Licença
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+Este projeto está sob a licença MIT.
 
 ---
 
