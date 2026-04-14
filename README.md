@@ -254,7 +254,7 @@ Todos os endpoints são do escopo `/me` da Spotify Web API v1.
 
 As letras são sincronizadas em tempo real com o progresso da música tocando: cada linha é destacada automaticamente no momento exato em que deve ser cantada, com scroll suave acompanhando a reprodução.
 
-![Letras sincronizadas](assets/animação.gif)
+![Letras sincronizadas](assets/Animação.gif)
 
 > Sem autenticação. Cache infinito (`staleTime: Infinity`, `gcTime: 1h`). Falhas retornam array vazio — a PlayerPage renderiza normalmente sem letras.
 
