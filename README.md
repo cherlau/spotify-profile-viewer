@@ -67,6 +67,46 @@ O projeto nasceu como um exercício de design system fiel (extraído do Figma) e
 
 ---
 
+## 🔌 Endpoints da API Utilizados
+
+Todos os endpoints são do escopo `/me` da Spotify Web API v1.
+
+| Endpoint | Hook | Dados retornados |
+|----------|------|-----------------|
+| `GET /me` | `useProfile` | Nome, avatar, total de playlists |
+| `GET /me/top/artists` | `useTopArtists` | Top 10 artistas (nome, imagem, gêneros) |
+| `GET /me/top/tracks` | `useTopTracks` | Top 10 faixas (título, artista, álbum, duração) |
+| `GET /me/playlists` | `usePlaylists` | Playlists do usuário (nome, capa, total de faixas) |
+| `GET /me/player/recently-played` | `useRecentlyPlayed` | Histórico de reprodução recente |
+| `GET /me/following?type=artist` | `useFollowedArtists` | Artistas seguidos |
+| `GET /me/albums` | `useSavedAlbums` | Álbuns salvos na biblioteca |
+| `GET /me/shows` | `useSavedShows` | Podcasts/shows salvos |
+| `GET /me/player` | `usePlaybackState` | Estado atual do player (faixa, progresso, dispositivo) |
+| `GET /me/player/queue` | `useQueue` | Fila de reprodução (próximas faixas) |
+| `PUT /me/player/play` | `PlayerContext` | Iniciar/retomar reprodução (Premium) |
+| `PUT /me/player/pause` | `PlayerContext` | Pausar reprodução (Premium) |
+| `POST /me/player/next` | `PlayerContext` | Pular para próxima faixa (Premium) |
+| `POST /me/player/previous` | `PlayerContext` | Voltar faixa (Premium) |
+| `PUT /me/player/shuffle` | `PlayerContext` | Ativar/desativar shuffle (Premium) |
+| `PUT /me/player/repeat` | `PlayerContext` | Alternar modo repeat (Premium) |
+| `PUT /me/player/volume` | `PlayerContext` | Ajustar volume (Premium) |
+
+> **Breaking changes de Fev/2026:** os campos `popularity`, `followers` (no user), `country`, `email`, `product`, `available_markets` e `linked_from` foram removidos da API. Este projeto já está atualizado para não depender desses campos.
+
+### API externa — Letras (lrclib.net)
+
+| Endpoint | Hook | Dados retornados |
+|----------|------|-----------------|
+| `GET https://lrclib.net/api/get?track_name=...&artist_name=...` | `useLyrics` | Letras sincronizadas em formato LRC, parseadas para `{ timeMs, text }[]` |
+
+As letras são sincronizadas em tempo real com o progresso da música tocando: cada linha é destacada automaticamente no momento exato em que deve ser cantada, com scroll suave acompanhando a reprodução.
+
+![Letras sincronizadas](assets/Animação.gif)
+
+> Sem autenticação. Cache infinito (`staleTime: Infinity`, `gcTime: 1h`). Falhas retornam array vazio — a PlayerPage renderiza normalmente sem letras.
+
+---
+
 ## 🗂️ Arquitetura / Estrutura de Pastas
 
 ```
@@ -158,46 +198,6 @@ src/
 1. Acesse o Dashboard e crie um novo app
 2. Em **Redirect URIs**, adicione: `http://127.0.0.1:5173/callback`
 3. Salve o **Client ID** — você vai precisar dele nas variáveis de ambiente
-
----
-
-## 🔌 Endpoints da API Utilizados
-
-Todos os endpoints são do escopo `/me` da Spotify Web API v1.
-
-| Endpoint | Hook | Dados retornados |
-|----------|------|-----------------|
-| `GET /me` | `useProfile` | Nome, avatar, total de playlists |
-| `GET /me/top/artists` | `useTopArtists` | Top 10 artistas (nome, imagem, gêneros) |
-| `GET /me/top/tracks` | `useTopTracks` | Top 10 faixas (título, artista, álbum, duração) |
-| `GET /me/playlists` | `usePlaylists` | Playlists do usuário (nome, capa, total de faixas) |
-| `GET /me/player/recently-played` | `useRecentlyPlayed` | Histórico de reprodução recente |
-| `GET /me/following?type=artist` | `useFollowedArtists` | Artistas seguidos |
-| `GET /me/albums` | `useSavedAlbums` | Álbuns salvos na biblioteca |
-| `GET /me/shows` | `useSavedShows` | Podcasts/shows salvos |
-| `GET /me/player` | `usePlaybackState` | Estado atual do player (faixa, progresso, dispositivo) |
-| `GET /me/player/queue` | `useQueue` | Fila de reprodução (próximas faixas) |
-| `PUT /me/player/play` | `PlayerContext` | Iniciar/retomar reprodução (Premium) |
-| `PUT /me/player/pause` | `PlayerContext` | Pausar reprodução (Premium) |
-| `POST /me/player/next` | `PlayerContext` | Pular para próxima faixa (Premium) |
-| `POST /me/player/previous` | `PlayerContext` | Voltar faixa (Premium) |
-| `PUT /me/player/shuffle` | `PlayerContext` | Ativar/desativar shuffle (Premium) |
-| `PUT /me/player/repeat` | `PlayerContext` | Alternar modo repeat (Premium) |
-| `PUT /me/player/volume` | `PlayerContext` | Ajustar volume (Premium) |
-
-> **Breaking changes de Fev/2026:** os campos `popularity`, `followers` (no user), `country`, `email`, `product`, `available_markets` e `linked_from` foram removidos da API. Este projeto já está atualizado para não depender desses campos.
-
-### API externa — Letras (lrclib.net)
-
-| Endpoint | Hook | Dados retornados |
-|----------|------|-----------------|
-| `GET https://lrclib.net/api/get?track_name=...&artist_name=...` | `useLyrics` | Letras sincronizadas em formato LRC, parseadas para `{ timeMs, text }[]` |
-
-As letras são sincronizadas em tempo real com o progresso da música tocando: cada linha é destacada automaticamente no momento exato em que deve ser cantada, com scroll suave acompanhando a reprodução.
-
-![Letras sincronizadas](assets/Animação.gif)
-
-> Sem autenticação. Cache infinito (`staleTime: Infinity`, `gcTime: 1h`). Falhas retornam array vazio — a PlayerPage renderiza normalmente sem letras.
 
 ---
 
