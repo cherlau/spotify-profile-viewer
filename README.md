@@ -1,6 +1,6 @@
 # 🎵 Spotify Profile Viewer
 
-> **Seu perfil musical. Seus dados. Zero backend.**
+> **Seu perfil musical. Seus dados. Seu player de música**
 > Uma SPA React que conecta diretamente à Spotify Web API e expõe tudo o que define o seu gosto musical — artistas, faixas, playlists, biblioteca e player de música completo.
 
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
