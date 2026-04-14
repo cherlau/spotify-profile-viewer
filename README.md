@@ -12,6 +12,12 @@
 
 ---
 
+## 🎬 Demonstração
+
+[![Demonstração do Spotify Profile Viewer](https://img.youtube.com/vi/VZWszrKgeuU/maxresdefault.jpg)](https://www.youtube.com/watch?v=VZWszrKgeuU)
+
+---
+
 ## 📖 Sobre o Projeto
 
 **Spotify Profile Viewer** é uma Single Page Application que autentica o usuário via **OAuth 2.0 com PKCE** e consome exclusivamente os endpoints `/me` da Spotify Web API — sem backend próprio, sem segredos expostos, sem dependências de servidor.
