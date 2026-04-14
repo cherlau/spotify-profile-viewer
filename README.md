@@ -201,22 +201,6 @@ As letras são sincronizadas em tempo real com o progresso da música tocando: c
 
 ---
 
-## 🧩 Desafios Técnicos Superados
-
-### 1. Autenticação stateless com refresh token transparente
-
-Implementar PKCE sem backend exige cuidado: o `code_verifier` precisa sobreviver ao redirect para o Spotify e voltar, o `state` precisa ser validado contra CSRF, e o refresh token precisa ser persistido de forma segura no localStorage com controle de expiração. O `token-store.ts` gerencia expiração com buffer de 30 segundos, e o `refreshAccessToken()` em `spotify-auth.ts` usa uma promise singleton para evitar múltiplas requisições de refresh simultâneas (problema clássico em SPAs com múltiplos hooks disparando ao mesmo tempo).
-
-### 2. Dois modos de operação com um único flag
-
-O projeto distingue **Modo Portfólio** (`VITE_ENABLE_REAL_AUDIO=false`, padrão) de **Modo Real** (`=true`). No Modo Portfólio, os scopes de streaming não são solicitados, a PlayerBar é ocultada e a PlayerPage funciona em modo somente leitura — ideal para demonstração sem conta Premium. No Modo Real, o `PlayerContext` inicializa o Spotify Web Playback SDK e registra o browser como dispositivo de reprodução; como o SDK exige Premium, as actions de controle são desabilitadas para usuários Free com feedback visual claro, sem erros silenciosos. A separação leitura/controle (`usePlaybackState` vs `PlayerContext`) garante que o estado atual do player é visível para qualquer usuário, independente do modo.
-
-### 3. Design system fiel via CSS Custom Properties
-
-Em vez de usar uma biblioteca de UI, todo o design foi implementado a partir de tokens extraídos do Figma (cores, tipografia, espaçamentos, glassmorphism) em `tokens.css`. Isso permitiu criar componentes pixel-perfect usando CSS Modules sem overhead de runtime, com fallbacks para navegadores sem suporte a `backdrop-filter`.
-
----
-
 ## 🚀 Como Rodar o Projeto
 
 ```bash
