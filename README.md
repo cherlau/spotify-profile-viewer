@@ -49,24 +49,6 @@ O projeto nasceu como um exercício de design system fiel (extraído do Figma) e
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
-
-| Camada | Tecnologia | Versão |
-|--------|-----------|--------|
-| **Framework UI** | React | 19 |
-| **Linguagem** | TypeScript | ~6.0 |
-| **Build** | Vite | 8 |
-| **Roteamento** | React Router DOM | 7 |
-| **Data fetching / cache** | TanStack React Query | 5 |
-| **Ícones** | Lucide React | 1.8 |
-| **Estilização** | CSS Modules + CSS Custom Properties | — |
-| **Fontes** | Plus Jakarta Sans, Inter, Liberation Mono | — |
-| **Auth** | OAuth 2.0 PKCE (browser-only) | — |
-| **Player** | Spotify Web Playback SDK | — |
-| **Letras** | lrclib.net (API pública) | — |
-
----
-
 ## 🔌 Endpoints da API Utilizados
 
 Todos os endpoints são do escopo `/me` da Spotify Web API v1.
@@ -104,6 +86,99 @@ As letras são sincronizadas em tempo real com o progresso da música tocando: c
 ![Letras sincronizadas](assets/Animação.gif)
 
 > Sem autenticação. Cache infinito (`staleTime: Infinity`, `gcTime: 1h`). Falhas retornam array vazio — a PlayerPage renderiza normalmente sem letras.
+
+---
+
+
+## ✅ Pré-requisitos
+
+- **Node.js** >= 18 (recomendado 20 LTS)
+- **npm** >= 9
+- **Conta Spotify** (Free ou Premium — player completo requer Premium)
+- **Aplicativo registrado no [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)**
+
+### Configuração do app no Spotify Dashboard
+
+1. Acesse o Dashboard e crie um novo app
+2. Em **Redirect URIs**, adicione: `http://127.0.0.1:5173/callback`
+3. Salve o **Client ID** — você vai precisar dele nas variáveis de ambiente
+
+---
+
+## 🚀 Como Rodar o Projeto
+
+```bash
+# 1. Clone o repositório
+git clone https://github.com/seu-usuario/spotify-profile-viewer.git
+cd spotify-profile-viewer
+
+# 2. Instale as dependências
+npm install
+
+# 3. Configure as variáveis de ambiente
+cp .env.example .env
+# Edite o .env com seu CLIENT_ID (veja a seção abaixo)
+
+# 4. Inicie o servidor de desenvolvimento
+npm run dev
+```
+
+Acesse **http://127.0.0.1:5173** no browser.
+
+> **Atenção:** use `127.0.0.1` e não `localhost` — o Spotify valida a URI de redirect exatamente como cadastrada no Dashboard.
+
+### Outros comandos
+
+```bash
+# Build de produção
+npm run build
+
+# Pré-visualizar o build de produção
+npm run preview
+
+# Lint
+npm run lint
+```
+
+---
+
+## 🔑 Variáveis de Ambiente
+
+Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+
+```env
+VITE_SPOTIFY_CLIENT_ID=seu_client_id_aqui
+VITE_SPOTIFY_REDIRECT_URI=http://127.0.0.1:5173/callback
+VITE_USE_MOCK=false
+VITE_ENABLE_REAL_AUDIO=false
+```
+
+| Variável | Obrigatória | Descrição |
+|----------|-------------|-----------|
+| `VITE_SPOTIFY_CLIENT_ID` | ✅ Sim | Client ID do seu app no Spotify Developer Dashboard |
+| `VITE_SPOTIFY_REDIRECT_URI` | ✅ Sim | URI de callback após login. Deve estar cadastrada no Dashboard |
+| `VITE_USE_MOCK` | ❌ Não | `true` para usar dados mockados localmente sem a API real |
+| `VITE_ENABLE_REAL_AUDIO` | ❌ Não | `false` (padrão) ativa o **Modo Portfólio**: sem PlayerBar, sem botões de play, PlayerPage somente leitura. `true` ativa o **Modo Real**: scopes de streaming completos + Web Playback SDK (requer conta Premium) |
+
+> **Segurança:** todas as variáveis `VITE_*` são embutidas no bundle de build. Nunca coloque `client_secret` aqui — este projeto propositalmente não usa client_secret (fluxo PKCE).
+
+---
+
+# 🛠️ Tecnologias Utilizadas
+
+| Camada | Tecnologia | Versão |
+|--------|-----------|--------|
+| **Framework UI** | React | 19 |
+| **Linguagem** | TypeScript | ~6.0 |
+| **Build** | Vite | 8 |
+| **Roteamento** | React Router DOM | 7 |
+| **Data fetching / cache** | TanStack React Query | 5 |
+| **Ícones** | Lucide React | 1.8 |
+| **Estilização** | CSS Modules + CSS Custom Properties | — |
+| **Fontes** | Plus Jakarta Sans, Inter, Liberation Mono | — |
+| **Auth** | OAuth 2.0 PKCE (browser-only) | — |
+| **Player** | Spotify Web Playback SDK | — |
+| **Letras** | lrclib.net (API pública) | — |
 
 ---
 
@@ -186,84 +261,36 @@ src/
 
 ---
 
-## ✅ Pré-requisitos
 
-- **Node.js** >= 18 (recomendado 20 LTS)
-- **npm** >= 9
-- **Conta Spotify** (Free ou Premium — player completo requer Premium)
-- **Aplicativo registrado no [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)**
+## 🧩 Desafios Técnicos Superados
 
-### Configuração do app no Spotify Dashboard
+### 1. Autenticação stateless com refresh token transparente
 
-1. Acesse o Dashboard e crie um novo app
-2. Em **Redirect URIs**, adicione: `http://127.0.0.1:5173/callback`
-3. Salve o **Client ID** — você vai precisar dele nas variáveis de ambiente
+Implementar PKCE sem backend exige cuidado: o `code_verifier` precisa sobreviver ao redirect para o Spotify e voltar, o `state` precisa ser validado contra CSRF, e o refresh token precisa ser persistido de forma segura no localStorage com controle de expiração. O `token-store.ts` gerencia expiração com buffer de 30 segundos, e o `refreshAccessToken()` em `spotify-auth.ts` usa uma promise singleton para evitar múltiplas requisições de refresh simultâneas (problema clássico em SPAs com múltiplos hooks disparando ao mesmo tempo).
 
----
+### 2. Dois modos de operação com um único flag
 
-## 🔑 Variáveis de Ambiente
+O projeto distingue **Modo Portfólio** (`VITE_ENABLE_REAL_AUDIO=false`, padrão) de **Modo Real** (`=true`). No Modo Portfólio, os scopes de streaming não são solicitados, a PlayerBar é ocultada e a PlayerPage funciona em modo somente leitura — ideal para demonstração sem conta Premium. No Modo Real, o `PlayerContext` inicializa o Spotify Web Playback SDK e registra o browser como dispositivo de reprodução; como o SDK exige Premium, as actions de controle são desabilitadas para usuários Free com feedback visual claro, sem erros silenciosos. A separação leitura/controle (`usePlaybackState` vs `PlayerContext`) garante que o estado atual do player é visível para qualquer usuário, independente do modo.
 
-Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+### 3. Design system fiel via CSS Custom Properties
 
-```env
-VITE_SPOTIFY_CLIENT_ID=seu_client_id_aqui
-VITE_SPOTIFY_REDIRECT_URI=http://127.0.0.1:5173/callback
-VITE_USE_MOCK=false
-VITE_ENABLE_REAL_AUDIO=false
-```
-
-| Variável | Obrigatória | Descrição |
-|----------|-------------|-----------|
-| `VITE_SPOTIFY_CLIENT_ID` | ✅ Sim | Client ID do seu app no Spotify Developer Dashboard |
-| `VITE_SPOTIFY_REDIRECT_URI` | ✅ Sim | URI de callback após login. Deve estar cadastrada no Dashboard |
-| `VITE_USE_MOCK` | ❌ Não | `true` para usar dados mockados localmente sem a API real |
-| `VITE_ENABLE_REAL_AUDIO` | ❌ Não | `false` (padrão) ativa o **Modo Portfólio**: sem PlayerBar, sem botões de play, PlayerPage somente leitura. `true` ativa o **Modo Real**: scopes de streaming completos + Web Playback SDK (requer conta Premium) |
-
-> **Segurança:** todas as variáveis `VITE_*` são embutidas no bundle de build. Nunca coloque `client_secret` aqui — este projeto propositalmente não usa client_secret (fluxo PKCE).
+Em vez de usar uma biblioteca de UI, todo o design foi implementado a partir de tokens extraídos do Figma (cores, tipografia, espaçamentos, glassmorphism) em `tokens.css`. Isso permitiu criar componentes pixel-perfect usando CSS Modules sem overhead de runtime, com fallbacks para navegadores sem suporte a `backdrop-filter`.
 
 ---
 
-## 🚀 Como Rodar o Projeto
+## 🤝 Como Contribuir
 
-```bash
-# 1. Clone o repositório
-git clone https://github.com/seu-usuario/spotify-profile-viewer.git
-cd spotify-profile-viewer
-
-# 2. Instale as dependências
-npm install
-
-# 3. Configure as variáveis de ambiente
-cp .env.example .env
-# Edite o .env com seu CLIENT_ID (veja a seção abaixo)
-
-# 4. Inicie o servidor de desenvolvimento
-npm run dev
-```
-
-Acesse **http://127.0.0.1:5173** no browser.
-
-> **Atenção:** use `127.0.0.1` e não `localhost` — o Spotify valida a URI de redirect exatamente como cadastrada no Dashboard.
-
-### Outros comandos
-
-```bash
-# Build de produção
-npm run build
-
-# Pré-visualizar o build de produção
-npm run preview
-
-# Lint
-npm run lint
-```
+1. Faça um fork do repositório
+2. Crie uma branch para sua feature: `git checkout -b feat/minha-feature`
+3. Commit suas mudanças: `git commit -m 'feat: adicionar X'`
+4. Push para a branch: `git push origin feat/minha-feature`
+5. Abra um Pull Request
 
 ---
-
 
 ## 📄 Licença
 
-Este projeto está sob a licença MIT.
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 ---
 
