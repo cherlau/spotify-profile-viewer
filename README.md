@@ -161,65 +161,6 @@ src/
 
 ---
 
-## 🚀 Como Rodar o Projeto
-
-```bash
-# 1. Clone o repositório
-git clone https://github.com/seu-usuario/spotify-profile-viewer.git
-cd spotify-profile-viewer
-
-# 2. Instale as dependências
-npm install
-
-# 3. Configure as variáveis de ambiente
-cp .env.example .env
-# Edite o .env com seu CLIENT_ID (veja a seção abaixo)
-
-# 4. Inicie o servidor de desenvolvimento
-npm run dev
-```
-
-Acesse **http://127.0.0.1:5173** no browser.
-
-> **Atenção:** use `127.0.0.1` e não `localhost` — o Spotify valida a URI de redirect exatamente como cadastrada no Dashboard.
-
-### Outros comandos
-
-```bash
-# Build de produção
-npm run build
-
-# Pré-visualizar o build de produção
-npm run preview
-
-# Lint
-npm run lint
-```
-
----
-
-## 🔑 Variáveis de Ambiente
-
-Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
-
-```env
-VITE_SPOTIFY_CLIENT_ID=seu_client_id_aqui
-VITE_SPOTIFY_REDIRECT_URI=http://127.0.0.1:5173/callback
-VITE_USE_MOCK=false
-VITE_ENABLE_REAL_AUDIO=false
-```
-
-| Variável | Obrigatória | Descrição |
-|----------|-------------|-----------|
-| `VITE_SPOTIFY_CLIENT_ID` | ✅ Sim | Client ID do seu app no Spotify Developer Dashboard |
-| `VITE_SPOTIFY_REDIRECT_URI` | ✅ Sim | URI de callback após login. Deve estar cadastrada no Dashboard |
-| `VITE_USE_MOCK` | ❌ Não | `true` para usar dados mockados localmente sem a API real |
-| `VITE_ENABLE_REAL_AUDIO` | ❌ Não | `false` (padrão) ativa o **Modo Portfólio**: sem PlayerBar, sem botões de play, PlayerPage somente leitura. `true` ativa o **Modo Real**: scopes de streaming completos + Web Playback SDK (requer conta Premium) |
-
-> **Segurança:** todas as variáveis `VITE_*` são embutidas no bundle de build. Nunca coloque `client_secret` aqui — este projeto propositalmente não usa client_secret (fluxo PKCE).
-
----
-
 ## 🔌 Endpoints da API Utilizados
 
 Todos os endpoints são do escopo `/me` da Spotify Web API v1.
@@ -276,13 +217,62 @@ Em vez de usar uma biblioteca de UI, todo o design foi implementado a partir de 
 
 ---
 
-## 🤝 Como Contribuir
+## 🚀 Como Rodar o Projeto
 
-1. Faça um fork do repositório
-2. Crie uma branch para sua feature: `git checkout -b feat/minha-feature`
-3. Commit suas mudanças: `git commit -m 'feat: adicionar X'`
-4. Push para a branch: `git push origin feat/minha-feature`
-5. Abra um Pull Request
+```bash
+# 1. Clone o repositório
+git clone https://github.com/seu-usuario/spotify-profile-viewer.git
+cd spotify-profile-viewer
+
+# 2. Instale as dependências
+npm install
+
+# 3. Configure as variáveis de ambiente
+cp .env.example .env
+# Edite o .env com seu CLIENT_ID (veja a seção abaixo)
+
+# 4. Inicie o servidor de desenvolvimento
+npm run dev
+```
+
+Acesse **http://127.0.0.1:5173** no browser.
+
+> **Atenção:** use `127.0.0.1` e não `localhost` — o Spotify valida a URI de redirect exatamente como cadastrada no Dashboard.
+
+### Outros comandos
+
+```bash
+# Build de produção
+npm run build
+
+# Pré-visualizar o build de produção
+npm run preview
+
+# Lint
+npm run lint
+```
+
+---
+
+## 🔑 Variáveis de Ambiente
+
+Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+
+```env
+VITE_SPOTIFY_CLIENT_ID=seu_client_id_aqui
+VITE_SPOTIFY_REDIRECT_URI=http://127.0.0.1:5173/callback
+VITE_USE_MOCK=false
+VITE_ENABLE_REAL_AUDIO=false
+```
+
+| Variável | Obrigatória | Descrição |
+|----------|-------------|-----------|
+| `VITE_SPOTIFY_CLIENT_ID` | ✅ Sim | Client ID do seu app no Spotify Developer Dashboard |
+| `VITE_SPOTIFY_REDIRECT_URI` | ✅ Sim | URI de callback após login. Deve estar cadastrada no Dashboard |
+| `VITE_USE_MOCK` | ❌ Não | `true` para usar dados mockados localmente sem a API real |
+| `VITE_ENABLE_REAL_AUDIO` | ❌ Não | `false` (padrão) ativa o **Modo Portfólio**: sem PlayerBar, sem botões de play, PlayerPage somente leitura. `true` ativa o **Modo Real**: scopes de streaming completos + Web Playback SDK (requer conta Premium) |
+
+> **Segurança:** todas as variáveis `VITE_*` são embutidas no bundle de build. Nunca coloque `client_secret` aqui — este projeto propositalmente não usa client_secret (fluxo PKCE).
 
 ---
 
