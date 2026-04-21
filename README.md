@@ -14,7 +14,7 @@
 
 ## 🎬 Vídeo de Demonstração
 
-[![Demonstração do Spotify Profile Viewer](https://img.youtube.com/vi/wJSPyZCUJUA/maxresdefault.jpg)](https://www.youtube.com/watch?v=wJSPyZCUJUA)
+[![Demonstração do Spotify Profile Viewer](https://img.youtube.com/vi/Xll5ZCf7Dhw/maxresdefault.jpg)](https://www.youtube.com/watch?v=Xll5ZCf7Dhw)
 
 ---
 
